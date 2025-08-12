@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "email": "admin@europlate.com",
+    "password": "admin123",
+    "name": "Administrador",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "email": "user@europlate.com",
+    "password": "user123",
+    "name": "Usuario",
+    "role": "user"
+  }
+]
