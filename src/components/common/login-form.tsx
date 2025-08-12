@@ -2,14 +2,43 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { useAuth } from "@/hooks/useAuth"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    const result = await login(email, password)
+    setLoading(false)
+
+    if (result.success) {
+      navigate("/dashboard") // Redirige al panel principal
+    } else {
+      setError(result.message)
+    }
+  }
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+      onSubmit={handleSubmit}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Inicia sesión en tu cuenta</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -24,6 +53,8 @@ export function LoginForm({
             id="email"
             type="email"
             placeholder="ejemplo@correo.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -38,11 +69,23 @@ export function LoginForm({
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
 
-        <Button type="submit" className="w-full cursor-pointer">
-          Iniciar sesión
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <Button
+          type="submit"
+          className="w-full cursor-pointer"
+          disabled={loading}
+        >
+          {loading ? "Iniciando..." : "Iniciar sesión"}
         </Button>
       </div>
 
