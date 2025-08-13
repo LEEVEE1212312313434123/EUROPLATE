@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom"
 import { GalleryVerticalEnd } from "lucide-react"
+import logoimg from '@/assets/img/image.png'
 
 export default function AuthenticationLayout() {
   return (
@@ -12,7 +13,14 @@ export default function AuthenticationLayout() {
           EuroPlate
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="text-primary-foreground text-center">
+          <div className="text-primary-foreground text-center flex flex-col items-center">
+            <div className="bg-primary p-6 rounded-md mb-4">
+              <img
+                src={logoimg}
+                alt="Logo"
+                className="w-64 h-64 object-contain"
+              />
+            </div>
             <h2 className="text-2xl font-bold">Bienvenido a EuroPlate</h2>
             <p className="mt-2 opacity-80">Disfruta de la mejor experiencia.</p>
           </div>

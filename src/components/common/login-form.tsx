@@ -27,7 +27,7 @@ export function LoginForm({
     setLoading(false)
 
     if (result.success) {
-      navigate("/dashboard") // Redirige al panel principal
+      navigate("/dashboard")
     } else {
       setError(result.message)
     }
@@ -40,7 +40,7 @@ export function LoginForm({
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Inicia sesión en tu cuenta</h1>
+        <h1 className="text-2xl font-bold">HOLA, BIENVENIDO!</h1>
         <p className="text-muted-foreground text-sm text-balance">
           Ingresa tu correo electrónico para acceder a tu cuenta
         </p>
@@ -80,13 +80,24 @@ export function LoginForm({
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <Button
-          type="submit"
-          className="w-full cursor-pointer"
-          disabled={loading}
-        >
-          {loading ? "Iniciando..." : "Iniciar sesión"}
-        </Button>
+        {/* Contenedor con menos espacio entre botones */}
+        <div className="grid gap-2">
+          <Button
+            type="submit"
+            className="w-full cursor-pointer"
+            disabled={loading}
+          >
+            {loading ? "Iniciando..." : "Iniciar sesión"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full text-black bg-white hover:bg-gray-100 border border-gray-300"
+            onClick={() => navigate(-1)}
+          >
+            Regresar
+          </Button>
+        </div>
       </div>
 
       <div className="text-center text-xs text-muted-foreground mt-4">
