@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom"
 import { GalleryVerticalEnd } from "lucide-react"
-import logoimg from '@/assets/img/image.png'
+import logoimg from '@/assets/img/imglogo.jpg'
 
 export default function AuthenticationLayout() {
   return (
