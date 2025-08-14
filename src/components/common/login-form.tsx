@@ -1,35 +1,35 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Link, useNavigate } from "react-router-dom"
-import { useState } from "react"
-import { useAuth } from "@/hooks/useAuth"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
-    const result = await login(email, password)
-    setLoading(false)
+    const result = await login(email, password);
+    setLoading(false);
 
     if (result.success) {
-      navigate("/dashboard")
+      toast.success(result.message, { description: "Bienvenido de nuevo" });
+      navigate("/dashboard");
     } else {
-      setError(result.message)
+      toast.error(result.message, { description: "Verifica tus credenciales e inténtalo de nuevo." });
     }
   }
 
@@ -78,7 +78,6 @@ export function LoginForm({
           />
         </div>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
         <div className="grid gap-2">
           <Button
             type="submit"
@@ -102,5 +101,5 @@ export function LoginForm({
         Acceso exclusivo para usuarios autorizados del sistema de gestión
       </div>
     </form>
-  )
+  );
 }
