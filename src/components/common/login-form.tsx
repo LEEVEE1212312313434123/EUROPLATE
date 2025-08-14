@@ -79,8 +79,6 @@ export function LoginForm({
         </div>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        {/* Contenedor con menos espacio entre botones */}
         <div className="grid gap-2">
           <Button
             type="submit"
@@ -101,8 +99,7 @@ export function LoginForm({
       </div>
 
       <div className="text-center text-xs text-muted-foreground mt-4">
-        Acceso exclusivo para usuarios autorizados del sistema de gestión de
-        almacén.
+        Acceso exclusivo para usuarios autorizados del sistema de gestión
       </div>
     </form>
   )

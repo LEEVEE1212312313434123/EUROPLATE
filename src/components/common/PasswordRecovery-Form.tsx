@@ -30,8 +30,6 @@ export function PasswordRecoveryForm({
             required
           />
         </div>
-
-        {/* Botones juntos */}
         <div className="grid gap-2">
           <Button type="submit" className="w-full cursor-pointer">
             Enviar enlace de recuperación
