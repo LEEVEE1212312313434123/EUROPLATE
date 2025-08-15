@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Product A",
+    "price": 100,
+    "stock": 10,
+    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
+    "discount": 0.1,
+    "dateAdded": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Product B",
+    "price": 200,
+    "stock": 5,
+    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
+    "discount": 0,
+    "dateAdded": "2024-02-01T14:30:00Z"
+  },
+  {
+    "id": 3,
+    "name": "Product C",
+    "price": 150,
+    "stock": 8,
+    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
+    "discount": 0.15,
+    "dateAdded": "2024-03-10T09:45:00Z"
+  }
+]
