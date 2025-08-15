@@ -1,14 +1,21 @@
 import {
-  IconPackage,IconHome, IconUsers, IconTruck,IconShoppingCart,IconSettings
-} from "@tabler/icons-react"
-import ProductosPage from "@/pages/productos/productos.page"
+  IconPackage,
+  IconHome,
+  IconUsers,
+  IconTruck,
+  IconShoppingCart,
+  IconSettings,
+} from "@tabler/icons-react";
+import ProductosPage from "@/pages/productos/productos.page";
+import EjemploPage from "@/pages/productos/ejemplo.page";
+import SoldProductsPage from "@/pages/productos/soldProducts.page";
 
 export const dashboardRoutes = [
   {
     title: "Dashboard",
     path: "/dashboard",
     icon: IconHome,
-    element: <ProductosPage />,
+    element: <SoldProductsPage />,
     showInSidebar: true,
   },
   {
@@ -22,28 +29,28 @@ export const dashboardRoutes = [
     title: "Clientes",
     path: "/clientes",
     icon: IconUsers,
-    element: <ProductosPage />,
+    element: <EjemploPage />,
     showInSidebar: true,
   },
   {
     title: "Logística",
     path: "/logistica",
     icon: IconTruck,
-    element: <ProductosPage />,
+    element: <EjemploPage />,
     showInSidebar: true,
   },
   {
     title: "Ventas",
     path: "/ventas",
     icon: IconShoppingCart,
-    element: <ProductosPage />,
+    element: <EjemploPage />,
     showInSidebar: true,
   },
   {
     title: "Configuración",
     path: "/configuracion",
     icon: IconSettings,
-    element: <ProductosPage />,
+    element: <EjemploPage />,
     showInSidebar: true,
-  }
-]
+  },
+];

@@ -1,6 +1,6 @@
-import { Outlet, useLocation } from "react-router-dom"
-import Sidebar from "@/components/common/sidebar"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { Outlet, useLocation } from "react-router-dom";
+import Sidebar from "@/components/common/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,17 +8,27 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Bell, Home } from "lucide-react"
-import { dashboardRoutes } from "@/config/dashboard-routes"
+} from "@/components/ui/breadcrumb";
+import { Bell, Home } from "lucide-react";
+import { dashboardRoutes } from "@/config/dashboard-routes";
 
 export default function DashboardLayout() {
-  const location = useLocation()
+  const location = useLocation();
 
-  // Buscar la ruta actual en dashboardRoutes
+  // Buscar la ruta base sin query params
   const currentRoute = dashboardRoutes.find(
     (route) => route.path === location.pathname
-  )
+  );
+
+  // Obtener el query param "tab" si existe
+  const searchParams = new URLSearchParams(location.search);
+  const tab = searchParams.get("tab");
+
+  // Texto para la pestaña activa en productos
+  const tabTitleMap: Record<string, string> = {
+    lista: "Lista Productos",
+    descuentos: "Descuentos",
+  };
 
   return (
     <SidebarProvider>
@@ -46,6 +56,16 @@ export default function DashboardLayout() {
                     </BreadcrumbPage>
                   </>
                 )}
+
+                {/* Mostrar la pestaña solo si estamos en /productos y hay tab */}
+                {currentRoute?.path === "/productos" && tab && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbPage className="text-primary font-semibold">
+                      {tabTitleMap[tab] ?? tab}
+                    </BreadcrumbPage>
+                  </>
+                )}
               </BreadcrumbList>
             </Breadcrumb>
 
@@ -67,5 +87,5 @@ export default function DashboardLayout() {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }
