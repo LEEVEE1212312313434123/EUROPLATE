@@ -27,7 +27,7 @@ export function ProductViewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Product Details</DialogTitle>
+          <DialogTitle>Detalles del Producto</DialogTitle>
         </DialogHeader>
 
         {/* Información del producto */}
@@ -35,20 +35,25 @@ export function ProductViewDialog({
           <div className="flex justify-center">
             <img
               src={product.image}
-              alt={product.name}
+              alt={product.productName}
               className="w-full h-48 object-cover rounded-md"
             />
           </div>
 
           <div className="grid gap-2">
             <div className="flex justify-between">
-              <strong>Name:</strong>
-              <span>{product.name}</span>
+              <strong>Nombre:</strong>
+              <span>{product.productName}</span>
             </div>
 
             <div className="flex justify-between">
-              <strong>Price:</strong>
-              <span>${product.price.toFixed(2)}</span>
+              <strong>Precio mínimo:</strong>
+              <span>${product.minPrice.toFixed(2)}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <strong>Precio máximo:</strong>
+              <span>${product.maxPrice.toFixed(2)}</span>
             </div>
 
             <div className="flex justify-between">
@@ -57,30 +62,28 @@ export function ProductViewDialog({
             </div>
 
             <div className="flex justify-between">
-              <strong>Discount:</strong>
-              <span>
-                {product.discount
-                  ? `${(product.discount * 100).toFixed(0)}%`
-                  : "No discount"}
-              </span>
+              <strong>Estado:</strong>
+              <span>{product.status}</span>
             </div>
 
             <div className="flex justify-between">
-              <strong>Date Added:</strong>
+              <strong>Fecha de alta:</strong>
               <span>{new Date(product.dateAdded).toLocaleDateString()}</span>
             </div>
 
+            {/* No hay campo descuento en tu JSON, así que lo omitimos */}
+
             <div className="flex justify-between">
-              <strong>ID:</strong>
-              <span>{product.id}</span>
+              <strong>Acción:</strong>
+              <span>{product.action}</span>
             </div>
           </div>
         </div>
 
-        {/* Pie de página con los botones */}
+        {/* Pie de página con botón cerrar */}
         <DialogFooter className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            Cerrar
           </Button>
         </DialogFooter>
       </DialogContent>

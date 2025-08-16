@@ -40,7 +40,8 @@ export function ProductDeleteDialog({
         <div className="py-4">
           <p>
             ¿Estás seguro que deseas eliminar el producto{" "}
-            <strong>{product.name}</strong>? Esta acción no se puede deshacer.
+            <strong>{product.productName}</strong>? Esta acción no se puede
+            deshacer.
           </p>
         </div>
 

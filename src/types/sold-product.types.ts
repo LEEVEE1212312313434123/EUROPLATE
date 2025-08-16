@@ -1,12 +1,10 @@
-// types/sold-product.types.ts
 export type SoldProduct = {
   id: number;
-  name: string;
-  soldPrice: number;
-  image: string;
-  stockSold: number;
-  subtotal: number;
-  discount: number;
+  productId: number;
+  productName: string;
+  unitPrice: number;
+  quantity: number;
   total: number;
-  saleDate: string;
+  dateSold: string;
+  image: string;
 };

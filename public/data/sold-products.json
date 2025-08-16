@@ -1,35 +1,32 @@
 [
   {
     "id": 1,
-    "name": "Product A",
-    "soldPrice": 100,
-    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
-    "stockSold": 2,
-    "subtotal": 200,
-    "discount": 0.1,
-    "total": 180,
-    "saleDate": "2025-08-13T15:30:00Z"
+    "productId": 1,
+    "productName": "Papel Foldcote 70xm 150g calibre 10 pliegos",
+    "unitPrice": 95,
+    "quantity": 3,
+    "total": 285,
+    "dateSold": "2025-08-01T10:15:00Z",
+    "image": "https://dummyimage.com/400x400/4c65bf/db398a"
   },
   {
     "id": 2,
-    "name": "Product B",
-    "soldPrice": 200,
-    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
-    "stockSold": 1,
-    "subtotal": 200,
-    "discount": 0,
-    "total": 200,
-    "saleDate": "2025-08-13T16:00:00Z"
+    "productId": 3,
+    "productName": "Papel Duplex 205g calibre 12 paquete pliegos",
+    "unitPrice": 130,
+    "quantity": 2,
+    "total": 260,
+    "dateSold": "2025-08-03T14:30:00Z",
+    "image": "https://dummyimage.com/400x400/4c65bf/db398a"
   },
   {
     "id": 3,
-    "name": "Product C",
-    "soldPrice": 150,
-    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
-    "stockSold": 3,
-    "subtotal": 450,
-    "discount": 0.15,
-    "total": 382.5,
-    "saleDate": "2025-08-13T16:45:00Z"
+    "productId": 2,
+    "productName": "papel Sueco 33sg calibre 22 paquete ICH) pliegos",
+    "unitPrice": 200,
+    "quantity": 1,
+    "total": 200,
+    "dateSold": "2025-08-10T09:00:00Z",
+    "image": "https://dummyimage.com/400x400/4c65bf/db398a"
   }
 ]

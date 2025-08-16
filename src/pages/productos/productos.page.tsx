@@ -35,15 +35,6 @@ export default function ProductosPage() {
         >
           Lista Productos
         </button>
-
-        <button
-          className={`px-3 py-1 border rounded cursor-pointer ${
-            activeTab === "descuentos" ? "bg-primary text-white" : ""
-          }`}
-          onClick={() => setActiveTab("descuentos")}
-        >
-          Descuentos
-        </button>
       </div>
 
       {activeTab === "lista" && <DashboardProducts />}
