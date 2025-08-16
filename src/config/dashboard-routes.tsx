@@ -28,18 +28,18 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
-    title: "Agregar Producto stp 1",
+    title: "Agregar Producto paso 1",
     path: "/productos/agregar1",
     icon: IconPackage,
     element: <AgregarProductosStep1 />,
-    showInSidebar: false, // 👈 ocultamos del sidebar
+    showInSidebar: false,
   },
   {
-    title: "Agregar Producto",
+    title: "Agregar Producto paso 2",
     path: "/productos/agregar2",
     icon: IconPackage,
     element: <AgregarProductosPage />,
-    showInSidebar: false, // 👈 ocultamos del sidebar
+    showInSidebar: false,
   },
   {
     title: "Clientes",
