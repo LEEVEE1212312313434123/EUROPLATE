@@ -9,6 +9,8 @@ import {
 import ProductosPage from "@/pages/productos/productos.page";
 import EjemploPage from "@/pages/productos/ejemplo.page";
 import SoldProductsPage from "@/pages/productos/soldProducts.page";
+import AgregarProductosPage from "@/pages/productos/Agregar.Productos"
+
 
 export const dashboardRoutes = [
   {
@@ -24,6 +26,13 @@ export const dashboardRoutes = [
     icon: IconPackage,
     element: <ProductosPage />,
     showInSidebar: true,
+  },
+  {
+    title: "Agregar Producto",
+    path: "/productos/agregar",
+    icon: IconPackage,
+    element: <AgregarProductosPage />,
+    showInSidebar: false, // 👈 ocultamos del sidebar
   },
   {
     title: "Clientes",

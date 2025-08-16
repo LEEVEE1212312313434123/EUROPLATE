@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { PRODUCTS_CONFIG } from "@/config/products.config";
 import type { Product } from "@/types/product.types";
 import { ProductEditDialog } from "@/components/common/product-edit-dialog";
-import { ProductDeleteDialog } from "@/components/common/product-delete-dialog"; // Diálogo de eliminar
+import { ProductDeleteDialog } from "@/components/common/product-delete-dialog";
 import {
   Table,
   TableBody,
@@ -12,7 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner";
+
 import { Trash, Edit, Download } from "lucide-react";
 
 export function DashboardProducts() {
@@ -31,9 +36,9 @@ export function DashboardProducts() {
 
   // Estado búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all"); // "all", "active", "inactive", etc
-  const [filterStockMin, setFilterStockMin] = useState<number | "">("");
-  const [filterMaxPrice, setFilterMaxPrice] = useState<number | "">("");
+  const [filterStatus, setFilterStatus] = useState<string>("all"); // "all", "product", "service"
+  const [filterActive, setFilterActive] = useState<string>("all"); // "all", "active", "inactive"
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function fetchProducts() {
@@ -57,7 +62,6 @@ export function DashboardProducts() {
 
   // Contadores para indicadores
   const totalItemsCount = products.length;
-  // Suposición: 'service' es un status que identifica servicios
   const totalServicesCount = products.filter(
     (p) => p.status.toLowerCase() === "service"
   ).length;
@@ -66,28 +70,25 @@ export function DashboardProducts() {
   // Filtrar productos según búsqueda y filtros
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      // Buscar por nombre
       if (
         searchTerm.trim() &&
         !p.productName.toLowerCase().includes(searchTerm.toLowerCase())
       )
         return false;
 
-      // Filtrar status
+      // Filtrar tipo
       if (filterStatus !== "all" && p.status.toLowerCase() !== filterStatus)
         return false;
 
-      // Filtrar stock mínimo
-      if (filterStockMin !== "" && p.stock < filterStockMin) return false;
-
-      // Filtrar precio máximo (usamos maxPrice para filtro)
-      if (filterMaxPrice !== "" && p.maxPrice > filterMaxPrice) return false;
+      // Filtrar activo/inactivo
+      if (filterActive !== "all" && p.active?.toLowerCase() !== filterActive)
+        return false;
 
       return true;
     });
-  }, [products, searchTerm, filterStatus, filterStockMin, filterMaxPrice]);
+  }, [products, searchTerm, filterStatus, filterActive]);
 
-  // Handlers para abrir diálogos
+  // Handlers
   const handleEditClick = (product: Product) => {
     setSelectedProductForEdit(product);
     setEditOpen(true);
@@ -98,7 +99,6 @@ export function DashboardProducts() {
     setDeleteOpen(true);
   };
 
-  // Confirmar eliminación
   const handleDeleteConfirm = (productId: number) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
     toast.success("Producto eliminado correctamente");
@@ -106,7 +106,6 @@ export function DashboardProducts() {
     setSelectedProductForDelete(null);
   };
 
-  // Guardar producto actualizado
   const handleSave = (updatedProduct: Product) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
@@ -116,7 +115,6 @@ export function DashboardProducts() {
     setSelectedProductForEdit(null);
   };
 
-  // Exportar CSV
   const handleExportCSV = () => {
     if (filteredProducts.length === 0) {
       toast.error("No hay productos para exportar");
@@ -129,6 +127,7 @@ export function DashboardProducts() {
       "Max Price",
       "Stock",
       "Status",
+      "Active"
     ];
     const rows = filteredProducts.map((p) => [
       `"${p.productName.replace(/"/g, '""')}"`,
@@ -136,6 +135,7 @@ export function DashboardProducts() {
       p.maxPrice.toFixed(2),
       p.stock.toString(),
       p.status,
+      p.active ?? "N/A",
     ]);
     const csvContent = [
       headers.join(","),
@@ -155,111 +155,125 @@ export function DashboardProducts() {
     toast.success("Exportación completada");
   };
 
-  if (loading) {
-    return <div className="p-6">Cargando productos...</div>;
-  }
-
-  if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
-  }
+  if (loading) return <div className="p-6">Cargando productos...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Listado de Productos</h2>
+      {/* Encabezado */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Productos</h2>
+          <p className="text-muted-foreground text-sm">
+            Administra todos los productos de tu empresa
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/productos/agregar")}
+          className="flex items-center gap-2"
+        >
+          + Agregar producto
+        </Button>
+      </div>
 
-      {/* Filtros y búsqueda */}
+      {/* Línea de separación */}
+      <hr className="mt-12 mb-6 border-t border-border" />
+
+      {/* Tabs de filtrado */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        {/* Indicadores a la izquierda */}
-        <div className="flex gap-3 flex-wrap items-center">
-          <div className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold select-none">
-            Total: {totalItemsCount}
-          </div>
-          <div className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-semibold select-none">
-            Productos: {totalProductsCount}
-          </div>
-          <div className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-semibold select-none">
-            Servicios: {totalServicesCount}
-          </div>
-        </div>
-
-        {/* Filtros */}
-        <div className="flex flex-wrap gap-3 items-center">
-          <select
-            className="border rounded-lg px-3 py-2 bg-background text-foreground shadow-sm focus:ring-2 focus:ring-primary focus:border-primary"
-            aria-label="Filtrar por estado"
+        <div className="flex items-center gap-4">
+          <Tabs
+            defaultValue="all"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onValueChange={setFilterStatus}
           >
-            <option value="all">Todos los estados</option>
-            {/* Ajusta estos valores según tus estados reales */}
-            <option value="active">Activo</option>
-            <option value="inactive">Inactivo</option>
-            <option value="service">Servicio</option>
-          </select>
+            <TabsList className="gap-2 bg-transparent">
+              <TabsTrigger
+                value="all"
+                className="
+                  px-5 py-3 text-sm font-medium 
+                  rounded-md border border-gray-300 
+                  data-[state=active]:bg-primary 
+                  data-[state=active]:text-primary-foreground 
+                  data-[state=active]:border-primary
+                "
+              >
+                Todos ({totalItemsCount})
+              </TabsTrigger>
+              <TabsTrigger
+                value="product"
+                className="
+                  px-5 py-3 text-sm font-medium 
+                  rounded-md border border-gray-300 
+                  data-[state=active]:bg-primary 
+                  data-[state=active]:text-primary-foreground 
+                  data-[state=active]:border-primary
+                "
+              >
+                Productos ({totalProductsCount})
+              </TabsTrigger>
+              <TabsTrigger
+                value="service"
+                className="
+                  px-5 py-3 text-sm font-medium 
+                  rounded-md border border-gray-300 
+                  data-[state=active]:bg-primary 
+                  data-[state=active]:text-primary-foreground 
+                  data-[state=active]:border-primary
+                "
+              >
+                Servicios ({totalServicesCount})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          <input
-            type="number"
-            min={0}
-            placeholder="Stock mínimo"
-            className="border rounded-lg px-3 py-2 w-36 bg-background text-foreground shadow-sm focus:ring-2 focus:ring-primary focus:border-primary"
-            aria-label="Filtrar por stock mínimo"
-            value={filterStockMin}
-            onChange={(e) =>
-              setFilterStockMin(
-                e.target.value === "" ? "" : Number(e.target.value)
-              )
-            }
-          />
-
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="Precio máximo"
-            className="border rounded-lg px-3 py-2 w-36 bg-background text-foreground shadow-sm focus:ring-2 focus:ring-primary focus:border-primary"
-            aria-label="Filtrar por precio máximo"
-            value={filterMaxPrice}
-            onChange={(e) =>
-              setFilterMaxPrice(
-                e.target.value === "" ? "" : Number(e.target.value)
-              )
-            }
-          />
+          {/* ComboBox de Status (Activos/Inactivos) */}
+          <Select value={filterActive} onValueChange={setFilterActive}>
+            <SelectTrigger className="w-40 border rounded-md shadow-sm focus:ring-2 focus:ring-primary">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="active">Activos</SelectItem>
+              <SelectItem value="inactive">Inactivos</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Búsqueda + export */}
+        {/* Buscador + Export */}
         <div className="flex gap-2 items-center">
-          <input
-            type="text"
-            placeholder="Buscar producto..."
-            className="border rounded-lg px-3 py-2 w-60 bg-background text-foreground shadow-sm focus:ring-2 focus:ring-primary focus:border-primary"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Buscar producto"
-          />
           <Button
             variant="outline"
             onClick={handleExportCSV}
             className="flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Exportar CSV
-          </Button>
+          ><Download className="w-4 h-4" />
+              Exportar CSV
+            </Button>
+          <Input
+            type="text"
+            placeholder="Buscar producto..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-60"
+          />
         </div>
       </div>
 
+      {/* Línea de separación */}
+      <hr className="border-t border-border" />
+
+      {/* Tabla */}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Product Name</TableHead>
-            <TableHead>Min Price</TableHead>
-            <TableHead>Max Price</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>Producto</TableHead>
+            <TableHead className="text-center w-[80px]">Precio Míni $</TableHead>
+            <TableHead className="text-center w-[80px]">Precio Max $</TableHead>
+            <TableHead className="text-center w-[80px]">Stock</TableHead>
+            <TableHead className="text-center w-[90px]">Estatus</TableHead>
+            <TableHead className="text-center w-[90px]">Acciones</TableHead>
           </TableRow>
         </TableHeader>
-
         <TableBody>
           {filteredProducts.length === 0 ? (
             <TableRow>
@@ -271,25 +285,29 @@ export function DashboardProducts() {
             filteredProducts.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.productName}</TableCell>
-                <TableCell>${product.minPrice.toFixed(2)}</TableCell>
-                <TableCell>${product.maxPrice.toFixed(2)}</TableCell>
-                <TableCell>{product.stock}</TableCell>
-                <TableCell>{product.status}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
+                <TableCell className="text-center w-[80px]">
+                  ${product.minPrice.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-center w-[80px]">
+                  ${product.maxPrice.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-center w-[80px]">{product.stock}</TableCell>
+                <TableCell className="text-center w-[90px]">{product.status}</TableCell>
+                <TableCell className="text-center w-[90px]">
+                  <div className="flex justify-center gap-1">
                     <Button
-                      variant="secondary"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleEditClick(product)}
-                      className="cursor-pointer flex items-center gap-1"
+                      className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button
-                      variant="destructive"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleDeleteClick(product)}
-                      className="cursor-pointer flex items-center gap-1"
+                      className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary"
                     >
                       <Trash className="w-4 h-4" />
                     </Button>
@@ -301,7 +319,8 @@ export function DashboardProducts() {
         </TableBody>
       </Table>
 
-      {/* Dialog para editar producto */}
+
+      {/* Diálogos */}
       {selectedProductForEdit && (
         <ProductEditDialog
           open={editOpen}
@@ -313,8 +332,6 @@ export function DashboardProducts() {
           onSave={handleSave}
         />
       )}
-
-      {/* Dialog para eliminar producto */}
       {selectedProductForDelete && (
         <ProductDeleteDialog
           open={deleteOpen}
