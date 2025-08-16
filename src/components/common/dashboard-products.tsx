@@ -13,11 +13,16 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
 import { Trash, Edit, Download } from "lucide-react";
 
 export function DashboardProducts() {
@@ -25,7 +30,6 @@ export function DashboardProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados para diálogos
   const [editOpen, setEditOpen] = useState(false);
   const [selectedProductForEdit, setSelectedProductForEdit] =
     useState<Product | null>(null);
@@ -34,11 +38,11 @@ export function DashboardProducts() {
   const [selectedProductForDelete, setSelectedProductForDelete] =
     useState<Product | null>(null);
 
-  // Estado búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all"); // "all", "product", "service"
-  const [filterActive, setFilterActive] = useState<string>("all"); // "all", "active", "inactive"
-  const navigate = useNavigate()
+  const [filterType, setFilterType] = useState<string>("all"); // "all", "product", "service"
+  const [filterStatus, setFilterStatus] = useState<string>("all"); // "all", "Available", etc.
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchProducts() {
@@ -60,14 +64,14 @@ export function DashboardProducts() {
     fetchProducts();
   }, []);
 
-  // Contadores para indicadores
   const totalItemsCount = products.length;
-  const totalServicesCount = products.filter(
-    (p) => p.status.toLowerCase() === "service"
+  const totalProductsCount = products.filter(
+    (p) => p.type === "product"
   ).length;
-  const totalProductsCount = totalItemsCount - totalServicesCount;
+  const totalServicesCount = products.filter(
+    (p) => p.type === "service"
+  ).length;
 
-  // Filtrar productos según búsqueda y filtros
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       if (
@@ -76,19 +80,14 @@ export function DashboardProducts() {
       )
         return false;
 
-      // Filtrar tipo
-      if (filterStatus !== "all" && p.status.toLowerCase() !== filterStatus)
-        return false;
+      if (filterType !== "all" && p.type !== filterType) return false;
 
-      // Filtrar activo/inactivo
-      if (filterActive !== "all" && p.active?.toLowerCase() !== filterActive)
-        return false;
+      if (filterStatus !== "all" && p.status !== filterStatus) return false;
 
       return true;
     });
-  }, [products, searchTerm, filterStatus, filterActive]);
+  }, [products, searchTerm, filterType, filterStatus]);
 
-  // Handlers
   const handleEditClick = (product: Product) => {
     setSelectedProductForEdit(product);
     setEditOpen(true);
@@ -127,16 +126,24 @@ export function DashboardProducts() {
       "Max Price",
       "Stock",
       "Status",
-      "Active"
+      "Type",
+      "Date Added",
+      "Action",
+      "Image",
     ];
+
     const rows = filteredProducts.map((p) => [
       `"${p.productName.replace(/"/g, '""')}"`,
       p.minPrice.toFixed(2),
       p.maxPrice.toFixed(2),
       p.stock.toString(),
       p.status,
-      p.active ?? "N/A",
+      p.type,
+      p.dateAdded,
+      p.action,
+      p.image,
     ]);
+
     const csvContent = [
       headers.join(","),
       ...rows.map((r) => r.join(",")),
@@ -160,7 +167,6 @@ export function DashboardProducts() {
 
   return (
     <div className="p-6">
-      {/* Encabezado */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold">Productos</h2>
@@ -169,86 +175,65 @@ export function DashboardProducts() {
           </p>
         </div>
         <Button
-          onClick={() => navigate("/productos/agregar")}
+          onClick={() => navigate("/productos/agregar1")}
           className="flex items-center gap-2"
         >
           + Agregar producto
         </Button>
       </div>
 
-      {/* Línea de separación */}
       <hr className="mt-12 mb-6 border-t border-border" />
 
-      {/* Tabs de filtrado */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Tabs
             defaultValue="all"
-            value={filterStatus}
-            onValueChange={setFilterStatus}
+            value={filterType}
+            onValueChange={setFilterType}
           >
             <TabsList className="gap-2 bg-transparent">
               <TabsTrigger
                 value="all"
-                className="
-                  px-5 py-3 text-sm font-medium 
-                  rounded-md border border-gray-300 
-                  data-[state=active]:bg-primary 
-                  data-[state=active]:text-primary-foreground 
-                  data-[state=active]:border-primary
-                "
+                className="px-5 py-3 text-sm font-medium rounded-md border border-gray-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary"
               >
                 Todos ({totalItemsCount})
               </TabsTrigger>
               <TabsTrigger
                 value="product"
-                className="
-                  px-5 py-3 text-sm font-medium 
-                  rounded-md border border-gray-300 
-                  data-[state=active]:bg-primary 
-                  data-[state=active]:text-primary-foreground 
-                  data-[state=active]:border-primary
-                "
+                className="px-5 py-3 text-sm font-medium rounded-md border border-gray-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary"
               >
                 Productos ({totalProductsCount})
               </TabsTrigger>
               <TabsTrigger
                 value="service"
-                className="
-                  px-5 py-3 text-sm font-medium 
-                  rounded-md border border-gray-300 
-                  data-[state=active]:bg-primary 
-                  data-[state=active]:text-primary-foreground 
-                  data-[state=active]:border-primary
-                "
+                className="px-5 py-3 text-sm font-medium rounded-md border border-gray-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary"
               >
                 Servicios ({totalServicesCount})
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
-          {/* ComboBox de Status (Activos/Inactivos) */}
-          <Select value={filterActive} onValueChange={setFilterActive}>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-40 border rounded-md shadow-sm focus:ring-2 focus:ring-primary">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="active">Activos</SelectItem>
-              <SelectItem value="inactive">Inactivos</SelectItem>
+              <SelectItem value="Available">Disponible</SelectItem>
+              {/* Agrega más estados si en el futuro hay más */}
             </SelectContent>
           </Select>
         </div>
 
-        {/* Buscador + Export */}
         <div className="flex gap-2 items-center">
           <Button
             variant="outline"
             onClick={handleExportCSV}
             className="flex items-center gap-2"
-          ><Download className="w-4 h-4" />
-              Exportar CSV
-            </Button>
+          >
+            <Download className="w-4 h-4" />
+            Exportar CSV
+          </Button>
           <Input
             type="text"
             placeholder="Buscar producto..."
@@ -259,15 +244,15 @@ export function DashboardProducts() {
         </div>
       </div>
 
-      {/* Línea de separación */}
       <hr className="border-t border-border" />
 
-      {/* Tabla */}
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Producto</TableHead>
-            <TableHead className="text-center w-[80px]">Precio Míni $</TableHead>
+            <TableHead className="text-center w-[80px]">
+              Precio Míni $
+            </TableHead>
             <TableHead className="text-center w-[80px]">Precio Max $</TableHead>
             <TableHead className="text-center w-[80px]">Stock</TableHead>
             <TableHead className="text-center w-[90px]">Estatus</TableHead>
@@ -291,8 +276,12 @@ export function DashboardProducts() {
                 <TableCell className="text-center w-[80px]">
                   ${product.maxPrice.toFixed(2)}
                 </TableCell>
-                <TableCell className="text-center w-[80px]">{product.stock}</TableCell>
-                <TableCell className="text-center w-[90px]">{product.status}</TableCell>
+                <TableCell className="text-center w-[80px]">
+                  {product.stock}
+                </TableCell>
+                <TableCell className="text-center w-[90px]">
+                  {product.status}
+                </TableCell>
                 <TableCell className="text-center w-[90px]">
                   <div className="flex justify-center gap-1">
                     <Button
@@ -319,8 +308,6 @@ export function DashboardProducts() {
         </TableBody>
       </Table>
 
-
-      {/* Diálogos */}
       {selectedProductForEdit && (
         <ProductEditDialog
           open={editOpen}

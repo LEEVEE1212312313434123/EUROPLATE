@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { updateProduct } from "@/services/products.service";
 
 interface ProductEditDialogProps {
   open: boolean;
@@ -38,13 +39,17 @@ export function ProductEditDialog({
   }, [product]);
 
   const handleSave = () => {
-    onSave({
+    const updatedProduct: Product = {
       ...product,
       productName,
       minPrice,
       maxPrice,
       stock,
-    });
+    };
+
+    updateProduct(updatedProduct); // 👈 actualizamos la copia del servicio
+
+    onSave(updatedProduct); // 👈 si el componente padre necesita enterarse
     onClose();
   };
 

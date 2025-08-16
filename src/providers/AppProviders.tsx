@@ -1,8 +1,8 @@
-import type { ReactNode } from "react"
-import { Toaster } from "sonner"
+import type { ReactNode } from "react";
+import { Toaster } from "sonner";
 
 interface AppProvidersProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
@@ -21,5 +21,5 @@ export function AppProviders({ children }: AppProvidersProps) {
         }}
       />
     </>
-  )
+  );
 }

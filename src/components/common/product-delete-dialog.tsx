@@ -9,6 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import type { Product } from "@/types/product.types";
+import { deleteProduct } from "@/services/products.service";
 
 interface ProductDeleteDialogProps {
   product: Product | null;
@@ -26,8 +27,9 @@ export function ProductDeleteDialog({
   if (!product) return null;
 
   const handleDelete = () => {
-    onDeleteConfirm(product.id);
-    onOpenChange(false);
+    deleteProduct(product.id); // 👈 eliminamos del servicio
+    onDeleteConfirm(product.id); // 👈 notificamos al padre si hace falta
+    onOpenChange(false); // 👈 cerramos el diálogo
   };
 
   return (
