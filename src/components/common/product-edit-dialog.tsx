@@ -24,22 +24,25 @@ export function ProductEditDialog({
   onClose,
   onSave,
 }: ProductEditDialogProps) {
-  const [name, setName] = useState(product.name);
-  const [price, setPrice] = useState(product.price);
+  const [productName, setProductName] = useState(product.productName);
+  const [minPrice, setMinPrice] = useState(product.minPrice);
+  const [maxPrice, setMaxPrice] = useState(product.maxPrice);
   const [stock, setStock] = useState(product.stock);
 
-  // Actualizar estado cuando cambie el producto (para reabrir con nuevo producto)
+  // Update state when product changes
   useEffect(() => {
-    setName(product.name);
-    setPrice(product.price);
+    setProductName(product.productName);
+    setMinPrice(product.minPrice);
+    setMaxPrice(product.maxPrice);
     setStock(product.stock);
   }, [product]);
 
   const handleSave = () => {
     onSave({
       ...product,
-      name,
-      price,
+      productName,
+      minPrice,
+      maxPrice,
       stock,
     });
     onClose();
@@ -49,33 +52,46 @@ export function ProductEditDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Editar Producto</DialogTitle>
+          <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-1">
-            <Label htmlFor="id">ID (no editable)</Label>
+            <Label htmlFor="id">ID (not editable)</Label>
             <Input id="id" value={product.id} disabled />
           </div>
 
           <div className="grid gap-1">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="productName">Product Name</Label>
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="productName"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
               autoFocus
             />
           </div>
 
           <div className="grid gap-1">
-            <Label htmlFor="price">Precio</Label>
+            <Label htmlFor="minPrice">Min Price</Label>
             <Input
-              id="price"
+              id="minPrice"
               type="number"
-              value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
+              value={minPrice}
+              onChange={(e) => setMinPrice(Number(e.target.value))}
               min={0}
+              step="0.01"
+            />
+          </div>
+
+          <div className="grid gap-1">
+            <Label htmlFor="maxPrice">Max Price</Label>
+            <Input
+              id="maxPrice"
+              type="number"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              min={minPrice}
+              step="0.01"
             />
           </div>
 
@@ -93,9 +109,9 @@ export function ProductEditDialog({
 
         <DialogFooter className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancelar
+            Cancel
           </Button>
-          <Button onClick={handleSave}>Guardar</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

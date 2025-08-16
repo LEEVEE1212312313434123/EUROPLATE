@@ -35,7 +35,7 @@ export function SoldProductDialog({
           <div className="flex justify-center">
             <img
               src={product.image}
-              alt={product.name}
+              alt={product.productName}
               className="w-full h-48 object-cover rounded-md"
             />
           </div>
@@ -44,31 +44,17 @@ export function SoldProductDialog({
           <div className="grid gap-2">
             <div className="flex justify-between">
               <strong>Nombre:</strong>
-              <span>{product.name}</span>
+              <span>{product.productName}</span>
             </div>
 
             <div className="flex justify-between">
               <strong>Precio unitario:</strong>
-              <span>${product.soldPrice.toFixed(2)}</span>
+              <span>${product.unitPrice.toFixed(2)}</span>
             </div>
 
             <div className="flex justify-between">
-              <strong>Unidades vendidas:</strong>
-              <span>{product.stockSold}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <strong>Subtotal:</strong>
-              <span>${product.subtotal.toFixed(2)}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <strong>Descuento:</strong>
-              <span>
-                {product.discount > 0
-                  ? `${(product.discount * 100).toFixed(0)}%`
-                  : "Sin descuento"}
-              </span>
+              <strong>Cantidad vendida:</strong>
+              <span>{product.quantity}</span>
             </div>
 
             <div className="flex justify-between">
@@ -78,7 +64,7 @@ export function SoldProductDialog({
 
             <div className="flex justify-between">
               <strong>Fecha de venta:</strong>
-              <span>{new Date(product.saleDate).toLocaleString()}</span>
+              <span>{new Date(product.dateSold).toLocaleString("es-ES")}</span>
             </div>
 
             <div className="flex justify-between">

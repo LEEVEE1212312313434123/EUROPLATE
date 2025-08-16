@@ -6,16 +6,13 @@ export default function SoldProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
 
-  // Validar el tab actual, default "lista"
   const activeTab = tabParam === "analisis" ? "analisis" : "lista";
 
-  // Cambiar el tab actual y actualizar query param
   const setActiveTab = (tab: "lista" | "analisis") => {
     setSearchParams({ tab });
   };
 
   useEffect(() => {
-    // Si no hay query param, lo ponemos por defecto para que se refleje en URL
     if (!tabParam) {
       setSearchParams({ tab: "lista" });
     }

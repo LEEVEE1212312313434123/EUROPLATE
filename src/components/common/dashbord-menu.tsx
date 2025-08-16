@@ -1,9 +1,7 @@
-// dashboard-menu.tsx
-
 import { useEffect, useState } from "react";
 import { SOLD_PRODUCTS_CONFIG } from "@/config/sold-products.config";
 import type { SoldProduct } from "@/types/sold-product.types";
-import { SoldProductDialog } from "@/components/common/sold-product-dialog"; // ✅ Usa el nuevo dialog
+import { SoldProductDialog } from "@/components/common/sold-product-dialog";
 import {
   Table,
   TableBody,
@@ -49,7 +47,7 @@ export function DashboardMenu() {
   const handleViewClick = (product: SoldProduct) => {
     setSelectedProductForView(product);
     setViewOpen(true);
-    toast.info(`Abriendo detalles de "${product.name}"`);
+    toast.info(`Abriendo detalles de "${product.productName}"`);
   };
 
   if (loading) return <div className="p-6">Cargando productos vendidos...</div>;
@@ -62,13 +60,11 @@ export function DashboardMenu() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nombre</TableHead>
+            <TableHead>Producto</TableHead>
             <TableHead>Precio Unitario</TableHead>
-            <TableHead>Unidades</TableHead>
-            <TableHead>Subtotal</TableHead>
-            <TableHead>Descuento</TableHead>
+            <TableHead>Cantidad</TableHead>
             <TableHead>Total</TableHead>
-            <TableHead>Fecha</TableHead>
+            <TableHead>Fecha de Venta</TableHead>
             <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -76,21 +72,24 @@ export function DashboardMenu() {
         <TableBody>
           {soldProducts.map((product) => (
             <TableRow key={product.id}>
-              <TableCell>{product.name}</TableCell>
-              <TableCell>${product.soldPrice}</TableCell>
-              <TableCell>{product.stockSold}</TableCell>
-              <TableCell>${product.subtotal}</TableCell>
-              <TableCell>{product.discount * 100}%</TableCell>
-              <TableCell>${product.total}</TableCell>
+              <TableCell>{product.productName}</TableCell>
+              <TableCell>${product.unitPrice.toFixed(2)}</TableCell>
+              <TableCell>{product.quantity}</TableCell>
+              <TableCell>${product.total.toFixed(2)}</TableCell>
               <TableCell>
-                {new Date(product.saleDate).toLocaleString()}
+                {new Date(product.dateSold).toLocaleDateString("es-ES", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </TableCell>
               <TableCell>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleViewClick(product)}
-                  className="cursor-pointer"
                 >
                   Ver
                 </Button>
@@ -100,7 +99,6 @@ export function DashboardMenu() {
         </TableBody>
       </Table>
 
-      {/* Diálogo para ver producto vendido */}
       {selectedProductForView && (
         <SoldProductDialog
           open={viewOpen}

@@ -24,10 +24,15 @@ export default function DashboardLayout() {
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get("tab");
 
-  // Texto para la pestaña activa en productos
-  const tabTitleMap: Record<string, string> = {
+  // Mapas de títulos para tabs por ruta
+  const tabTitleMapProductos: Record<string, string> = {
     lista: "Lista Productos",
     descuentos: "Descuentos",
+  };
+
+  const tabTitleMapSoldProducts: Record<string, string> = {
+    lista: "Lista",
+    analisis: "Análisis",
   };
 
   return (
@@ -57,12 +62,22 @@ export default function DashboardLayout() {
                   </>
                 )}
 
-                {/* Mostrar la pestaña solo si estamos en /productos y hay tab */}
+                {/* Mostrar pestaña para /productos */}
                 {currentRoute?.path === "/productos" && tab && (
                   <>
                     <BreadcrumbSeparator />
                     <BreadcrumbPage className="text-primary font-semibold">
-                      {tabTitleMap[tab] ?? tab}
+                      {tabTitleMapProductos[tab] ?? tab}
+                    </BreadcrumbPage>
+                  </>
+                )}
+
+                {/* Mostrar pestaña para /dashboard (SoldProductsPage) */}
+                {currentRoute?.path === "/dashboard" && tab && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbPage className="text-primary font-semibold">
+                      {tabTitleMapSoldProducts[tab] ?? tab}
                     </BreadcrumbPage>
                   </>
                 )}
