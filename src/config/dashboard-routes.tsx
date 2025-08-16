@@ -9,8 +9,8 @@ import {
 import ProductosPage from "@/pages/productos/productos.page";
 import EjemploPage from "@/pages/productos/ejemplo.page";
 import SoldProductsPage from "@/pages/productos/soldProducts.page";
-import AgregarProductosPage from "@/pages/productos/Agregar.Productos"
-
+import AgregarProductosPage from "@/pages/productos/Agregar.Productos";
+import AgregarProductosStep1 from "@/pages/productos/Agregar-productos-stp1.page";
 
 export const dashboardRoutes = [
   {
@@ -28,8 +28,15 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
+    title: "Agregar Producto stp 1",
+    path: "/productos/agregar1",
+    icon: IconPackage,
+    element: <AgregarProductosStep1 />,
+    showInSidebar: false, // 👈 ocultamos del sidebar
+  },
+  {
     title: "Agregar Producto",
-    path: "/productos/agregar",
+    path: "/productos/agregar2",
     icon: IconPackage,
     element: <AgregarProductosPage />,
     showInSidebar: false, // 👈 ocultamos del sidebar

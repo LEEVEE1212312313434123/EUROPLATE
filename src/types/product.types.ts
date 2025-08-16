@@ -8,4 +8,5 @@ export interface Product {
   action: string;
   dateAdded: string;
   image: string;
+  type: "product" | "service";
 }
