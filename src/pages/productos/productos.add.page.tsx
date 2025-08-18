@@ -1,0 +1,75 @@
+import { useState } from "react";
+import { Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import ProductosAgregarForm from "@/components/common/Producto/productos.Agregar.form";
+import ProductosAgregarPreciosForm from "@/components/common/Producto/productos.AgregarPrecios.form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export default function AgregarProductosPage() {
+  const navigate = useNavigate();
+  const [categoria, setCategoria] = useState<string>("");
+  const [step, setStep] = useState<number>(1);
+  const [productosStep1, setProductosStep1] = useState<any[]>([]);
+
+  return (
+    <div className="space-y-6 ml-6">
+      <div className="flex items-start gap-4">
+        <Package className="h-12 w-12 text-primary mt-1" />
+        <div className="flex flex-col">
+          <h1 className="text-xl font-semibold">Nuevo Producto</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Completa los datos base para cada producto
+          </p>
+
+          {step === 1 && (
+            <div className="mt-6 ml-[36px]">
+              <label className="block text-base font-semibold mb-1">
+                Categoría
+              </label>
+              <Select
+                value={categoria}
+                onValueChange={(value) => setCategoria(value)}
+                disabled={step > 1} 
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Selecciona una categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Papel">Papel</SelectItem>
+                  <SelectItem value="Cartón">Cartón</SelectItem>
+                  <SelectItem value="Hoja">Hoja</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-10 ml-[100px] max-w-6xl">
+        {step === 1 && (
+          <ProductosAgregarForm
+            navigate={navigate}
+            categoria={categoria}
+            onNext={(productos) => {
+              setProductosStep1(productos);
+              setStep(2);
+            }}
+          />
+        )}
+
+        {step === 2 && (
+          <ProductosAgregarPreciosForm
+            navigate={navigate}
+            productosPrevios={productosStep1}
+          />
+        )}
+      </div>
+    </div>
+  );
+}

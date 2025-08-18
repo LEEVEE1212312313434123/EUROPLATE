@@ -1,41 +1,26 @@
-import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { DashboardProducts } from "@/components/common/dashboard-products";
-import { DashboardProductsDiscount } from "@/components/common/dashboard-products-discount";
-import { DashboardTabs } from "@/components/common/dashboard-tabs";
-import { List, Percent } from "lucide-react";
+import { ProductsForm } from "@/components/common/Forms/products-form";
+import { DashboardProductsDiscount } from "@/components/common/Forms/products-Discotinued-form";
+import { DashboardTabs } from "@/components/common/Dashboards/dashboard-tabs";
+import { useQueryTabs } from "@/hooks/useQueryTabs";
+import { TABS_CONFIG } from "@/config/tabs.config";
 
 export default function ProductosPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tabParam = searchParams.get("tab");
-
-  const activeTab = tabParam === "descuentos" ? "descuentos" : "lista";
-
-  const setActiveTab = (tab: string) => {
-    setSearchParams({ tab });
-  };
-
-  useEffect(() => {
-    if (!tabParam) {
-      setSearchParams({ tab: "lista" });
-    }
-  }, [tabParam, setSearchParams]);
-
-  const tabs = [
-    { value: "lista", label: "Lista Productos", icon: <List size={16} /> },
-    { value: "descuentos", label: "Descuentos", icon: <Percent size={16} /> },
-  ];
+  const { activeTab, setActiveTab } = useQueryTabs("lista");
 
   return (
-  <div>
-    <div className="inline-flex">
-      <DashboardTabs activeTab={activeTab} onChange={setActiveTab} tabs={tabs} />
-    </div>
+    <div>
+      <div className="inline-flex">
+        <DashboardTabs
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          tabs={TABS_CONFIG.productos}
+        />
+      </div>
 
-    <div className="mt-4">
-      {activeTab === "lista" && <DashboardProducts />}
-      {activeTab === "descuentos" && <DashboardProductsDiscount />}
+      <div className="mt-4">
+        {activeTab === "lista" && <ProductsForm />}
+        {activeTab === "descuentos" && <DashboardProductsDiscount />}
+      </div>
     </div>
-  </div>
-);
+  );
 }

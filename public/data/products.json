@@ -1,38 +1,95 @@
 [
   {
     "id": 1,
-    "productName": "Papel Foldcote 70xm 150g calibre 10 pliegos",
-    "minPrice": 90,
-    "maxPrice": 100,
-    "stock": 10,
-    "status": "Available",
-    "action": "View",
-    "dateAdded": "2024-01-15T10:00:00Z",
-    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
-    "type": "product"
+    "nombre_producto": "Papel Foldcote",
+    "categoria": "Papel",
+    "material": {
+      "tipo": "Foldcote",
+      "dimensiones": {
+        "ancho_cm": 70,
+        "largo_cm": 100
+      },
+      "gramaje_g": 150,
+      "calibre": 10,
+      "pliegos_por_paquete": 500,
+      "unidad_medida": "Paquete"
+    },
+    "precio": {
+      "precio_min": 90,
+      "precio_max": 100,
+      "moneda": "USD"
+    },
+    "almacen": {
+      "stock_actual": 10,
+      "stock_minimo": 3,
+      "ubicacion": "Almacén Central - Estante A1"
+    },
+    "estado": "Activo",
+    "accion": "Ver",
+    "fecha_registro": "2024-01-15T10:00:00Z",
+    "imagen": "https://dummyimage.com/400x400/4c65bf/db398a",
+    "tipo": "servicio"
   },
   {
     "id": 2,
-    "productName": "papel Sueco 33sg calibre 22 paquete ICH) pliegos",
-    "minPrice": 200,
-    "maxPrice": 200,
-    "stock": 5,
-    "status": "Available",
-    "action": "View",
-    "dateAdded": "2024-02-01T14:30:00Z",
-    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
-    "type": "product"
+    "nombre_producto": "Papel Sueco",
+    "categoria": "Papel",
+    "material": {
+      "tipo": "Sueco",
+      "dimensiones": {
+        "ancho_cm": 65,
+        "largo_cm": 95
+      },
+      "gramaje_g": 133,
+      "calibre": 22,
+      "pliegos_por_paquete": 400,
+      "unidad_medida": "hojas"
+    },
+    "precio": {
+      "precio_min": 200,
+      "precio_max": 200,
+      "moneda": "USD"
+    },
+    "almacen": {
+      "stock_actual": 5,
+      "stock_minimo": 2,
+      "ubicacion": "Almacén Central - Estante B3"
+    },
+    "estado": "Disponible",
+    "accion": "Ver",
+    "fecha_registro": "2024-02-01T14:30:00Z",
+    "imagen": "https://dummyimage.com/400x400/4c65bf/db398a",
+    "tipo": "producto"
   },
   {
     "id": 3,
-    "productName": "Papel Duplex 205g calibre 12 paquete pliegos",
-    "minPrice": 127.5,
-    "maxPrice": 150,
-    "stock": 8,
-    "status": "Available",
-    "action": "View",
-    "dateAdded": "2024-03-10T09:45:00Z",
-    "image": "https://dummyimage.com/400x400/4c65bf/db398a",
-    "type": "product"
+    "nombre_producto": "Cartón Duplex",
+    "categoria": "Cartón",
+    "material": {
+      "tipo": "Duplex",
+      "dimensiones": {
+        "ancho_cm": 80,
+        "largo_cm": 120
+      },
+      "gramaje_g": 205,
+      "calibre": 12,
+      "pliegos_por_paquete": 250,
+      "unidad_medida": "hojas"
+    },
+    "precio": {
+      "precio_min": 127.5,
+      "precio_max": 150,
+      "moneda": "USD"
+    },
+    "almacen": {
+      "stock_actual": 8,
+      "stock_minimo": 2,
+      "ubicacion": "Almacén Secundario - Estante C2"
+    },
+    "estado": "Disponible",
+    "accion": "Ver",
+    "fecha_registro": "2024-03-10T09:45:00Z",
+    "imagen": "https://dummyimage.com/400x400/4c65bf/db398a",
+    "tipo": "producto"
   }
 ]

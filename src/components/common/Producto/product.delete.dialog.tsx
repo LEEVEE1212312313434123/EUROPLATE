@@ -9,7 +9,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import type { Product } from "@/types/product.types";
-import { deleteProduct } from "@/services/products.service";
 
 interface ProductDeleteDialogProps {
   product: Product | null;
@@ -27,9 +26,8 @@ export function ProductDeleteDialog({
   if (!product) return null;
 
   const handleDelete = () => {
-    deleteProduct(product.id); // 👈 eliminamos del servicio
-    onDeleteConfirm(product.id); // 👈 notificamos al padre si hace falta
-    onOpenChange(false); // 👈 cerramos el diálogo
+    onDeleteConfirm(product.id);
+    onOpenChange(false);
   };
 
   return (
@@ -42,7 +40,7 @@ export function ProductDeleteDialog({
         <div className="py-4">
           <p>
             ¿Estás seguro que deseas eliminar el producto{" "}
-            <strong>{product.productName}</strong>? Esta acción no se puede
+            <strong>{product.nombre_producto}</strong>? Esta acción no se puede
             deshacer.
           </p>
         </div>

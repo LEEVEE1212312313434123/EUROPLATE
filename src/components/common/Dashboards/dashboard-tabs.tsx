@@ -23,10 +23,8 @@ export function DashboardTabs({ activeTab, onChange, tabs }: DashboardTabsProps)
             key={tab.value}
             value={tab.value}
             className={cn(
-              // base
-              "relative rounded-none px-3 py-2 text-sm font-medium text-muted-foreground",
+              "relative rounded-none px-3 py-2 text-sm font-medium text-muted-foreground cursor-pointer",
               "data-[state=active]:text-primary data-[state=active]:shadow-none",
-              // subrayado solo activo
               "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-transparent",
               "data-[state=active]:after:bg-primary"
             )}

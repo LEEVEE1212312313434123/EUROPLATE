@@ -3,14 +3,20 @@
     "id": 1,
     "email": "admin@europlate.com",
     "password": "admin123",
-    "name": "Administrador",
-    "role": "admin"
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "profileIcon": "/images/profiles/admin.png",
+    "role": "admin",
+    "lastLogin": "2025-08-17T12:00:00Z"
   },
   {
     "id": 2,
     "email": "user@europlate.com",
     "password": "user123",
-    "name": "Usuario",
-    "role": "user"
+    "firstName": "María",
+    "lastName": "García",
+    "profileIcon": "/images/profiles/user.png",
+    "role": "user",
+    "lastLogin": "2025-08-16T15:30:00Z"
   }
 ]
