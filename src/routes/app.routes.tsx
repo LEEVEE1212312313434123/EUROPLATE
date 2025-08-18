@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import AuthenticationLayout from "@/layout/authentication.layout"
 import DashboardLayout from "@/layout/dashboard.layout"
 import LoginPage from "@/pages/auth/login.page"
@@ -10,7 +10,8 @@ export function AppRoutes() {
   return (
     <Router>
       <Routes>
-        {/* Auth */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
         <Route element={<AuthenticationLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/recovery-password" element={<PasswordRecoveryForm />} />
