@@ -6,7 +6,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
-import { dashboardRoutes } from "@/config/dashboard-routes";
+import { dashboardRoutes } from "@/config/dashboard.routes";
 
 export default function Sidebar() {
   const menuItems = dashboardRoutes.filter((route) => route.showInSidebar);

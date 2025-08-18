@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { PRODUCTS_CONFIG } from "@/config/products.config";
 import type { Product } from "@/types/product.types";
-import { ProductEditDialog } from "@/components/common/product-edit-dialog";
-import { ProductViewDialog } from "@/components/common/product-view-dialog";
-import { ProductDeleteDialog } from "@/components/common/product-delete-dialog";
+import { ProductEditDialog } from "@/components/common/Producto/products.edit.dialog";
+import { ProductDeleteDialog } from "@/components/common/Producto/product.delete.dialog";
 
 import {
   Table,
@@ -25,10 +24,6 @@ export function DashboardProductsDiscount() {
   const [selectedProductForEdit, setSelectedProductForEdit] =
     useState<Product | null>(null);
 
-  const [viewOpen, setViewOpen] = useState(false);
-  const [selectedProductForView, setSelectedProductForView] =
-    useState<Product | null>(null);
-
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProductForDelete, setSelectedProductForDelete] =
     useState<Product | null>(null);
@@ -42,9 +37,9 @@ export function DashboardProductsDiscount() {
         }
         const data: Product[] = await res.json();
 
-        // Filtrar solo productos con descuento
+        // 🔹 Filtrar productos con descuentos
         const discounted = data.filter(
-          (product) => product.minPrice < product.maxPrice
+          (product) => product.precio.precio_min < product.precio.precio_max
         );
         setProducts(discounted);
       } catch (err) {
@@ -58,17 +53,12 @@ export function DashboardProductsDiscount() {
     fetchProducts();
   }, []);
 
-  if (loading) return <div className="p-6">Loading discounted products...</div>;
+  if (loading) return <div className="p-6">Cargando productos con descuento...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   const handleEditClick = (product: Product) => {
     setSelectedProductForEdit(product);
     setEditOpen(true);
-  };
-
-  const handleViewClick = (product: Product) => {
-    setSelectedProductForView(product);
-    setViewOpen(true);
   };
 
   const handleDeleteClick = (product: Product) => {
@@ -78,7 +68,7 @@ export function DashboardProductsDiscount() {
 
   const handleDeleteConfirm = (productId: number) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
-    toast.success("Product deleted successfully");
+    toast.success("Producto eliminado correctamente");
     setDeleteOpen(false);
   };
 
@@ -86,60 +76,51 @@ export function DashboardProductsDiscount() {
     setProducts((prev) =>
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
-    toast.success("Product updated successfully");
+    toast.success("Producto actualizado correctamente");
     setEditOpen(false);
   };
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Discounted Products</h2>
+      <h2 className="text-2xl font-bold mb-4">Productos con Descuento</h2>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead>Min Price</TableHead>
-            <TableHead>Max Price</TableHead>
+            <TableHead>Producto</TableHead>
+            <TableHead>Precio Mínimo</TableHead>
+            <TableHead>Precio Máximo</TableHead>
             <TableHead>Stock</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Date Added</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead>Fecha Registro</TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {products.map((product) => (
             <TableRow key={product.id}>
-              <TableCell>{product.productName}</TableCell>
-              <TableCell>${product.minPrice}</TableCell>
-              <TableCell>${product.maxPrice}</TableCell>
-              <TableCell>{product.stock}</TableCell>
-              <TableCell>{product.status}</TableCell>
-              <TableCell>
-                {new Date(product.dateAdded).toLocaleDateString()}
-              </TableCell>
+              <TableCell>{product.nombre_producto}</TableCell>
+              <TableCell>${product.precio.precio_min}</TableCell>
+              <TableCell>${product.precio.precio_max}</TableCell>
+              <TableCell>{product.almacen.stock_actual}</TableCell>
+              <TableCell>{product.estado}</TableCell>
+              <TableCell>{product.fecha_registro}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleViewClick(product)}
-                  >
-                    View
-                  </Button>
                   <Button
                     variant="secondary"
                     size="sm"
                     onClick={() => handleEditClick(product)}
                   >
-                    Edit
+                    Editar
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteClick(product)}
                   >
-                    Delete
+                    Eliminar
                   </Button>
                 </div>
               </TableCell>
@@ -147,14 +128,6 @@ export function DashboardProductsDiscount() {
           ))}
         </TableBody>
       </Table>
-
-      {selectedProductForView && (
-        <ProductViewDialog
-          open={viewOpen}
-          product={selectedProductForView}
-          onOpenChange={setViewOpen}
-        />
-      )}
 
       {selectedProductForEdit && (
         <ProductEditDialog

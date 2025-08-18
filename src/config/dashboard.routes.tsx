@@ -7,38 +7,29 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import ProductosPage from "@/pages/productos/productos.page";
-import EjemploPage from "@/pages/productos/ejemplo.page";
-import SoldProductsPage from "@/pages/productos/soldProducts.page";
-import AgregarProductosPage from "@/pages/productos/Agregar.Productos";
-import AgregarProductosStep1 from "@/pages/productos/Agregar-productos-stp1.page";
+import EjemploPage from "@/pages/ejemplo.page";
+import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
 
 export const dashboardRoutes = [
   {
     title: "Dashboard",
     path: "/dashboard",
     icon: IconHome,
-    element: <SoldProductsPage />,
+    element: <EjemploPage />,
     showInSidebar: true,
   },
   {
     title: "Productos",
-    path: "/productos",
+    path: "/products",
     icon: IconPackage,
     element: <ProductosPage />,
     showInSidebar: true,
   },
   {
-    title: "Agregar Producto paso 1",
-    path: "/productos/agregar1",
+    title: "Agregar Producto",
+    path: "/products/addProducts",
     icon: IconPackage,
     element: <AgregarProductosStep1 />,
-    showInSidebar: false,
-  },
-  {
-    title: "Agregar Producto paso 2",
-    path: "/productos/agregar2",
-    icon: IconPackage,
-    element: <AgregarProductosPage />,
     showInSidebar: false,
   },
   {
