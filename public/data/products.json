@@ -12,7 +12,8 @@
       "gramaje_g": 150,
       "calibre": 10,
       "pliegos_por_paquete": 500,
-      "unidad_medida": "Paquete"
+      "unidad_medida": "Paquete",
+      "peso_kg": 1000
     },
     "precio": {
       "precio_min": 90,
@@ -43,7 +44,8 @@
       "gramaje_g": 133,
       "calibre": 22,
       "pliegos_por_paquete": 400,
-      "unidad_medida": "hojas"
+      "unidad_medida": "hojas",
+      "peso_kg": 1000
     },
     "precio": {
       "precio_min": 200,
@@ -74,7 +76,8 @@
       "gramaje_g": 205,
       "calibre": 12,
       "pliegos_por_paquete": 250,
-      "unidad_medida": "hojas"
+      "unidad_medida": "hojas",
+      "peso_kg": 1000
     },
     "precio": {
       "precio_min": 127.5,

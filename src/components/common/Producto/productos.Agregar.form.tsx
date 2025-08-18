@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -14,20 +21,24 @@ interface ProductoBase {
   largo: string;
   gramaje: string;
   calibre: string;
-  pliegues: string;
+  pliegos: string;
   unidad: string;
   productName?: string;
+  isNew?: boolean; // Nuevo campo
 }
 
 interface Props {
   navigate: any;
-  categoria: string;
-  onNext?: (productos: any[]) => void; // 👈 nuevo
+  categoria: string; // Recibe la categoría seleccionada del FormPadre
+  onNext?: (productos: any[], categoria: string) => void;
 }
 
-export default function ProductosAgregarForm({ navigate, categoria, onNext }: Props) {
+export default function ProductosAgregarForm({
+  navigate,
+  categoria,
+  onNext,
+}: Props) {
   const { products } = useProducts();
-
   const [productos, setProductos] = useState<ProductoBase[]>([]);
 
   useEffect(() => {
@@ -42,14 +53,30 @@ export default function ProductosAgregarForm({ navigate, categoria, onNext }: Pr
           largo: String(p.material.dimensiones.largo_cm),
           gramaje: String(p.material.gramaje_g),
           calibre: String(p.material.calibre),
-          pliegues: String(p.material.pliegos_por_paquete),
+          pliegos: String(p.material.pliegos_por_paquete),
           unidad: p.material.unidad_medida,
-          productName: p.nombre_producto,
+          productName: `${p.material.tipo} ${p.material.dimensiones.ancho_cm}x${p.material.dimensiones.largo_cm}cm ${p.material.gramaje_g}g calibre ${p.material.calibre} pliegos ${p.material.pliegos_por_paquete} unidad ${p.material.unidad_medida}`,
+          isNew: false,
         }));
 
-      setProductos(filtrados.length > 0 ? filtrados : [
-        { tempId: 1, tipo: "", dimensiones: "", ancho: "", largo: "", gramaje: "", calibre: "", pliegues: "", unidad: "" },
-      ]);
+      setProductos(
+        filtrados.length > 0
+          ? filtrados
+          : [
+              {
+                tempId: 1,
+                tipo: "",
+                dimensiones: "",
+                ancho: "",
+                largo: "",
+                gramaje: "",
+                calibre: "",
+                pliegos: "",
+                unidad: "",
+                isNew: true,
+              },
+            ]
+      );
     }
   }, [categoria, products]);
 
@@ -68,33 +95,74 @@ export default function ProductosAgregarForm({ navigate, categoria, onNext }: Pr
       productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
     setProductos((prev) => [
       ...prev,
-      { tempId: newTempId, tipo: "", dimensiones: "", ancho: "", largo: "", gramaje: "", calibre: "", pliegues: "", unidad: "" },
+      {
+        tempId: newTempId,
+        tipo: "",
+        dimensiones: "",
+        ancho: "",
+        largo: "",
+        gramaje: "",
+        calibre: "",
+        pliegos: "",
+        unidad: "",
+        isNew: true,
+      },
     ]);
   };
 
   const validarProductos = () => {
-    for (const prod of productos) {
-      const campos = Object.values(prod).filter((v) => typeof v === "string");
-      const todosLlenos = campos.every((v) => String(v).trim() !== "");
-      if (!todosLlenos) return false;
+    const nuevos = productos.filter((p) => p.isNew);
+    for (const prod of nuevos) {
+      const campos = [
+        prod.tipo,
+        prod.dimensiones,
+        prod.ancho,
+        prod.largo,
+        prod.gramaje,
+        prod.calibre,
+        prod.pliegos,
+        prod.unidad,
+      ];
+      const todosLlenos = campos.every((v) => v.trim() !== "");
+      if (todosLlenos) return true;
     }
-    return true;
+    return false;
   };
 
   const handleSiguiente = () => {
-    if (!validarProductos()) {
-        toast.error("Completa todos los campos antes de continuar.");
-        return;
+    if (!categoria || categoria.trim() === "") {
+      toast.error("Debes seleccionar una categoría antes de continuar.");
+      return;
     }
 
-    const productosConNombre = productos.map((p) => ({
-    ...p,
-        productName: `${p.tipo} ${p.ancho}x${p.largo}cm ${p.gramaje}g calibre ${p.calibre} pliegues ${p.pliegues} unidad ${p.unidad}`,
+    if (!validarProductos()) {
+      toast.error(
+        "Completa todos los campos de los productos nuevos antes de continuar."
+      );
+      return;
+    }
+
+    const productosNuevos = productos.filter((p) => {
+      if (!p.isNew) return false;
+      return (
+        p.tipo.trim() !== "" &&
+        p.dimensiones.trim() !== "" &&
+        p.ancho.trim() !== "" &&
+        p.largo.trim() !== "" &&
+        p.gramaje.trim() !== "" &&
+        p.calibre.trim() !== "" &&
+        p.pliegos.trim() !== "" &&
+        p.unidad.trim() !== ""
+      );
+    });
+
+    const productosConNombre = productosNuevos.map((p) => ({
+      ...p,
+      productName: `${categoria} ${p.tipo}`, // Asegura que el nombre del producto esté basado en la categoría
     }));
-     if (onNext) {
-        onNext(productosConNombre); 
-    } else {
-        navigate("/productos/agregar2", { state: productosConNombre });
+
+    if (onNext) {
+      onNext(productosConNombre, categoria);
     }
   };
 
@@ -103,19 +171,47 @@ export default function ProductosAgregarForm({ navigate, categoria, onNext }: Pr
       <Table className="text-sm">
         <TableHeader>
           <TableRow className="h-8">
-            {["Tipo", "Dimensiones", "Ancho (cm)", "Largo (cm)", "Gramaje (g)", "Calibre", "Pliegues x Paquete", "Unidad medida"].map((title) => (
-              <TableHead key={title} className="px-2 text-center">{title}</TableHead>
+            {[
+              "Tipo",
+              "Dimensiones",
+              "Ancho (cm)",
+              "Largo (cm)",
+              "Gramaje (g)",
+              "Calibre",
+              "Pliegos x Paquete",
+              "Unidad medida",
+            ].map((title) => (
+              <TableHead key={title} className="px-2 text-center">
+                {title}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {productos.map((producto) => (
             <TableRow key={producto.tempId} className="h-8">
-              {(["tipo", "dimensiones", "ancho", "largo", "gramaje", "calibre", "pliegues", "unidad"] as (keyof ProductoBase)[]).map((field) => (
+              {(
+                [
+                  "tipo",
+                  "dimensiones",
+                  "ancho",
+                  "largo",
+                  "gramaje",
+                  "calibre",
+                  "pliegos",
+                  "unidad",
+                ] as (keyof ProductoBase)[]
+              ).map((field) => (
                 <TableCell key={field} className="px-2 py-1">
                   <Input
-                    value={producto[field]}
-                    onChange={(e) => handleProductoChange(producto.tempId, field, e.target.value)}
+                    value={String(producto[field] ?? "")}
+                    onChange={(e) =>
+                      handleProductoChange(
+                        producto.tempId,
+                        field,
+                        e.target.value
+                      )
+                    }
                     className="h-7 text-sm"
                   />
                 </TableCell>
@@ -123,7 +219,7 @@ export default function ProductosAgregarForm({ navigate, categoria, onNext }: Pr
             </TableRow>
           ))}
           <TableRow>
-            <TableCell colSpan={8} className="text-center py-1">
+            <TableCell colSpan={8} className="text-start py-1">
               <Button
                 variant="ghost"
                 onClick={agregarFila}
@@ -138,10 +234,22 @@ export default function ProductosAgregarForm({ navigate, categoria, onNext }: Pr
       </Table>
 
       <div className="fixed bottom-6 right-6 flex gap-2">
-        <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => navigate(-1)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => navigate(-1)}
+        >
           Cancelar
         </Button>
-        <Button size="sm" className="cursor-pointer" onClick={handleSiguiente}>Siguiente</Button>
+        <Button
+          size="sm"
+          className="cursor-pointer"
+          onClick={handleSiguiente}
+          disabled={!categoria || categoria.trim() === ""}
+        >
+          Continuar
+        </Button>
       </div>
     </>
   );

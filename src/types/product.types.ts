@@ -8,6 +8,7 @@ export interface ProductMaterial {
   calibre: number;
   pliegos_por_paquete: number;
   unidad_medida: string;
+  peso_kg: number;
 }
 
 export interface ProductPricing {

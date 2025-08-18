@@ -3,15 +3,28 @@ import type { Product } from "@/types/product.types";
 
 export class ProductService {
   private static async fetchProducts(): Promise<Product[]> {
-    const response = await fetch(PRODUCTS_CONFIG.PRODUCTS_JSON_PATH);
-    if (!response.ok) {
-      throw new Error("Failed to load products.json");
+    const local = localStorage.getItem("products");
+    if (local) {
+      return JSON.parse(local);
     }
-    return response.json();
+
+    // primera vez, carga los iniciales
+    const response = await fetch(PRODUCTS_CONFIG.PRODUCTS_JSON_PATH);
+    if (!response.ok) throw new Error("No se pudo cargar products.json");
+
+    const data: Product[] = await response.json();
+    localStorage.setItem("products", JSON.stringify(data));
+    return data;
   }
 
   static async getAll(): Promise<Product[]> {
     return await this.fetchProducts();
+  }
+
+  static async addMany(newProducts: Product[]): Promise<void> {
+    const products = await this.fetchProducts();
+    const merged = [...products, ...newProducts];
+    localStorage.setItem("products", JSON.stringify(merged));
   }
 
   static async getById(id: number): Promise<Product | undefined> {
@@ -19,15 +32,14 @@ export class ProductService {
     return products.find((p) => p.id === id);
   }
 
-  // ⚡ Mock implementation with localStorage since /public/products.json is read-only
   static async add(product: Product): Promise<void> {
-    const products = (await this.fetchProducts()) || [];
+    const products = await this.fetchProducts();
     const newProducts = [...products, product];
     localStorage.setItem("products", JSON.stringify(newProducts));
   }
 
   static async update(id: number, updatedProduct: Product): Promise<void> {
-    const products = (await this.fetchProducts()) || [];
+    const products = await this.fetchProducts();
     const newProducts = products.map((p) =>
       p.id === id ? { ...p, ...updatedProduct } : p
     );
@@ -35,8 +47,15 @@ export class ProductService {
   }
 
   static async delete(id: number): Promise<void> {
-    const products = (await this.fetchProducts()) || [];
+    const products = await this.fetchProducts();
     const newProducts = products.filter((p) => p.id !== id);
     localStorage.setItem("products", JSON.stringify(newProducts));
+  }
+
+  // Nuevo método para obtener el ID máximo
+  static async getMaxId(): Promise<number> {
+    const products = await this.fetchProducts();
+    const ids = products.map((p) => p.id);
+    return Math.max(...ids, 0); // Retorna el máximo ID, si no hay productos, retorna 0
   }
 }
