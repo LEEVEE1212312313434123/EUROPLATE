@@ -39,6 +39,7 @@ export function ProductEditDialog({
   }, [product]);
 
   const handleSave = async () => {
+    // Crear el objeto de producto actualizado
     const updatedProduct: Product = {
       ...product,
       nombre_producto: nombreProducto,
@@ -53,8 +54,10 @@ export function ProductEditDialog({
       },
     };
 
+    // Actualizar el producto en el servicio
     await ProductService.update(product.id, updatedProduct);
 
+    // Llamar a la función onSave para notificar al componente padre
     onSave(updatedProduct);
     onClose();
   };
@@ -67,11 +70,13 @@ export function ProductEditDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          {/* ID del producto (no editable) */}
           <div className="grid gap-1">
             <Label htmlFor="id">ID (no editable)</Label>
             <Input id="id" value={product.id} disabled />
           </div>
 
+          {/* Nombre del Producto */}
           <div className="grid gap-1">
             <Label htmlFor="nombreProducto">Nombre del Producto</Label>
             <Input
@@ -82,6 +87,7 @@ export function ProductEditDialog({
             />
           </div>
 
+          {/* Precio Mínimo */}
           <div className="grid gap-1">
             <Label htmlFor="precioMin">Precio Mínimo</Label>
             <Input
@@ -94,6 +100,7 @@ export function ProductEditDialog({
             />
           </div>
 
+          {/* Precio Máximo */}
           <div className="grid gap-1">
             <Label htmlFor="precioMax">Precio Máximo</Label>
             <Input
@@ -106,6 +113,7 @@ export function ProductEditDialog({
             />
           </div>
 
+          {/* Stock Actual */}
           <div className="grid gap-1">
             <Label htmlFor="stockActual">Stock Actual</Label>
             <Input

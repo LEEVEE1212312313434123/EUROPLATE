@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { ProductService } from "@/services/products.service"; // Importa el servicio
 import type { Product } from "@/types/product.types";
 
 interface ProductDeleteDialogProps {
@@ -25,9 +26,16 @@ export function ProductDeleteDialog({
 }: ProductDeleteDialogProps) {
   if (!product) return null;
 
-  const handleDelete = () => {
-    onDeleteConfirm(product.id);
-    onOpenChange(false);
+  const handleDelete = async () => {
+    try {
+      // Llamar al servicio para eliminar el producto
+      await ProductService.delete(product.id);
+      onDeleteConfirm(product.id); // Notificar al componente padre que el producto fue eliminado
+      onOpenChange(false); // Cerrar el diálogo
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error);
+      // Aquí puedes mostrar un mensaje de error si lo deseas
+    }
   };
 
   return (

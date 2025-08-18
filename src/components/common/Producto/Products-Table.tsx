@@ -16,7 +16,11 @@ interface ProductTableProps {
   onDelete: (product: Product) => void;
 }
 
-export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
+export function ProductTable({
+  products,
+  onEdit,
+  onDelete,
+}: ProductTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -41,7 +45,15 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
           products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
-                {`${product.nombre_producto} ${product.material.tipo} ${product.material.dimensiones.ancho_cm}x${product.material.dimensiones.largo_cm} ${product.material.gramaje_g}g calibre ${product.material.calibre} ${product.material.unidad_medida.toLowerCase()} ${product.material.pliegos_por_paquete} pliegos`}
+                {`${product.categoria} ${product.material.tipo} ${
+                  product.material.dimensiones.ancho_cm
+                }x${product.material.dimensiones.largo_cm} ${
+                  product.material.gramaje_g
+                }g calibre ${
+                  product.material.calibre
+                } ${product.material.unidad_medida.toLowerCase()} ${
+                  product.material.pliegos_por_paquete
+                } pliegos`}
               </TableCell>
               <TableCell className="text-center w-[100px]">
                 ${product.precio.precio_min.toFixed(2)}

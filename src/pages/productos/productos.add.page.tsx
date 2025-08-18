@@ -35,7 +35,7 @@ export default function AgregarProductosPage() {
               <Select
                 value={categoria}
                 onValueChange={(value) => setCategoria(value)}
-                disabled={step > 1} 
+                disabled={step > 1}
               >
                 <SelectTrigger className="w-64">
                   <SelectValue placeholder="Selecciona una categoría" />
@@ -66,6 +66,7 @@ export default function AgregarProductosPage() {
         {step === 2 && (
           <ProductosAgregarPreciosForm
             navigate={navigate}
+            categoria={categoria}
             productosPrevios={productosStep1}
           />
         )}
