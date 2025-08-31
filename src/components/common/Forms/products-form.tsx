@@ -6,7 +6,7 @@ import { exportToCSV } from "@/utils/exportUtils";
 import type { Product } from "@/types/product.types";
 import { ProductEditDialog } from "@/components/common/Producto/products.edit.dialog";
 import { ProductDeleteDialog } from "@/components/common/Producto/product.delete.dialog";
-import { ProductsToolbar } from "@/components/common/Producto/Products-Toolbar";
+import { Toolbar } from "@/components/common/Toolbar";
 import { ProductTable } from "@/components/common/Producto/Products-Table";
 import { Button } from "@/components/ui/button";
 
@@ -99,13 +99,21 @@ export function ProductsForm() {
         </Button>
       </div>
 
-      <ProductsToolbar
+      <Toolbar
         filterType={filterType}
         filterStatus={filterStatus}
-        totalItemsCount={products.length}
-        totalProductsCount={products.filter((p) => p.tipo === "producto").length}
-        totalServicesCount={products.filter((p) => p.tipo === "servicio").length}
+        tabs={[
+          { value: "all", label: `Todos (${products.length})` },
+          { value: "product", label: `Productos (${products.filter((p) => p.tipo === "producto").length})` },
+          { value: "service", label: `Servicios (${products.filter((p) => p.tipo === "servicio").length})` },
+        ]}
+        selectOptions={[
+          { value: "all", label: "Todos" },
+          { value: "Available", label: "Disponible" },
+          { value: "Unavailable", label: "No disponible" },
+        ]}
         searchTerm={searchTerm}
+        searchPlaceholder="Buscar producto..."
         onFilterTypeChange={setFilterType}
         onFilterStatusChange={setFilterStatus}
         onSearchChange={setSearchTerm}
