@@ -9,9 +9,12 @@ import {
 import ProductosPage from "@/pages/productos/productos.page";
 import EjemploPage from "@/pages/ejemplo.page";
 import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
+import LogisticaPage from "@/pages/logistica/logistica.page"
+
 
 export const dashboardRoutes = [
   {
+    key: "dashboard",   
     title: "Dashboard",
     path: "/dashboard",
     icon: IconHome,
@@ -19,6 +22,7 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
+    key: "productos",   
     title: "Productos",
     path: "/products",
     icon: IconPackage,
@@ -31,6 +35,7 @@ export const dashboardRoutes = [
     icon: IconPackage,
     element: <AgregarProductosStep1 />,
     showInSidebar: false,
+    parent: "/products",
   },
   {
     title: "Clientes",
@@ -40,10 +45,11 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
+    key: "logistica",   // 👈 agregado
     title: "Logística",
     path: "/logistica",
     icon: IconTruck,
-    element: <EjemploPage />,
+    element: <LogisticaPage />,
     showInSidebar: true,
   },
   {

@@ -1,4 +1,3 @@
-// components/common/dashboard-tabs.tsx
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
