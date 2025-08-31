@@ -1,4 +1,4 @@
-import { List, Percent, BarChart } from "lucide-react";
+import { List, Percent, BarChart, ShoppingCart, Package, Users } from "lucide-react";
 
 export const TABS_CONFIG = {
   productos: [
@@ -8,5 +8,10 @@ export const TABS_CONFIG = {
   dashboard: [
     { value: "lista", label: "Lista", icon: <List size={16} /> },
     { value: "analisis", label: "Análisis", icon: <BarChart size={16} /> },
+  ],
+  logistica: [
+    { value: "compras", label: "Compras", icon: <ShoppingCart size={16} /> },
+    { value: "inventario", label: "Inventario", icon: <Package size={16} /> },
+    { value: "proveedores", label: "Proveedores", icon: <Users size={16} /> },
   ],
 };

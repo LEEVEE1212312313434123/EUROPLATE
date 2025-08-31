@@ -1,6 +1,10 @@
 import { TABS_CONFIG } from "@/config/tabs.config";
 
-export function getTabLabel(section: keyof typeof TABS_CONFIG, tab: string) {
-  const found = TABS_CONFIG[section]?.find((t) => t.value === tab);
-  return found ? found.label : tab;
+export function getTabLabel(routeKey: string, tabValue: string | null): string | null {
+  if (!tabValue) return null;
+
+  const tabs = (TABS_CONFIG as Record<string, { value: string; label: string }[]>)[routeKey];
+  const tab = tabs?.find((t) => t.value === tabValue);
+
+  return tab ? tab.label : null;
 }
