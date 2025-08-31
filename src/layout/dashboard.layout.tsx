@@ -1,20 +1,23 @@
+// src/layout/dashboard.layout.tsx
 import { Outlet } from "react-router-dom";
-import Sidebar from "@/components/common/Dashboards/dashboard.sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import DashboardSidebar from "@/components/common/Dashboards/dashboard.sidebar";
 import DashboardHeader from "@/components/common/Dashboards/dashboard.header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useState } from "react";
 
 export default function DashboardLayout() {
-  return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <Sidebar />
-        <div className="flex flex-col flex-1 w-full min-h-screen">
-          <DashboardHeader />
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-          <main className="flex-1 w-full p-6 overflow-auto">
+  return (
+    <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+      <div className="flex min-h-screen w-full">
+        <DashboardSidebar />
+        <SidebarInset>
+          <DashboardHeader />
+          <main className="flex-1 w-full p-6 overflow-auto bg-white">
             <Outlet />
           </main>
-        </div>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );
