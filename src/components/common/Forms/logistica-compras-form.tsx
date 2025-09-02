@@ -4,12 +4,14 @@ import { Toolbar } from "@/components/common/Toolbar";
 import { ComprasTable } from "@/components/common/Logistica/ComprasTable";
 import { CompraDetail } from "@/components/common/Logistica/CompraDetail";
 import type { Compra } from "@/components/common/Logistica/ComprasTable";
+import { CompraEditDialog } from "@/components/common/Dialog/CompraEditDialog";
 
 export default function ComprasLogistica() {
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
+  const [editingCompra, setEditingCompra] = useState<Compra | null>(null);
 
   const [compras, setCompras] = useState<Compra[]>([
     {
@@ -35,7 +37,7 @@ export default function ComprasLogistica() {
   ]);
 
   const handleEdit = (c: Compra) => {
-    console.log("Editar compra", c);
+    setEditingCompra(c);
   };
 
   const handleDelete = (c: Compra) => {
@@ -103,6 +105,18 @@ export default function ComprasLogistica() {
           </div>
         )}
       </div>
+      {editingCompra && (
+        <CompraEditDialog
+          open={!!editingCompra}
+          compra={editingCompra}
+          onClose={() => setEditingCompra(null)}
+          onSave={(updated) => {
+            setCompras((prev) =>
+              prev.map((c) => (c.id === updated.id ? updated : c))
+            );
+          }}
+        />
+      )}
     </div>
   );
 }
