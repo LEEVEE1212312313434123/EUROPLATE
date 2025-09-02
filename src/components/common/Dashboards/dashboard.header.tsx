@@ -37,7 +37,7 @@ export default function DashboardHeader() {
       <Separator orientation="vertical" className="h-5" />
 
       <Breadcrumb className="flex-1">
-        <BreadcrumbList>
+        <BreadcrumbList className="flex items-center gap-1 overflow-hidden">
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link to="/dashboard" className="text-primary font-semibold">
@@ -45,31 +45,32 @@ export default function DashboardHeader() {
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
-
           {parentRoute && (
-            <>
+            <div className="hidden md:flex items-center">
               <BreadcrumbSeparator />
               <BreadcrumbLink asChild>
-                <Link to={parentRoute.path} className="text-primary font-semibold">
+                <Link
+                  to={parentRoute.path}
+                  className="text-primary font-semibold truncate max-w-[120px]"
+                >
                   {parentRoute.title}
                 </Link>
               </BreadcrumbLink>
-            </>
+            </div>
           )}
 
           {currentRoute && (
             <>
               <BreadcrumbSeparator />
-              <BreadcrumbPage className="text-primary font-semibold">
+              <BreadcrumbPage className="text-primary font-semibold truncate max-w-[140px]">
                 {currentRoute.title}
               </BreadcrumbPage>
             </>
           )}
-
           {tabLabel && (
             <>
               <BreadcrumbSeparator />
-              <BreadcrumbPage className="text-primary font-semibold">
+              <BreadcrumbPage className="text-primary font-semibold truncate max-w-[140px]">
                 {tabLabel}
               </BreadcrumbPage>
             </>
@@ -90,7 +91,7 @@ export default function DashboardHeader() {
               alt={user.firstName}
               className="w-8 h-8 rounded-full object-cover"
             />
-            <span className="font-medium">
+            <span className="font-medium hidden sm:inline-block truncate max-w-[100px]">
               {user.firstName} {user.lastName}
             </span>
           </div>
