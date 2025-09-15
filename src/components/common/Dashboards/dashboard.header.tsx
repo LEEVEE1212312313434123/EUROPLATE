@@ -32,7 +32,7 @@ export default function DashboardHeader() {
   const tabLabel = currentRoute?.key ? getTabLabel(currentRoute.key, tab) : null;
 
   return (
-    <header className="bg-white sticky top-0 flex h-20 shrink-0 items-center gap-4 border-b px-6">
+    <header className="bg-white sticky top-0 z-1 flex h-20 shrink-0 items-center gap-4 border-b px-6">
       <SidebarTrigger className="-ml-2 text-primary hover:text-primary/80 cursor-pointer" />
       <Separator orientation="vertical" className="h-5" />
 

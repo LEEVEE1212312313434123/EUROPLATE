@@ -1,6 +1,4 @@
-// src/app/(main)/logistica-inventario-form.tsx
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import {
@@ -8,57 +6,71 @@ import {
   type InventarioItem,
 } from "@/components/common/Logistica/InventarioTable";
 import { InventarioEditDialog } from "@/components/common/Dialog/InventarioEditDialog";
-import { Item } from "@radix-ui/react-select";
+import { toast } from "sonner";
+import { useLogistica } from "@/hooks/useLogistica";
 
 export default function InventarioLogistica() {
+  const { productos, loading, error } = useLogistica();
+
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [editingItem, setEditingItem] = useState<InventarioItem | null>(null);
-  const [items, setItems] = useState<InventarioItem[]>([
-    {
-      id: "1",
-      importacion: "2024-09-01",
-      container: "ELOF",
-      purchaseOrder: "CA036110/PQ044553",
-      seal: "SAL915610",
-      grade: "COATED KRAFTBACK BOARD - SHERPA",
-      type: "ROLL",
-      width: 1280,
-      gsm: 448,
-      lmetre: 1200,
-      productId: "SHRP-445A2",
-      grossNetWt: 1211.4,
-      estado: "En tránsito",
-    },
-    {
-      id: "2",
-      importacion: "2024-08-20",
-      container: "SE",
-      purchaseOrder: "CA036200/PQ044600",
-      seal: "SAL915611",
-      grade: "COATED KRAFTBACK BOARD - SHERPA",
-      type: "ROLL",
-      width: 1300,
-      gsm: 450,
-      lmetre: 1100,
-      productId: "SHRP-450B1",
-      grossNetWt: 1150.0,
-      estado: "En stock",
-    },
-  ]);
-
-  const handleEdit = (item: InventarioItem) => {
-    console.log("Editar producto:", item);
+  const mapEstado = (estado: string): "En tránsito" | "En stock" | "Vendido" => {
+    if (estado === "En stock") return "En stock";
+    if (estado === "Vendido") return "Vendido";
+    return "En tránsito"; 
+  };
+  const STATUS_MAP: Record<string, string | null> = {
+    all: null,
+    transito: "En tránsito",
+    entregado: "Entregado",
+    stock: "En stock",
   };
 
-  const handleDelete = (item: InventarioItem) => {
-    setItems((prev) => prev.filter((i) => i.id !== item.id));
-  };
+  const items: InventarioItem[] = productos.map((p) => ({
+    id: p.producto_id,
+    importacion: p.purchase_order,
+    container: p.container,
+    purchaseOrder: p.purchase_order,
+    seal: p.seal,
+    grade: p.material.grade,
+    type: p.material.tipo,
+    width: p.material.dimensiones.ancho_mm,
+    gsm: p.material.gramaje_gsm,
+    lmetre: p.material.longitud_m,
+    productId: p.producto_id,
+    grossNetWt: p.material.peso_bruto_kg,
+    estado: mapEstado(p.estado),
+  }));
+
+  const filteredItems = useMemo(() => {
+    return items.filter((i) => {
+      if (
+        searchTerm &&
+        !i.grade.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        return false;
+      }
+
+      if (filterType === "importación" && !i.purchaseOrder) return false;
+      if (filterType === "nacional" && i.purchaseOrder) return false;
+
+      if (filterStatus !== "all" && i.estado !== STATUS_MAP[filterStatus]) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [items, searchTerm, filterType, filterStatus]);
+
+  
+
+  if (loading) return <div className="p-6">Cargando inventario...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
     <div className="p-6">
-      {/* Header principal */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold">Inventario</h2>
@@ -66,12 +78,14 @@ export default function InventarioLogistica() {
             Administra los materiales y productos de tu empresa
           </p>
         </div>
-        <Button className="flex items-center gap-2 cursor-pointer">
-          + Registrar Importación
+        <Button
+          onClick={() => toast.info("Función de registrar producto en desarrollo")}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          + Registrar Compra
         </Button>
       </div>
 
-      {/* Filtros */}
       <Toolbar
         filterType={filterType}
         filterStatus={filterStatus}
@@ -84,6 +98,7 @@ export default function InventarioLogistica() {
           { value: "all", label: "Todos" },
           { value: "transito", label: "En Tránsito" },
           { value: "entregado", label: "Entregado" },
+          { value: "stock", label: "En Stock" },
         ]}
         searchTerm={searchTerm}
         searchPlaceholder="Buscar producto..."
@@ -92,29 +107,27 @@ export default function InventarioLogistica() {
         onSearchChange={setSearchTerm}
       />
 
-      {/* Tabla */}
-      <div className="mt-6">
+      <div className="mt-6 overflow-x-auto">
         <InventarioTable
-          items={items}
-          onEdit={(Item) => setEditingItem(Item)}
-          onDelete={handleDelete}
+          items={filteredItems}
+          onEdit={(item) => setEditingItem(item)}
+          onDelete={(item) =>
+            toast.warning(`Función eliminar pendiente para ${item.id}`)
+          }
         />
       </div>
 
-
-    {editingItem && (
-    <InventarioEditDialog
-        open={!!editingItem}
-        item={editingItem}
-        onClose={() => setEditingItem(null)}
-        onSave={(updatedItem) => {
-        setItems((prev) =>
-            prev.map((i) => (i.id === updatedItem.id ? updatedItem : i))
-        );
-        }}
-    />
-    )}
-
+      {editingItem && (
+        <InventarioEditDialog
+          open={!!editingItem}
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSave={(updatedItem) => {
+            toast.success("Producto actualizado en inventario");
+            setEditingItem(null);
+          }}
+        />
+      )}
     </div>
   );
 }

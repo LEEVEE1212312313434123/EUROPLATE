@@ -1,5 +1,3 @@
-// src/components/common/Logistica/ComprasTable.tsx
-
 import {
   Table,
   TableBody,
@@ -10,23 +8,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Eye } from "lucide-react";
-
-export interface Compra {
-  id: string;
-  importacion: string;
-  descripcion: string;
-  proveedor: string;
-  origen: string;
-  destino: string;
-  estado: string;
-  fechaEntrega: string; // o Date si prefieres
-}
+import type { Compra } from "@/types/logistica.types";
 
 interface ComprasTableProps {
   compras: Compra[];
   onEdit: (compra: Compra) => void;
   onDelete: (compra: Compra) => void;
-  onView?: (compra: Compra) => void; 
+  onView?: (compra: Compra) => void;
 }
 
 export function ComprasTable({
@@ -61,14 +49,16 @@ export function ComprasTable({
           </TableRow>
         ) : (
           compras.map((c) => (
-            <TableRow key={c.id}>
-              <TableCell>{c.importacion}</TableCell>
+            <TableRow key={c.importacion_id}>
+              <TableCell>{c.importacion_id}</TableCell>
               <TableCell>{c.descripcion}</TableCell>
-              <TableCell>{c.proveedor}</TableCell>
-              <TableCell>{c.origen}</TableCell>
-              <TableCell>{c.destino}</TableCell>
-              <TableCell>{c.estado}</TableCell>
-              <TableCell className="text-center">{c.fechaEntrega}</TableCell>
+              <TableCell>{c.proveedor.nombre}</TableCell>
+              <TableCell>{c.logistica.origen}</TableCell>
+              <TableCell>{c.logistica.destino}</TableCell>
+              <TableCell>{c.logistica.estado}</TableCell>
+              <TableCell className="text-center">
+                {c.logistica.fecha_entrega}
+              </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center gap-1">
                   <Button

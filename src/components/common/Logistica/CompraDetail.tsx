@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Compra } from "@/components/common/Logistica/ComprasTable";
+import type { Compra } from "@/types/logistica.types";
 
 interface CompraDetailProps {
   compra: Compra | null;
@@ -11,19 +11,16 @@ interface CompraDetailProps {
 export function CompraDetail({ compra, onClose }: CompraDetailProps) {
   if (!compra) return null;
 
+  const pdfs = [
+    { file: "/pdfs/pdf1.pdf", preview: "/previews/preview1.jpg" },
+    { file: "/pdfs/pdf1.pdf", preview: "/previews/preview2.jpg" },
+    { file: "/pdfs/pdf1.pdf", preview: "/previews/preview2.jpg" },
+  ];
+
   return (
     <div className="h-full bg-white flex flex-col">
-      {/* Header con botón de cerrar */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <h3 className="text-lg font-bold">Detalle de Importación</h3>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-5 h-5" />
-        </Button>
-      </div>
-
-      {/* Contenido scrollable */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-3 text-sm">
+      <div className="flex items-start justify-between p-4 border-b">
+        <div className="space-y-2 text-sm pl-3">
           <p><span className="font-semibold">Factura:</span> S106180</p>
           <p><span className="font-semibold">Fecha de vencimiento:</span> 31/12/2025</p>
           <p><span className="font-semibold">Cantidad:</span> 48,868 MT</p>
@@ -37,14 +34,29 @@ export function CompraDetail({ compra, onClose }: CompraDetailProps) {
           <p><span className="font-semibold">Aseguradora:</span> Anova Marine Insurance</p>
           <p><span className="font-semibold">Agente de aduanas:</span> EBL Grupo Logístico</p>
         </div>
-
-        <div className="mt-4">
-          <h4 className="font-semibold mb-2">Adjuntos:</h4>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">PDF 1</Button>
-            <Button variant="outline" size="sm">PDF 2</Button>
-            <Button variant="outline" size="sm">PDF 3</Button>
-          </div>
+        <Button className="cursor-pointer" variant="ghost" size="icon" onClick={onClose}>
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+      <ScrollArea className="flex-1 p-4">
+        <h4 className="font-semibold mb-2">Adjuntos:</h4>
+        <div className="grid grid-cols-3 gap-4">
+          {pdfs.map((pdf, index) => (
+            <div
+              key={index}
+              className="border rounded-lg shadow hover:shadow-lg transition cursor-pointer overflow-hidden"
+              onClick={() => window.open(pdf.file, "_blank")}
+            >
+              <img
+                src={pdf.preview}
+                alt={`Vista previa PDF ${index + 1}`}
+                className="w-full h-20 object-cover bg-gray-100"
+              />
+              <p className="text-xs text-center py-2 bg-gray-50">
+                PDF {index + 1}
+              </p>
+            </div>
+          ))}
         </div>
       </ScrollArea>
     </div>

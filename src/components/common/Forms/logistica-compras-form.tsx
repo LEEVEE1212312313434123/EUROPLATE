@@ -1,69 +1,80 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import { ComprasTable } from "@/components/common/Logistica/ComprasTable";
 import { CompraDetail } from "@/components/common/Logistica/CompraDetail";
-import type { Compra } from "@/components/common/Logistica/ComprasTable";
 import { CompraEditDialog } from "@/components/common/Dialog/CompraEditDialog";
+import type { Compra } from "@/types/logistica.types";
+import { useLogistica } from "@/hooks/useLogistica";
 
 export default function ComprasLogistica() {
+  const { compras, loading, error, handleDeleteCompra, handleSaveCompra } = useLogistica();
+
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
   const [editingCompra, setEditingCompra] = useState<Compra | null>(null);
 
-  const [compras, setCompras] = useState<Compra[]>([
-    {
-      id: "1",
-      importacion: "IMP-2024-001",
-      descripcion: "Compra de insumos médicos",
-      proveedor: "Proveedor XYZ",
-      origen: "China",
-      destino: "Lima",
-      estado: "En transito",
-      fechaEntrega: "2024-09-15",
-    },
-    {
-      id: "2",
-      importacion: "IMP-2024-002",
-      descripcion: "Equipos electrónicos",
-      proveedor: "Proveedor ABC",
-      origen: "USA",
-      destino: "Callao",
-      estado: "Entregado",
-      fechaEntrega: "2024-09-20",
-    },
-  ]);
 
-  const handleEdit = (c: Compra) => {
-    setEditingCompra(c);
+    const navigate = useNavigate();
+  const FILTER_TYPE_MAP: Record<string, string | null> = {
+    all: null,
+    import: "importación",
+    nacional: "nacional",
   };
 
-  const handleDelete = (c: Compra) => {
-    setCompras((prev) => prev.filter((item) => item.id !== c.id));
+  const STATUS_MAP: Record<string, string | null> = {
+    all: null,
+    transito: "En tránsito",
+    entregado: "Entregado",
   };
+
+  const filteredCompras = useMemo(() => {
+    return compras.filter((c) => {
+      if (
+        searchTerm &&
+        !c.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        return false;
+      }
+
+      const tipoFilter = FILTER_TYPE_MAP[filterType];
+      if (tipoFilter && c.tipo !== tipoFilter) {
+        return false;
+      }
+
+      const statusFilter = STATUS_MAP[filterStatus];
+      if (statusFilter && c.logistica.estado !== statusFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [compras, searchTerm, filterType, filterStatus]);
+
+  if (loading) return <div className="p-6">Cargando compras...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
     <div className="p-6">
-      {/* Header principal */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold">Compras</h2>
           <p className="text-muted-foreground text-sm">
-            Administra tus importaciones y compras Nacionales
+            Administra tus importaciones y compras nacionales
           </p>
         </div>
-        <Button className="flex items-center gap-2 cursor-pointer">
+        <Button
+          onClick={() => navigate("/logistica/addCompra")}
+          className="flex items-center gap-2 cursor-pointer"
+        >
           + Registrar Importación
         </Button>
       </div>
-
-      {/* Layout con 2 columnas (si hay detalle) */}
-      <div className={`grid gap-6 ${selectedCompra ? "lg:grid-cols-3" : "grid-cols-1"}`}>
-        {/* Columna izquierda */}
-        <div className={`${selectedCompra ? "lg:col-span-2" : "col-span-1"}`}>
-          {/* Toolbar arriba */}
+      <div className="relative">
+        <div className={`${selectedCompra ? "lg:pr-[380px]" : ""}`}>
           <Toolbar
             filterType={filterType}
             filterStatus={filterStatus}
@@ -84,20 +95,17 @@ export default function ComprasLogistica() {
             onSearchChange={setSearchTerm}
           />
 
-          {/* Tabla */}
           <div className="mt-6">
             <ComprasTable
-              compras={compras}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
+              compras={filteredCompras}
+              onEdit={(c) => setEditingCompra(c)}
+              onDelete={(c) => handleDeleteCompra(c.importacion_id)}
               onView={(c) => setSelectedCompra(c)}
             />
           </div>
         </div>
-
-        {/* Columna derecha (detalle con borde divisor) */}
         {selectedCompra && (
-          <div className="lg:col-span-1 lg:border-l lg:pl-6">
+          <div className="absolute top-0 right-0 h-full w-[320px] border-l bg-transparent">
             <CompraDetail
               compra={selectedCompra}
               onClose={() => setSelectedCompra(null)}
@@ -110,11 +118,7 @@ export default function ComprasLogistica() {
           open={!!editingCompra}
           compra={editingCompra}
           onClose={() => setEditingCompra(null)}
-          onSave={(updated) => {
-            setCompras((prev) =>
-              prev.map((c) => (c.id === updated.id ? updated : c))
-            );
-          }}
+          onSave={handleSaveCompra}
         />
       )}
     </div>

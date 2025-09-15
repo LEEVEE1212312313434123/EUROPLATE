@@ -12,9 +12,9 @@ export default function DashboardLayout() {
     <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
       <div className="flex min-h-screen w-full">
         <DashboardSidebar />
-        <SidebarInset>
+          <SidebarInset className="relative">
           <DashboardHeader />
-          <main className="flex-1 w-full p-6 overflow-auto bg-white">
+            <main className="flex-1 w-full p-6 overflow-auto bg-white">
             <Outlet />
           </main>
         </SidebarInset>

@@ -1,5 +1,3 @@
-// src/components/common/Logistica/InventarioTable.tsx
-
 import {
   Table,
   TableBody,
@@ -9,7 +7,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 export interface InventarioItem {
   id: string;
@@ -38,72 +37,92 @@ export function InventarioTable({
   onEdit,
   onDelete,
 }: InventarioTableProps) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Importación</TableHead>
-          <TableHead>Container</TableHead>
-          <TableHead>Purchase Order</TableHead>
-          <TableHead>Seal</TableHead>
-          <TableHead>Grade</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Width</TableHead>
-          <TableHead>GSM</TableHead>
-          <TableHead>L. Metre</TableHead>
-          <TableHead>Product ID</TableHead>
-          <TableHead>Peso (Kg)</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead className="text-center w-[140px]">Acción</TableHead>
-        </TableRow>
-      </TableHeader>
+  const [page, setPage] = useState(0);
+  const pageSize = 5;
 
-      <TableBody>
-        {items.length === 0 ? (
+  const start = page * pageSize;
+  const end = start + pageSize;
+  const currentItems = items.slice(start, end);
+
+  const totalPages = Math.ceil(items.length / pageSize);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={13} className="text-center py-6">
-              No se encontraron productos en inventario.
-            </TableCell>
+            <TableHead>Importación</TableHead>
+            <TableHead>Container</TableHead>
+            <TableHead>Purchase Order</TableHead>
+            <TableHead>Seal</TableHead>
+            <TableHead>Grade</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Width</TableHead>
+            <TableHead>GSM</TableHead>
+            <TableHead>L. Metre</TableHead>
+            <TableHead>Product ID</TableHead>
+            <TableHead>Peso (Kg)</TableHead>
+            <TableHead>Estado</TableHead>
           </TableRow>
-        ) : (
-          items.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.importacion}</TableCell>
-              <TableCell>{item.container}</TableCell>
-              <TableCell>{item.purchaseOrder}</TableCell>
-              <TableCell>{item.seal}</TableCell>
-              <TableCell>{item.grade}</TableCell>
-              <TableCell>{item.type}</TableCell>
-              <TableCell>{item.width}</TableCell>
-              <TableCell>{item.gsm}</TableCell>
-              <TableCell>{item.lmetre}</TableCell>
-              <TableCell>{item.productId}</TableCell>
-              <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>
-              <TableCell>{item.estado}</TableCell>
-              <TableCell className="text-center">
-                <div className="flex justify-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(item)}
-                    className="text-primary hover:bg-primary/10 cursor-pointer"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(item)}
-                    className="text-primary hover:bg-primary/10 cursor-pointer"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </Button>
-                </div>
+        </TableHeader>
+
+        <TableBody>
+          {currentItems.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={13} className="text-center py-6">
+                No se encontraron productos en inventario.
               </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ) : (
+            currentItems.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.importacion}</TableCell>
+                <TableCell>{item.container}</TableCell>
+                <TableCell>{item.purchaseOrder}</TableCell>
+                <TableCell>{item.seal}</TableCell>
+                <TableCell>{item.grade}</TableCell>
+                <TableCell>{item.type}</TableCell>
+                <TableCell>{item.width}</TableCell>
+                <TableCell>{item.gsm}</TableCell>
+                <TableCell>{item.lmetre}</TableCell>
+                <TableCell>{item.productId}</TableCell>
+                <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>
+                <TableCell>{item.estado}</TableCell>
+                <TableCell className="text-center">
+                  <div className="flex justify-center gap-1"></div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-2">
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={page === 0}
+            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+            className="rounded-full shadow-sm hover:bg-primary hover:text-white transition cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+
+          <span className="text-sm text-muted-foreground">
+            Página {page + 1} de {totalPages}
+          </span>
+
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={page >= totalPages - 1}
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+            className="rounded-full shadow-sm hover:bg-primary hover:text-white transition cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import ProductosPage from "@/pages/productos/productos.page";
 import EjemploPage from "@/pages/ejemplo.page";
 import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
 import LogisticaPage from "@/pages/logistica/logistica.page"
+import AgregarLogistica from "@/pages/logistica/logistica.addpage";
 
 
 export const dashboardRoutes = [
@@ -51,6 +52,14 @@ export const dashboardRoutes = [
     icon: IconTruck,
     element: <LogisticaPage />,
     showInSidebar: true,
+  },
+  {
+    title: "Agregar Compra",
+    path: "/logistica/addCompra",
+    icon: IconPackage,
+    element: <AgregarLogistica />,
+    showInSidebar: false,
+    parent: "/logistica",
   },
   {
     title: "Ventas",

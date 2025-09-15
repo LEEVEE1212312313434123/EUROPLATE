@@ -1,0 +1,240 @@
+[
+  {
+    "importacion_id": "2025-03",
+    "tipo": "importación",
+    "descripcion": "2 bobinas de cartón Kraft",
+    "proveedor": {
+      "nombre": "Cartonera XYZ",
+      "pais": "China"
+    },
+    "logistica": {
+      "origen": "Shanghái",
+      "destino": "Callao",
+      "estado": "En tránsito",
+      "fecha_entrega": "2025-09-30"
+    },
+    "productos": [
+      {
+        "producto_id": "320833253",
+        "container": "ELOF/SE",
+        "order": "098783-05",
+        "purchase_order": "CA036110/PQ044553",
+        "seal": "SAL915610",
+        "material": {
+          "grade": "COATED KRAFTBACK BOARD • SHERPA",
+          "tipo": "Roll",
+          "dimensiones": {
+            "ancho_mm": 832
+          },
+          "gramaje_gsm": 448,
+          "longitud_m": 2893,
+          "peso_bruto_kg": 1116
+        },
+        "estado": "En tránsito"
+      },
+      {
+        "producto_id": "320833254",
+        "container": "ELOF/SE",
+        "order": "098783-06",
+        "purchase_order": "CA036110/PQ044553",
+        "seal": "SAL915611",
+        "material": {
+          "grade": "COATED KRAFTBACK BOARD • SHERPA",
+          "tipo": "Roll",
+          "dimensiones": {
+            "ancho_mm": 830
+          },
+          "gramaje_gsm": 448,
+          "longitud_m": 2900,
+          "peso_bruto_kg": 1105
+        },
+        "estado": "En tránsito"
+      }
+    ],
+    "fecha_registro": "2025-09-08T10:00:00Z",
+    "accion": "Ver"
+  },
+  {
+    "importacion_id": "2025-04",
+    "tipo": "importación",
+    "descripcion": "3 pallets de cartón corrugado",
+    "proveedor": {
+      "nombre": "Papelería Global",
+      "pais": "Suecia"
+    },
+    "logistica": {
+      "origen": "Gotemburgo",
+      "destino": "Callao",
+      "estado": "En stock",
+      "fecha_entrega": "2025-09-15"
+    },
+    "productos": [
+      {
+        "producto_id": "420833255",
+        "container": "TNT/45",
+        "order": "128733-09",
+        "purchase_order": "PQ044999/CA036200",
+        "seal": "SEL918220",
+        "material": {
+          "grade": "DOUBLE WALL CORRUGATED BOARD",
+          "tipo": "Sheet",
+          "dimensiones": {
+            "ancho_mm": 1200
+          },
+          "gramaje_gsm": 250,
+          "longitud_m": 2400,
+          "peso_bruto_kg": 850
+        },
+        "estado": "En stock"
+      }
+    ],
+    "fecha_registro": "2025-09-05T12:00:00Z",
+    "accion": "Ver"
+  },
+  {
+    "importacion_id": "2025-05",
+    "descripcion": "Lote de papel bond 75g",
+    "proveedor": {
+      "nombre": "Paper Supply Co.",
+      "pais": "Brasil"
+    },
+    "logistica": {
+      "origen": "Santos",
+      "destino": "Callao",
+      "estado": "Vendido",
+      "fecha_entrega": "2025-09-01"
+    },
+    "productos": [
+      {
+        "producto_id": "520833256",
+        "container": "BRT/88",
+        "order": "228733-15",
+        "purchase_order": "PQ055001/CA036210",
+        "seal": "SEL918221",
+        "material": {
+          "grade": "BOND PAPER 75G",
+          "tipo": "Unidad",
+          "dimensiones": {
+            "ancho_mm": 210
+          },
+          "gramaje_gsm": 75,
+          "longitud_m": 297,
+          "peso_bruto_kg": 5
+        },
+        "estado": "Vendido"
+      },
+      {
+        "producto_id": "520833257",
+        "container": "BRT/88",
+        "order": "228733-16",
+        "purchase_order": "PQ055001/CA036210",
+        "seal": "SEL918222",
+        "material": {
+          "grade": "BOND PAPER 75G",
+          "tipo": "Unidad",
+          "dimensiones": {
+            "ancho_mm": 210
+          },
+          "gramaje_gsm": 75,
+          "longitud_m": 297,
+          "peso_bruto_kg": 5
+        },
+        "estado": "Vendido"
+      },
+      {
+        "producto_id": "520833258",
+        "container": "BRT/88",
+        "order": "228733-17",
+        "purchase_order": "PQ055001/CA036210",
+        "seal": "SEL918223",
+        "material": {
+          "grade": "BOND PAPER 75G",
+          "tipo": "Unidad",
+          "dimensiones": {
+            "ancho_mm": 210
+          },
+          "gramaje_gsm": 75,
+          "longitud_m": 297,
+          "peso_bruto_kg": 5
+        },
+        "estado": "Vendido"
+      }
+    ],
+    "fecha_registro": "2025-09-02T09:30:00Z",
+    "accion": "Ver"
+  },
+  {
+    "importacion_id": "2025-06",
+    "descripcion": "2 rollos de papel prensa",
+    "tipo": "nacional",
+    "proveedor": {
+      "nombre": "NewsPrint SA",
+      "pais": "Canadá"
+    },
+    "logistica": {
+      "origen": "Montreal",
+      "destino": "Callao",
+      "estado": "En tránsito",
+      "fecha_entrega": "2025-10-10"
+    },
+    "productos": [
+      {
+        "producto_id": "620833259",
+        "container": "CND/55",
+        "order": "338733-10",
+        "purchase_order": "PQ066001/CA036300",
+        "seal": "SEL918224",
+        "material": {
+          "grade": "NEWSPRINT PAPER",
+          "tipo": "Roll",
+          "dimensiones": {
+            "ancho_mm": 900
+          },
+          "gramaje_gsm": 45,
+          "longitud_m": 10000,
+          "peso_bruto_kg": 1500
+        },
+        "estado": "En tránsito"
+      }
+    ],
+    "fecha_registro": "2025-09-06T14:20:00Z",
+    "accion": "Ver"
+  },
+  {
+    "importacion_id": "2025-07",
+    "tipo": "nacional",
+    "descripcion": "3 cajas de sobres manila",
+    "proveedor": {
+      "nombre": "OfiPaper SAC",
+      "pais": "Perú"
+    },
+    "logistica": {
+      "origen": "Lima",
+      "destino": "Arequipa",
+      "estado": "Entregado",
+      "fecha_entrega": "2025-09-03"
+    },
+    "productos": [
+      {
+        "producto_id": "720833260",
+        "container": "LOCAL/01",
+        "order": "448733-01",
+        "purchase_order": "PQ077001/CA036400",
+        "seal": "SEL918225",
+        "material": {
+          "grade": "SOBRES MANILA TAMAÑO A4",
+          "tipo": "Unidad",
+          "dimensiones": {
+            "ancho_mm": 229
+          },
+          "gramaje_gsm": 90,
+          "longitud_m": 324,
+          "peso_bruto_kg": 0.2
+        },
+        "estado": "Entregado"
+      }
+    ],
+    "fecha_registro": "2025-09-03T08:00:00Z",
+    "accion": "Ver"
+  }
+]
