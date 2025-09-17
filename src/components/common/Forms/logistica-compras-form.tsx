@@ -67,7 +67,7 @@ export default function ComprasLogistica() {
           </p>
         </div>
         <Button
-          onClick={() => navigate("/logistica/addCompra")}
+          onClick={() => navigate("/logistica/addimport")}
           className="flex items-center gap-2 cursor-pointer"
         >
           + Registrar Importación

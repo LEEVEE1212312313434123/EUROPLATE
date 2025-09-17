@@ -54,8 +54,8 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
-    title: "Agregar Compra",
-    path: "/logistica/addCompra",
+    title: "Agregar Importacion",
+    path: "/logistica/addimport",
     icon: IconPackage,
     element: <AgregarLogistica />,
     showInSidebar: false,
