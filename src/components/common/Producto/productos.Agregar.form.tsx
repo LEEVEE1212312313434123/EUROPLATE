@@ -8,6 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -40,6 +47,26 @@ export default function ProductosAgregarForm({
 }: Props) {
   const { products } = useProducts();
   const [productos, setProductos] = useState<ProductoBase[]>([]);
+
+  const columnConfig: Record<string, { key: keyof ProductoBase; label: string }[]> = {
+    default: [
+      { key: "tipo", label: "Tipo" },
+      { key: "dimensiones", label: "Dimensiones" },
+      { key: "ancho", label: "Ancho (cm)" },
+      { key: "largo", label: "Largo (cm)" },
+      { key: "gramaje", label: "Gramaje (g)" },
+      { key: "calibre", label: "Calibre" },
+      { key: "pliegos", label: "Pliegos x Paquete" },
+      { key: "unidad", label: "Unidad medida" },
+    ],
+    BobinasCarton: [
+      { key: "tipo", label: "Grade" },
+      { key: "dimensiones", label: "Type" },
+      { key: "ancho", label: "Width" },
+      { key: "gramaje", label: "Gsm" },
+      { key: "unidad", label: "Unidad medida" },
+    ],
+  };
 
   useEffect(() => {
     if (categoria) {
@@ -111,19 +138,11 @@ export default function ProductosAgregarForm({
   };
 
   const validarProductos = () => {
+    const config = columnConfig[categoria] || columnConfig.default;
     const nuevos = productos.filter((p) => p.isNew);
+
     for (const prod of nuevos) {
-      const campos = [
-        prod.tipo,
-        prod.dimensiones,
-        prod.ancho,
-        prod.largo,
-        prod.gramaje,
-        prod.calibre,
-        prod.pliegos,
-        prod.unidad,
-      ];
-      const todosLlenos = campos.every((v) => v.trim() !== "");
+      const todosLlenos = config.every((col) => String(prod[col.key] ?? "").trim() !== "");
       if (todosLlenos) return true;
     }
     return false;
@@ -136,29 +155,20 @@ export default function ProductosAgregarForm({
     }
 
     if (!validarProductos()) {
-      toast.error(
-        "Completa todos los campos de los productos nuevos antes de continuar."
-      );
+      toast.error("Completa todos los campos de los productos nuevos antes de continuar.");
       return;
     }
 
+    const config = columnConfig[categoria] || columnConfig.default;
+
     const productosNuevos = productos.filter((p) => {
       if (!p.isNew) return false;
-      return (
-        p.tipo.trim() !== "" &&
-        p.dimensiones.trim() !== "" &&
-        p.ancho.trim() !== "" &&
-        p.largo.trim() !== "" &&
-        p.gramaje.trim() !== "" &&
-        p.calibre.trim() !== "" &&
-        p.pliegos.trim() !== "" &&
-        p.unidad.trim() !== ""
-      );
+      return config.every((col) => String(p[col.key] ?? "").trim() !== "");
     });
 
     const productosConNombre = productosNuevos.map((p) => ({
       ...p,
-      productName: `${categoria} ${p.tipo}`, // Asegura que el nombre del producto esté basado en la categoría
+      productName: `${categoria} ${p.tipo}`,
     }));
 
     if (onNext) {
@@ -171,18 +181,9 @@ export default function ProductosAgregarForm({
       <Table className="text-sm">
         <TableHeader>
           <TableRow className="h-8">
-            {[
-              "Tipo",
-              "Dimensiones",
-              "Ancho (cm)",
-              "Largo (cm)",
-              "Gramaje (g)",
-              "Calibre",
-              "Pliegos x Paquete",
-              "Unidad medida",
-            ].map((title) => (
-              <TableHead key={title} className="px-2 text-center">
-                {title}
+            {(columnConfig[categoria] || columnConfig.default).map((col) => (
+              <TableHead key={col.key} className="px-2 text-center">
+                {col.label}
               </TableHead>
             ))}
           </TableRow>
@@ -190,47 +191,66 @@ export default function ProductosAgregarForm({
         <TableBody>
           {productos.map((producto) => (
             <TableRow key={producto.tempId} className="h-8">
-              {(
-                [
-                  "tipo",
-                  "dimensiones",
-                  "ancho",
-                  "largo",
-                  "gramaje",
-                  "calibre",
-                  "pliegos",
-                  "unidad",
-                ] as (keyof ProductoBase)[]
-              ).map((field) => (
-                <TableCell key={field} className="px-2 py-1">
-                  <Input
-                    value={String(producto[field] ?? "")}
-                    onChange={(e) =>
-                      handleProductoChange(
-                        producto.tempId,
-                        field,
-                        e.target.value
-                      )
-                    }
-                    className="h-7 text-sm"
-                  />
-                </TableCell>
-              ))}
+              {(columnConfig[categoria] || columnConfig.default).map((col) => {
+                // Anchos personalizados SOLO si es BobinasCarton
+                let extraClass = "";
+                if (categoria === "BobinasCarton") {
+                  if (col.key === "tipo") extraClass = "w-40"; // Grade más ancho
+                  else if (["dimensiones", "ancho", "gramaje"].includes(col.key))
+                    extraClass = "w-24"; // Type, Width, Gsm más pequeños
+                  else extraClass = "w-28"; // Unidad un poquito más ancho
+                } else {
+                  extraClass = "w-32"; // ancho estándar para default
+                }
+
+                return (
+                  <TableCell key={col.key} className={`px-1 py-1 ${extraClass}`}>
+                    {col.key === "unidad" ? (
+                      <Select
+                        value={producto.unidad}
+                        onValueChange={(value) =>
+                          handleProductoChange(producto.tempId, "unidad", value)
+                        }
+                      >
+                        <SelectTrigger className="h-7 text-sm w-full">
+                          <SelectValue placeholder="Selecciona" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Unidad">Unidad</SelectItem>
+                          <SelectItem value="Docena">Docena</SelectItem>
+                          <SelectItem value="Paquete">Paquete</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        value={String(producto[col.key] ?? "")}
+                        onChange={(e) =>
+                          handleProductoChange(producto.tempId, col.key, e.target.value)
+                        }
+                        className="h-7 text-sm w-full"
+                      />
+                    )}
+                  </TableCell>
+                );
+              })}
             </TableRow>
           ))}
-          <TableRow>
-            <TableCell colSpan={8} className="text-start py-1">
-              <Button
-                variant="ghost"
-                onClick={agregarFila}
-                className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
-              >
-                <PlusCircle size={24} />
-                <span>Agregar Tipo</span>
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
+        <TableRow>
+          <TableCell
+            colSpan={(columnConfig[categoria] || columnConfig.default).length}
+            className="text-start py-1"
+          >
+            <Button
+              variant="ghost"
+              onClick={agregarFila}
+              className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
+            >
+              <PlusCircle size={24} />
+              <span>Agregar Tipo</span>
+            </Button>
+          </TableCell>
+        </TableRow>
+      </TableBody>
       </Table>
 
       <div className="fixed bottom-6 right-6 flex gap-2">

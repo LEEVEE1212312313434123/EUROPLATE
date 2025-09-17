@@ -5,7 +5,6 @@ import {
   InventarioTable,
   type InventarioItem,
 } from "@/components/common/Logistica/InventarioTable";
-import { InventarioEditDialog } from "@/components/common/Dialog/InventarioEditDialog";
 import { toast } from "sonner";
 import { useLogistica } from "@/hooks/useLogistica";
 
@@ -15,7 +14,7 @@ export default function InventarioLogistica() {
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingItem, setEditingItem] = useState<InventarioItem | null>(null);
+  const [,setEditingItem] = useState<InventarioItem | null>(null);
   const mapEstado = (estado: string): "En tránsito" | "En stock" | "Vendido" => {
     if (estado === "En stock") return "En stock";
     if (estado === "Vendido") return "Vendido";
@@ -117,17 +116,6 @@ export default function InventarioLogistica() {
         />
       </div>
 
-      {editingItem && (
-        <InventarioEditDialog
-          open={!!editingItem}
-          item={editingItem}
-          onClose={() => setEditingItem(null)}
-          onSave={(updatedItem) => {
-            toast.success("Producto actualizado en inventario");
-            setEditingItem(null);
-          }}
-        />
-      )}
     </div>
   );
 }

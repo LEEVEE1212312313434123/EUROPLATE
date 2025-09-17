@@ -44,6 +44,7 @@ export default function AgregarProductosPage() {
                   <SelectItem value="Papel">Papel</SelectItem>
                   <SelectItem value="Cartón">Cartón</SelectItem>
                   <SelectItem value="Hoja">Hoja</SelectItem>
+                  <SelectItem value="BobinasCarton">Bobinas de cartón</SelectItem>
                 </SelectContent>
               </Select>
             </div>

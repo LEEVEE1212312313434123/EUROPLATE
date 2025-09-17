@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 export interface InventarioItem {
@@ -34,11 +34,9 @@ interface InventarioTableProps {
 
 export function InventarioTable({
   items,
-  onEdit,
-  onDelete,
 }: InventarioTableProps) {
   const [page, setPage] = useState(0);
-  const pageSize = 5;
+  const pageSize = 4;
 
   const start = page * pageSize;
   const end = start + pageSize;
@@ -46,23 +44,23 @@ export function InventarioTable({
 
   const totalPages = Math.ceil(items.length / pageSize);
 
-  return (
+   return (
     <div className="flex flex-col gap-4">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Importación</TableHead>
-            <TableHead>Container</TableHead>
-            <TableHead>Purchase Order</TableHead>
-            <TableHead>Seal</TableHead>
-            <TableHead>Grade</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Width</TableHead>
-            <TableHead>GSM</TableHead>
-            <TableHead>L. Metre</TableHead>
-            <TableHead>Product ID</TableHead>
-            <TableHead>Peso (Kg)</TableHead>
-            <TableHead>Estado</TableHead>
+            <TableHead className="w-[150px]">Importación</TableHead>
+            <TableHead className="w-[100px]">Container</TableHead>
+            <TableHead className="w-[150px]">Purchase Order</TableHead>
+            <TableHead className="w-[120px]">Seal</TableHead>
+            <TableHead className="w-[200px]">Grade</TableHead>
+            <TableHead className="w-[80px]">Type</TableHead>
+            <TableHead className="w-[80px]">Width</TableHead>
+            <TableHead className="w-[80px]">GSM</TableHead>
+            <TableHead className="w-[80px]">L. Metre</TableHead>
+            <TableHead className="w-[120px]">Product ID</TableHead>
+            <TableHead className="w-[100px]">Peso (Kg)</TableHead>
+            <TableHead className="w-[100px]">Estado</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -75,12 +73,15 @@ export function InventarioTable({
             </TableRow>
           ) : (
             currentItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.importacion}</TableCell>
+              <TableRow
+                key={item.id}
+                className="h-14 border-b transition-colors hover:bg-muted/50"
+              >
+                <TableCell className="truncate max-w-[150px]">{item.importacion}</TableCell>
                 <TableCell>{item.container}</TableCell>
-                <TableCell>{item.purchaseOrder}</TableCell>
+                <TableCell className="truncate max-w-[150px]">{item.purchaseOrder}</TableCell>
                 <TableCell>{item.seal}</TableCell>
-                <TableCell>{item.grade}</TableCell>
+                <TableCell className="truncate max-w-[200px]">{item.grade}</TableCell>
                 <TableCell>{item.type}</TableCell>
                 <TableCell>{item.width}</TableCell>
                 <TableCell>{item.gsm}</TableCell>
@@ -89,7 +90,6 @@ export function InventarioTable({
                 <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>
                 <TableCell>{item.estado}</TableCell>
                 <TableCell className="text-center">
-                  <div className="flex justify-center gap-1"></div>
                 </TableCell>
               </TableRow>
             ))

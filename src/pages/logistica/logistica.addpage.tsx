@@ -1,65 +1,105 @@
-import { useState } from "react";
-import { Package } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
-import ProductosAgregarForm from "@/components/common/Logistica/Logisitica.Tableadd";
+} from "@/components/ui/select"
+import DataImportacion from "@/components/common/Logistica/Data.Importacion"
+import PDFAdjunto from "@/components/common/Logistica/PDF.Adjunt"
+import TableAddImport from "@/components/common/Logistica/Table.add"
 
 export default function AgregarLogistica() {
-    const navigate = useNavigate();
-    const [categoria, setCategoria] = useState<string>("");
-    const [step, setStep] = useState<number>(1);
-    const [productosStep1, setProductosStep1] = useState<any[]>([]);
+  return (
+    <div className="w-full">
+      <div className="flex justify-end gap-2 p-3 -mt-2">
+        <Button className="cursor-pointer h-8 px-3 text-sm" variant="outline">
+          Cancelar
+        </Button>
+        <Button className="cursor-pointer h-8 px-3 text-sm">Guardar</Button>
+      </div>
 
-    
-    return(
-        <div className="space-y-6 ml-6">
-            <div className="flex items-start gap-4">
-                <Package className="h-12 w-12 text-primary mt-1" />
-                <div className="flex flex-col">
-                    <h1 className="text-xl font-semibold">Registro Nueva Compra</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Completa los datos de la compras
-                    </p>
-                    {step === 1 && (
-                        <div className="mt-6 ml-[36px]">
-                        <label className="block text-base font-semibold mb-1">
-                            Categoría
-                        </label>
-                        <Select
-                            value={categoria}
-                            onValueChange={(value) => setCategoria(value)}
-                            disabled={step > 1}
-                        >
-                        <SelectTrigger className="w-64">
-                            <SelectValue placeholder="Selecciona una categoría" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Importacion">Importación</SelectItem>
-                            <SelectItem value="Nacional">Nacional</SelectItem>
-                        </SelectContent>
-                        </Select>
-                    </div>
-                    )}
-                </div>
+      <hr className="border-gray-200" />
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">Registrar Importación</h2>
+        <div className="mt-4">
+          <h3 className="text-base font-medium mb-3">Datos Generales</h3>
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
+              <Label htmlFor="num-importacion" className="text-xs">
+                N° Importación
+              </Label>
+              <Input
+                id="num-importacion"
+                placeholder="N°"
+                className="h-10 text-sm md:h-9 md:text-xs w-full"
+              />
             </div>
-            <div className="mt-10 ml-[100px] max-w-6xl">
-                {step === 1 && (
-                    <ProductosAgregarForm
-                        navigate={navigate}
-                        categoria={categoria}
-                        onNext={(productos) => {
-                        setProductosStep1(productos);
-                        setStep(2);
-                        }}
-                    />
-                )}
+            <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
+              <Label htmlFor="fecha-pedido" className="text-xs">
+                Fecha Pedido
+              </Label>
+              <Select>
+                <SelectTrigger
+                  id="fecha-pedido"
+                  className="h-10 text-sm md:h-7 md:text-xs w-full"
+                >
+                  <SelectValue placeholder="Pedido" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2025-09-01">01/09/2025</SelectItem>
+                  <SelectItem value="2025-09-10">10/09/2025</SelectItem>
+                  <SelectItem value="2025-09-20">20/09/2025</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+            <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
+              <Label htmlFor="fecha-entrega" className="text-xs">
+                Fecha Entrega
+              </Label>
+              <Select>
+                <SelectTrigger
+                  id="fecha-entrega"
+                  className="h-10 text-sm md:h-7 md:text-xs w-full"
+                >
+                  <SelectValue placeholder="Entrega" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2025-10-01">01/10/2025</SelectItem>
+                  <SelectItem value="2025-10-15">15/10/2025</SelectItem>
+                  <SelectItem value="2025-10-30">30/10/2025</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
+              <Label htmlFor="purchase-order" className="text-xs">
+                Purchase Order
+              </Label>
+              <Input
+                id="purchase-order"
+                placeholder="Orden"
+                className="h-10 text-sm md:h-9 md:text-xs w-full"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col space-y-0.5 mt-3 w-full">
+            <Label htmlFor="detalle" className="text-xs">
+              Detalle
+            </Label>
+            <Input
+              id="detalle"
+              placeholder="Importación"
+              className="h-10 text-sm md:h-9 md:text-xs w-full"
+            />
+          </div>
+          <DataImportacion />
+          <PDFAdjunto />
+          <TableAddImport/>
         </div>
-    );
+      </div>
+    </div>
+  )
 }
