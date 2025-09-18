@@ -31,12 +31,12 @@ interface ProductoBase {
   pliegos: string;
   unidad: string;
   productName?: string;
-  isNew?: boolean; // Nuevo campo
+  isNew?: boolean;
 }
 
 interface Props {
   navigate: any;
-  categoria: string; // Recibe la categoría seleccionada del FormPadre
+  categoria: string;
   onNext?: (productos: any[], categoria: string) => void;
 }
 
@@ -90,19 +90,19 @@ export default function ProductosAgregarForm({
         filtrados.length > 0
           ? filtrados
           : [
-              {
-                tempId: 1,
-                tipo: "",
-                dimensiones: "",
-                ancho: "",
-                largo: "",
-                gramaje: "",
-                calibre: "",
-                pliegos: "",
-                unidad: "",
-                isNew: true,
-              },
-            ]
+            {
+              tempId: 1,
+              tipo: "",
+              dimensiones: "",
+              ancho: "",
+              largo: "",
+              gramaje: "",
+              calibre: "",
+              pliegos: "",
+              unidad: "",
+              isNew: true,
+            },
+          ]
       );
     }
   }, [categoria, products]);
@@ -142,7 +142,9 @@ export default function ProductosAgregarForm({
     const nuevos = productos.filter((p) => p.isNew);
 
     for (const prod of nuevos) {
-      const todosLlenos = config.every((col) => String(prod[col.key] ?? "").trim() !== "");
+      const todosLlenos = config.every(
+        (col) => String(prod[col.key] ?? "").trim() !== ""
+      );
       if (todosLlenos) return true;
     }
     return false;
@@ -155,7 +157,9 @@ export default function ProductosAgregarForm({
     }
 
     if (!validarProductos()) {
-      toast.error("Completa todos los campos de los productos nuevos antes de continuar.");
+      toast.error(
+        "Completa todos los campos de los productos nuevos antes de continuar."
+      );
       return;
     }
 
@@ -192,15 +196,14 @@ export default function ProductosAgregarForm({
           {productos.map((producto) => (
             <TableRow key={producto.tempId} className="h-8">
               {(columnConfig[categoria] || columnConfig.default).map((col) => {
-                // Anchos personalizados SOLO si es BobinasCarton
                 let extraClass = "";
                 if (categoria === "BobinasCarton") {
-                  if (col.key === "tipo") extraClass = "w-40"; // Grade más ancho
+                  if (col.key === "tipo") extraClass = "w-40";
                   else if (["dimensiones", "ancho", "gramaje"].includes(col.key))
-                    extraClass = "w-24"; // Type, Width, Gsm más pequeños
-                  else extraClass = "w-28"; // Unidad un poquito más ancho
+                    extraClass = "w-24";
+                  else extraClass = "w-28";
                 } else {
-                  extraClass = "w-32"; // ancho estándar para default
+                  extraClass = "w-32";
                 }
 
                 return (
@@ -225,7 +228,11 @@ export default function ProductosAgregarForm({
                       <Input
                         value={String(producto[col.key] ?? "")}
                         onChange={(e) =>
-                          handleProductoChange(producto.tempId, col.key, e.target.value)
+                          handleProductoChange(
+                            producto.tempId,
+                            col.key,
+                            e.target.value
+                          )
                         }
                         className="h-7 text-sm w-full"
                       />
@@ -235,22 +242,23 @@ export default function ProductosAgregarForm({
               })}
             </TableRow>
           ))}
-        <TableRow>
-          <TableCell
-            colSpan={(columnConfig[categoria] || columnConfig.default).length}
-            className="text-start py-1"
-          >
-            <Button
-              variant="ghost"
-              onClick={agregarFila}
-              className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
+          <TableRow>
+            <TableCell
+              colSpan={(columnConfig[categoria] || columnConfig.default).length}
+              className="text-start py-1"
             >
-              <PlusCircle size={24} />
-              <span>Agregar Tipo</span>
-            </Button>
-          </TableCell>
-        </TableRow>
-      </TableBody>
+              <Button
+                variant="ghost"
+                onClick={agregarFila}
+                disabled={!categoria || categoria.trim() === ""}
+                className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
+              >
+                <PlusCircle size={24} />
+                <span>Agregar Tipo</span>
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
       </Table>
 
       <div className="fixed bottom-6 right-6 flex gap-2">
