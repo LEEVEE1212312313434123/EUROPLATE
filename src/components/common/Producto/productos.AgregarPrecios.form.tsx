@@ -11,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ProductService } from "@/services/products.service";
+import type { Product } from "@/types/product.types";
 
-interface ProductoConPrecios {
+// Estructura para productos normales
+interface ProductoConPreciosDefault {
   tempId: number;
   tipo: string;
   dimensiones: string;
@@ -28,13 +30,32 @@ interface ProductoConPrecios {
   precioMin: string;
   precioMax: string;
   imagen?: string;
-  peso?: string; // Nueva propiedad para el peso
+  peso?: string;
 }
+
+// Estructura para BobinasCarton
+interface ProductoConPreciosBobina {
+  tempId: number;
+  tipo: string; // Grade
+  dimensiones: string; // Type
+  ancho: string; // Width
+  gramaje: string; // Gsm
+  unidad: string;
+  productName: string;
+  precioKgMin: string;
+  precioKgMax: string;
+  precioMin: string;
+  precioMax: string;
+  imagen?: string;
+  peso?: string;
+}
+
+type ProductoConPrecios = ProductoConPreciosDefault | ProductoConPreciosBobina;
 
 interface Props {
   navigate: any;
-  productosPrevios: ProductoConPrecios[]; // productos del paso anterior
-  categoria: string; // recibida desde Formulario1
+  productosPrevios: ProductoConPrecios[];
+  categoria: string;
 }
 
 export default function ProductosAgregarPreciosForm({
@@ -46,7 +67,6 @@ export default function ProductosAgregarPreciosForm({
     useState<ProductoConPrecios[]>(productosPrevios);
   const [maxId, setMaxId] = useState<number>(0);
 
-  // Obtener el máximo ID
   useEffect(() => {
     const fetchMaxId = async () => {
       try {
@@ -74,7 +94,6 @@ export default function ProductosAgregarPreciosForm({
   };
 
   const handleFinalizar = async () => {
-    // Validación de precios mínimos y máximos
     const productosConPreciosValidos = productos.filter(
       (producto) =>
         producto.precioMin &&
@@ -101,51 +120,85 @@ export default function ProductosAgregarPreciosForm({
     }
 
     try {
-      // Mapear productos con precios completos
-      const productosCompletos = productosConPreciosValidos.map(
+      const productosCompletos: Product[] = productosConPreciosValidos.map(
         (producto, idx) => {
           const nuevoId = maxId + idx + 1;
 
-          return {
-            id: nuevoId,
-            nombre_producto: producto.productName,
-            categoria: categoria,
-            material: {
-              tipo: producto.tipo,
-              dimensiones: {
-                ancho_cm: parseInt(producto.ancho),
-                largo_cm: parseInt(producto.largo),
+          if (categoria === "BobinasCarton") {
+            const p = producto as ProductoConPreciosBobina;
+            return {
+              id: nuevoId,
+              nombre_producto: p.productName,
+              categoria: categoria,
+              material: {
+                tipo: p.tipo, // usamos "tipo" en lugar de grade
+                dimensiones: {
+                  ancho_cm: parseInt(p.ancho) || 0,
+                  largo_cm: 0, // BobinasCarton no tiene largo → lo dejamos en 0
+                },
+                gramaje_g: parseInt(p.gramaje) || 0,
+                calibre: 0,
+                pliegos_por_paquete: 0,
+                unidad_medida: p.unidad,
+                peso_kg: parseFloat(p.peso || "0"),
               },
-              gramaje_g: parseInt(producto.gramaje),
-              calibre: parseInt(producto.calibre),
-              pliegos_por_paquete: parseInt(producto.pliegos),
-              unidad_medida: producto.unidad,
-              peso_kg: parseFloat(producto.peso || "0"), // Nueva propiedad para el peso
-            },
-            precio: {
-              precio_min: parseFloat(producto.precioMin || "0"),
-              precio_max: parseFloat(producto.precioMax || "0"),
-              precio_kg_min: parseFloat(producto.precioKgMin || "0"),
-              precio_kg_max: parseFloat(producto.precioKgMax || "0"),
-              moneda: "USD",
-            },
-            almacen: {
-              stock_actual: 10,
-              stock_minimo: 3,
-              ubicacion: "Almacén Central - Estante A1",
-            },
-            estado: "Activo",
-            accion: "Ver",
-            fecha_registro: new Date().toISOString(),
-            imagen:
-              producto.imagen || "https://dummyimage.com/400x400/4c65bf/db398a",
-            tipo: "producto",
-          };
+              precio: {
+                precio_min: parseFloat(p.precioMin || "0"),
+                precio_max: parseFloat(p.precioMax || "0"),
+                moneda: "USD",
+              },
+              almacen: {
+                stock_actual: 10,
+                stock_minimo: 3,
+                ubicacion: "Almacén Central - Estante A1",
+              },
+              estado: "Activo",
+              accion: "Ver",
+              fecha_registro: new Date().toISOString(),
+              imagen:
+                p.imagen || "https://dummyimage.com/400x400/4c65bf/db398a",
+              tipo: "producto",
+            };
+          } else {
+            const p = producto as ProductoConPreciosDefault;
+            return {
+              id: nuevoId,
+              nombre_producto: p.productName,
+              categoria: categoria,
+              material: {
+                tipo: p.tipo,
+                dimensiones: {
+                  ancho_cm: parseInt(p.ancho) || 0,
+                  largo_cm: parseInt(p.largo) || 0,
+                },
+                gramaje_g: parseInt(p.gramaje) || 0,
+                calibre: parseInt(p.calibre) || 0,
+                pliegos_por_paquete: parseInt(p.pliegos) || 0,
+                unidad_medida: p.unidad,
+                peso_kg: parseFloat(p.peso || "0"),
+              },
+              precio: {
+                precio_min: parseFloat(p.precioMin || "0"),
+                precio_max: parseFloat(p.precioMax || "0"),
+                moneda: "USD",
+              },
+              almacen: {
+                stock_actual: 10,
+                stock_minimo: 3,
+                ubicacion: "Almacén Central - Estante A1",
+              },
+              estado: "Activo",
+              accion: "Ver",
+              fecha_registro: new Date().toISOString(),
+              imagen:
+                p.imagen || "https://dummyimage.com/400x400/4c65bf/db398a",
+              tipo: "producto",
+            };
+          }
         }
       );
 
       if (productosCompletos.length > 0) {
-        // Enviar TODOS los productos
         await ProductService.addMany(productosCompletos);
         toast.success("✅ Productos agregados correctamente");
         navigate("/products?tab=lista");
@@ -178,19 +231,7 @@ export default function ProductosAgregarPreciosForm({
         <TableBody>
           {productos.map((producto) => (
             <TableRow key={producto.tempId} className="h-8">
-              <TableCell className="px-2 py-1">
-                {`${categoria} ${producto.tipo} ${
-                  producto.dimensiones ? `${producto.dimensiones} ` : ""
-                }${
-                  producto.ancho && producto.largo
-                    ? `${producto.ancho}x${producto.largo} `
-                    : ""
-                }${producto.gramaje ? `${producto.gramaje}g ` : ""}calibre ${
-                  producto.calibre ? `${producto.calibre} ` : ""
-                }${producto.unidad ? `${producto.unidad.toLowerCase()} ` : ""}${
-                  producto.pliegos ? `${producto.pliegos} pliegos` : ""
-                }`}
-              </TableCell>
+              <TableCell className="px-2 py-1">{producto.productName}</TableCell>
               <TableCell className="px-2 py-1">
                 <Input
                   value={producto.peso}

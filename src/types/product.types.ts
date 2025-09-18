@@ -36,3 +36,18 @@ export interface Product {
   imagen: string;
   tipo: string;
 }
+
+
+export interface ProductoBase {
+  tempId: number;
+  tipo: string;
+  dimensiones: string;
+  ancho: string;
+  largo?: string;
+  gramaje: string;
+  calibre?: string;
+  pliegos?: string;
+  unidad: string;
+  productName: string;
+  isNew: boolean;
+}
