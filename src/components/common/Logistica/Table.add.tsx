@@ -1,7 +1,7 @@
-// src/components/common/Producto/TableAddProductos.tsx
+// src/components/common/Logistica/Table.add.tsx
 
-import { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { useState, useEffect } from "react"
+import { PlusCircle } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -9,20 +9,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface ProductoRow {
-  tempId: number;
-  order: string;
-  gradeTypeWidthGsm: string;
-  lMetre: string;
-  productId: string;
-  grossNetWt: string;
+  tempId: number
+  order: string
+  gradeTypeWidthGsm: string
+  lMetre: string
+  productId: string
+  grossNetWt: string
 }
 
-export default function TableAddProductos() {
+interface Props {
+  onChange: (rows: ProductoRow[]) => void
+}
+
+export default function TableAddImport({ onChange }: Props) {
   const [productos, setProductos] = useState<ProductoRow[]>([
     {
       tempId: 1,
@@ -32,7 +36,12 @@ export default function TableAddProductos() {
       productId: "",
       grossNetWt: "",
     },
-  ]);
+  ])
+
+  // cada vez que cambia productos, notificamos al padre
+  useEffect(() => {
+    onChange(productos)
+  }, [productos, onChange])
 
   const handleChange = (
     tempId: number,
@@ -41,12 +50,12 @@ export default function TableAddProductos() {
   ) => {
     setProductos((prev) =>
       prev.map((p) => (p.tempId === tempId ? { ...p, [field]: value } : p))
-    );
-  };
+    )
+  }
 
   const agregarFila = () => {
     const newTempId =
-      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
+      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1
     setProductos((prev) => [
       ...prev,
       {
@@ -57,13 +66,13 @@ export default function TableAddProductos() {
         productId: "",
         grossNetWt: "",
       },
-    ]);
-  };
+    ])
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 mt-6">
       <div className="flex items-start gap-4">
-        <h3 className="text-base font-semibold mb-4">Datos de la Importación</h3>
+        <h3 className="text-base font-semibold mb-4">Productos</h3>
       </div>
 
       <Table className="text-sm">
@@ -147,5 +156,5 @@ export default function TableAddProductos() {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

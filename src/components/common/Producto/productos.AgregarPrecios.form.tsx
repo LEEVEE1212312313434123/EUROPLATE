@@ -36,8 +36,8 @@ interface ProductoConPreciosDefault {
 // Estructura para BobinasCarton
 interface ProductoConPreciosBobina {
   tempId: number;
-  tipo: string; // Grade
-  dimensiones: string; // Type
+  grade: string; // verdadero campo
+  type: string; // verdadero campo
   ancho: string; // Width
   gramaje: string; // Gsm
   unidad: string;
@@ -131,10 +131,10 @@ export default function ProductosAgregarPreciosForm({
               nombre_producto: p.productName,
               categoria: categoria,
               material: {
-                tipo: p.tipo, // usamos "tipo" en lugar de grade
+                tipo: p.type, // ahora usamos grade real
                 dimensiones: {
                   ancho_cm: parseInt(p.ancho) || 0,
-                  largo_cm: 0, // BobinasCarton no tiene largo → lo dejamos en 0
+                  largo_cm: 0, // BobinasCarton no tiene largo
                 },
                 gramaje_g: parseInt(p.gramaje) || 0,
                 calibre: 0,

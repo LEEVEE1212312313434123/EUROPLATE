@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useProducts } from "@/hooks/useProducts";
 
-interface ProductoBase {
+interface ProductoBaseGeneral {
   tempId: number;
   tipo: string;
   dimensiones: string;
@@ -33,6 +33,19 @@ interface ProductoBase {
   productName?: string;
   isNew?: boolean;
 }
+
+interface ProductoBaseBobina {
+  tempId: number;
+  grade: string;
+  type: string;
+  ancho: string;
+  gramaje: string;
+  unidad: string;
+  productName?: string;
+  isNew?: boolean;
+}
+
+type ProductoBase = ProductoBaseGeneral | ProductoBaseBobina;
 
 interface Props {
   navigate: any;
@@ -48,7 +61,8 @@ export default function ProductosAgregarForm({
   const { products } = useProducts();
   const [productos, setProductos] = useState<ProductoBase[]>([]);
 
-  const columnConfig: Record<string, { key: keyof ProductoBase; label: string }[]> = {
+  // usamos `string` para soportar todas las keys sin error
+  const columnConfig: Record<string, { key: string; label: string }[]> = {
     default: [
       { key: "tipo", label: "Tipo" },
       { key: "dimensiones", label: "Dimensiones" },
@@ -60,9 +74,9 @@ export default function ProductosAgregarForm({
       { key: "unidad", label: "Unidad medida" },
     ],
     BobinasCarton: [
-      { key: "tipo", label: "Grade" },
-      { key: "dimensiones", label: "Type" },
-      { key: "ancho", label: "Width" },
+      { key: "grade", label: "Grade" },
+      { key: "type", label: "Type" },
+      { key: "ancho", label: "Width (cm)" },
       { key: "gramaje", label: "Gsm" },
       { key: "unidad", label: "Unidad medida" },
     ],
@@ -72,36 +86,61 @@ export default function ProductosAgregarForm({
     if (categoria) {
       const filtrados = products
         .filter((p) => p.categoria === categoria)
-        .map((p, idx) => ({
-          tempId: idx + 1,
-          tipo: p.material.tipo,
-          dimensiones: `${p.material.dimensiones.ancho_cm}x${p.material.dimensiones.largo_cm}`,
-          ancho: String(p.material.dimensiones.ancho_cm),
-          largo: String(p.material.dimensiones.largo_cm),
-          gramaje: String(p.material.gramaje_g),
-          calibre: String(p.material.calibre),
-          pliegos: String(p.material.pliegos_por_paquete),
-          unidad: p.material.unidad_medida,
-          productName: `${p.material.tipo} ${p.material.dimensiones.ancho_cm}x${p.material.dimensiones.largo_cm}cm ${p.material.gramaje_g}g calibre ${p.material.calibre} pliegos ${p.material.pliegos_por_paquete} unidad ${p.material.unidad_medida}`,
-          isNew: false,
-        }));
+        .map((p, idx) => {
+          if (categoria === "BobinasCarton") {
+            return {
+              tempId: idx + 1,
+              grade: p.nombre_producto ?? "",
+              type: p.material?.tipo ?? "",
+              ancho: String(p.material?.dimensiones?.ancho_cm ?? ""),
+              gramaje: String(p.material?.gramaje_g ?? ""),
+              unidad: p.material?.unidad_medida ?? "",
+              productName: p.nombre_producto ?? "",
+              isNew: false,
+            } as ProductoBaseBobina;
+          } else {
+            return {
+              tempId: idx + 1,
+              tipo: p.material.tipo,
+              dimensiones: `${p.material.dimensiones.ancho_cm}x${p.material.dimensiones.largo_cm}`,
+              ancho: String(p.material.dimensiones.ancho_cm),
+              largo: String(p.material.dimensiones.largo_cm),
+              gramaje: String(p.material.gramaje_g),
+              calibre: String(p.material.calibre),
+              pliegos: String(p.material.pliegos_por_paquete),
+              unidad: p.material.unidad_medida,
+              productName: `${p.material.tipo} ${p.material.dimensiones.ancho_cm}x${p.material.dimensiones.largo_cm}cm ${p.material.gramaje_g}g calibre ${p.material.calibre} pliegos ${p.material.pliegos_por_paquete} unidad ${p.material.unidad_medida}`,
+              isNew: false,
+            } as ProductoBaseGeneral;
+          }
+        });
 
       setProductos(
         filtrados.length > 0
           ? filtrados
           : [
-            {
-              tempId: 1,
-              tipo: "",
-              dimensiones: "",
-              ancho: "",
-              largo: "",
-              gramaje: "",
-              calibre: "",
-              pliegos: "",
-              unidad: "",
-              isNew: true,
-            },
+            categoria === "BobinasCarton"
+              ? {
+                tempId: 1,
+                grade: "",
+                type: "",
+                ancho: "",
+                gramaje: "",
+                unidad: "",
+                isNew: true,
+              }
+              : {
+                tempId: 1,
+                tipo: "",
+                dimensiones: "",
+                ancho: "",
+                largo: "",
+                gramaje: "",
+                calibre: "",
+                pliegos: "",
+                unidad: "",
+                isNew: true,
+              },
           ]
       );
     }
@@ -109,7 +148,7 @@ export default function ProductosAgregarForm({
 
   const handleProductoChange = (
     tempId: number,
-    field: keyof ProductoBase,
+    field: string,
     value: string
   ) => {
     setProductos((prev) =>
@@ -120,21 +159,37 @@ export default function ProductosAgregarForm({
   const agregarFila = () => {
     const newTempId =
       productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
-    setProductos((prev) => [
-      ...prev,
-      {
-        tempId: newTempId,
-        tipo: "",
-        dimensiones: "",
-        ancho: "",
-        largo: "",
-        gramaje: "",
-        calibre: "",
-        pliegos: "",
-        unidad: "",
-        isNew: true,
-      },
-    ]);
+
+    if (categoria === "BobinasCarton") {
+      setProductos((prev) => [
+        ...prev,
+        {
+          tempId: newTempId,
+          grade: "",
+          type: "",
+          ancho: "",
+          gramaje: "",
+          unidad: "",
+          isNew: true,
+        } as ProductoBaseBobina,
+      ]);
+    } else {
+      setProductos((prev) => [
+        ...prev,
+        {
+          tempId: newTempId,
+          tipo: "",
+          dimensiones: "",
+          ancho: "",
+          largo: "",
+          gramaje: "",
+          calibre: "",
+          pliegos: "",
+          unidad: "",
+          isNew: true,
+        } as ProductoBaseGeneral,
+      ]);
+    }
   };
 
   const validarProductos = () => {
@@ -143,7 +198,7 @@ export default function ProductosAgregarForm({
 
     for (const prod of nuevos) {
       const todosLlenos = config.every(
-        (col) => String(prod[col.key] ?? "").trim() !== ""
+        (col) => String((prod as any)[col.key] ?? "").trim() !== ""
       );
       if (todosLlenos) return true;
     }
@@ -167,13 +222,23 @@ export default function ProductosAgregarForm({
 
     const productosNuevos = productos.filter((p) => {
       if (!p.isNew) return false;
-      return config.every((col) => String(p[col.key] ?? "").trim() !== "");
+      return config.every(
+        (col) => String((p as any)[col.key] ?? "").trim() !== ""
+      );
     });
 
-    const productosConNombre = productosNuevos.map((p) => ({
-      ...p,
-      productName: `${categoria} ${p.tipo}`,
-    }));
+    const productosConNombre = productosNuevos.map((p) => {
+      if (categoria === "BobinasCarton") {
+        return {
+          ...p,
+          productName: (p as ProductoBaseBobina).grade ?? "",
+        };
+      }
+      return {
+        ...p,
+        productName: `${categoria} ${(p as ProductoBaseGeneral).tipo}`,
+      };
+    });
 
     if (onNext) {
       onNext(productosConNombre, categoria);
@@ -198,8 +263,8 @@ export default function ProductosAgregarForm({
               {(columnConfig[categoria] || columnConfig.default).map((col) => {
                 let extraClass = "";
                 if (categoria === "BobinasCarton") {
-                  if (col.key === "tipo") extraClass = "w-40";
-                  else if (["dimensiones", "ancho", "gramaje"].includes(col.key))
+                  if (col.key === "grade") extraClass = "w-40";
+                  else if (["type", "ancho", "gramaje"].includes(col.key))
                     extraClass = "w-24";
                   else extraClass = "w-28";
                 } else {
@@ -226,7 +291,7 @@ export default function ProductosAgregarForm({
                       </Select>
                     ) : (
                       <Input
-                        value={String(producto[col.key] ?? "")}
+                        value={String((producto as any)[col.key] ?? "")}
                         onChange={(e) =>
                           handleProductoChange(
                             producto.tempId,

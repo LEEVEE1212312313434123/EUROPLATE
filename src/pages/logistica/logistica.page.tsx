@@ -18,9 +18,9 @@ export default function LogisticaPage() {
       </div>
 
       <div className="mt-4">
-        {activeTab === "compras" && <ComprasLogistica/>}
-        {activeTab === "inventario" && <InventarioLogistica/>}
-        {activeTab === "proveedores"}   
+        {activeTab === "compras" && <ComprasLogistica />}
+        {activeTab === "inventario" && <InventarioLogistica />}
+        {activeTab === "proveedores"}
       </div>
     </div>
   );
