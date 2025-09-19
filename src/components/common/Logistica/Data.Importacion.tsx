@@ -28,6 +28,7 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
     puertoDestino: "",
     transportista: "",
     aseguradora: "",
+    container: "",
   })
 
   const [economicos, setEconomicos] = useState({
@@ -176,6 +177,18 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
                 <SelectItem value="anova">Anova Marine Insurance</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Container */}
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="container" className="text-xs">Container</Label>
+            <Input
+              id="container"
+              value={importacion.container}
+              onChange={(e) => setImportacion({ ...importacion, container: e.target.value })}
+              placeholder="container"
+              className="h-8 text-xs w-full"
+            />
           </div>
         </div>
       </div>

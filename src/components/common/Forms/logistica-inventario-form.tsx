@@ -36,12 +36,13 @@ export default function InventarioLogistica() {
       compras.forEach((compra: any) => {
         const importacionId = compra.datosGenerales?.numImportacion || "N/A";
         const purchaseOrder = compra.datosGenerales?.purchaseOrder || "N/A";
+        const container = compra.datosImportacion?.container || "N/A"; // 🔹 container
 
         compra.productos.forEach((producto: any, index: number) => {
           productosMap.push({
             id: `${producto.tempId}-${index}`, // tempId único
             importacion: importacionId,
-            container: producto.container || "N/A",
+            container: container, // 🔹 container agregado
             order: producto.order || "N/A",
             purchaseOrder: purchaseOrder,
             seal: "Generado",

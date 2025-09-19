@@ -38,7 +38,30 @@ export default function TableAddImport({ onChange }: Props) {
     },
   ])
 
-  // cada vez que cambia productos, notificamos al padre
+  const [opciones, setOpciones] = useState<string[]>([])
+
+  // cargar opciones desde localStorage
+  useEffect(() => {
+    const productosLS = JSON.parse(localStorage.getItem("products") || "[]")
+
+    const opts: string[] = []
+
+    productosLS.forEach((p: any) => {
+      if (p.categoria === "BobinasCarton") {
+        opts.push(
+          `${p.nombre_producto || ""} ${p.material?.tipo || ""} ${p.material?.dimensiones?.ancho_cm || 0} ${p.material?.gramaje_g || 0}`
+        )
+      } else {
+        opts.push(
+          `${p.nombre_producto} ${p.material?.gramaje_g || 0} ${p.material?.calibre || 0} ${p.material?.unidad_medida || ""} ${p.material?.pliegos_por_paquete || 0}`
+        )
+      }
+    })
+
+    setOpciones(opts)
+  }, [])
+
+  // notificar cambios al padre
   useEffect(() => {
     onChange(productos)
   }, [productos, onChange])
@@ -79,9 +102,7 @@ export default function TableAddImport({ onChange }: Props) {
         <TableHeader>
           <TableRow className="h-8">
             <TableHead className="px-2 text-center">Order</TableHead>
-            <TableHead className="px-2 text-center">
-              Grade / Type / Width / Gsm
-            </TableHead>
+            <TableHead className="px-2 text-center">Grade / Type / Width / Gsm</TableHead>
             <TableHead className="px-2 text-center">LMetre</TableHead>
             <TableHead className="px-2 text-center">Product ID</TableHead>
             <TableHead className="px-2 text-center">Gross/net Wt</TableHead>
@@ -99,19 +120,24 @@ export default function TableAddImport({ onChange }: Props) {
                   className="h-7 text-sm w-full"
                 />
               </TableCell>
+
               <TableCell className="px-1 py-1">
-                <Input
+                <select
                   value={producto.gradeTypeWidthGsm}
                   onChange={(e) =>
-                    handleChange(
-                      producto.tempId,
-                      "gradeTypeWidthGsm",
-                      e.target.value
-                    )
+                    handleChange(producto.tempId, "gradeTypeWidthGsm", e.target.value)
                   }
-                  className="h-7 text-sm w-full"
-                />
+                  className="h-7 text-sm w-full border rounded px-1"
+                >
+                  <option value="">Selecciona...</option>
+                  {opciones.map((opt, idx) => (
+                    <option key={idx} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </TableCell>
+
               <TableCell className="px-1 py-1">
                 <Input
                   value={producto.lMetre}
@@ -121,6 +147,7 @@ export default function TableAddImport({ onChange }: Props) {
                   className="h-7 text-sm w-full"
                 />
               </TableCell>
+
               <TableCell className="px-1 py-1">
                 <Input
                   value={producto.productId}
@@ -130,6 +157,7 @@ export default function TableAddImport({ onChange }: Props) {
                   className="h-7 text-sm w-full"
                 />
               </TableCell>
+
               <TableCell className="px-1 py-1">
                 <Input
                   value={producto.grossNetWt}

@@ -42,8 +42,3 @@ export interface Compra {
   accion: string;
 }
 
-export interface CompraFull extends Compra {
-  datosEconomicos?: DatosEconomicos;
-  datosImportacion?: DatosImportacion;
-  adjuntos?: string[];
-}

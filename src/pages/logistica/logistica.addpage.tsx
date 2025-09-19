@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,6 +10,7 @@ import TableAddImport from "@/components/common/Logistica/Table.add"
 import { guardarImportacion } from "@/services/LogisticaImportacion.service"
 import type { OrdenImportacion } from "@/types/ImportacionLogistica.types"
 import { toast } from "sonner"
+import { useNavigate } from "react-router-dom"
 
 export default function AgregarLogistica() {
   const [datosGenerales, setDatosGenerales] = useState({
@@ -20,10 +21,38 @@ export default function AgregarLogistica() {
     detalle: "",
   })
 
+  const navigate = useNavigate()
+
   const [datosImportacion, setDatosImportacion] = useState<any>({})
   const [datosEconomicos, setDatosEconomicos] = useState<any>({})
   const [adjuntos, setAdjuntos] = useState<string[]>([])
   const [productos, setProductos] = useState<any[]>([])
+
+  // 🔹 Generar N° de importación automático al montar el componente
+  useEffect(() => {
+    const generarNumeroImportacion = () => {
+      // Obtener contador del localStorage
+      let contador = parseInt(localStorage.getItem("contadorImportacion") || "0", 10)
+
+      // Generar un número aleatorio de 8 dígitos
+      const aleatorio = Math.floor(Math.random() * 1_0000_0000) // 0 a 99999999
+
+      // Incrementar contador
+      contador += 1
+      localStorage.setItem("contadorImportacion", contador.toString())
+
+      // Combinar para formar 10 dígitos: 2 fijos + aleatorio + contador modificado
+      // Ej: 10 + aleatorio de 8 dígitos
+      const numImportacion = (10_0000_0000 + aleatorio + contador).toString().slice(0, 10)
+
+      return numImportacion
+    }
+
+    setDatosGenerales((prev) => ({
+      ...prev,
+      numImportacion: generarNumeroImportacion(),
+    }))
+  }, [])
 
   const labels: Record<string, string> = {
     numImportacion: "N° Importación",
@@ -102,6 +131,7 @@ export default function AgregarLogistica() {
 
     guardarImportacion(orden)
     toast.success("✅ Importación guardada correctamente")
+    navigate("/logistica?tab=compras")
   }
 
   return (
@@ -135,12 +165,7 @@ export default function AgregarLogistica() {
                 placeholder="N°"
                 className="h-10 text-sm md:h-9 md:text-xs w-full"
                 value={datosGenerales.numImportacion}
-                onChange={(e) =>
-                  setDatosGenerales({
-                    ...datosGenerales,
-                    numImportacion: e.target.value,
-                  })
-                }
+                readOnly
               />
             </div>
 
@@ -224,7 +249,9 @@ export default function AgregarLogistica() {
             onChangeEconomico={(d) => setDatosEconomicos(d)}
           />
           <PDFAdjunto onChangeFiles={(fs) => setAdjuntos(fs)} />
-          <TableAddImport onChange={(rows) => setProductos(rows)} />
+          <TableAddImport
+            onChange={(rows) => setProductos(rows)}
+          />
         </div>
       </div>
     </div>

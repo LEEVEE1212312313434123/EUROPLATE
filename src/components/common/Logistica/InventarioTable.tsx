@@ -86,8 +86,8 @@ export function InventarioTable({ items, onEdit, onDelete }: InventarioTableProp
                 <TableCell>{item.seal}</TableCell>
                 <TableCell className="truncate max-w-[200px]">{item.grade}</TableCell>
                 <TableCell>{item.type}</TableCell>
-                <TableCell>{item.width}</TableCell>
-                <TableCell>{item.gsm}</TableCell>
+                <TableCell>{item.lmetre}</TableCell>
+                <TableCell>{item.grossNetWt}</TableCell>
                 <TableCell>{item.lmetre}</TableCell>
                 <TableCell>{item.productId}</TableCell>
                 <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>

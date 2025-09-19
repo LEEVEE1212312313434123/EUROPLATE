@@ -28,6 +28,7 @@ export interface DatosImportacion {
     puertoDestino: string;
     transportista: string;
     aseguradora: string;
+    container: string;
 }
 
 export interface DatosEconomicos {
