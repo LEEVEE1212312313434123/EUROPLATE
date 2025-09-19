@@ -9,11 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { Edit, Trash } from "lucide-react";
 
 export interface InventarioItem {
   id: string;
   importacion: string;
   container: string;
+  order: string; // 🔹 agregado
   purchaseOrder: string;
   seal: string;
   grade: string;
@@ -32,9 +34,7 @@ interface InventarioTableProps {
   onDelete: (item: InventarioItem) => void;
 }
 
-export function InventarioTable({
-  items,
-}: InventarioTableProps) {
+export function InventarioTable({ items, onEdit, onDelete }: InventarioTableProps) {
   const [page, setPage] = useState(0);
   const pageSize = 4;
 
@@ -44,13 +44,14 @@ export function InventarioTable({
 
   const totalPages = Math.ceil(items.length / pageSize);
 
-   return (
+  return (
     <div className="flex flex-col gap-4">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[150px]">Importación</TableHead>
             <TableHead className="w-[100px]">Container</TableHead>
+            <TableHead className="w-[100px]">Order</TableHead> {/* 🔹 agregado */}
             <TableHead className="w-[150px]">Purchase Order</TableHead>
             <TableHead className="w-[120px]">Seal</TableHead>
             <TableHead className="w-[200px]">Grade</TableHead>
@@ -61,13 +62,14 @@ export function InventarioTable({
             <TableHead className="w-[120px]">Product ID</TableHead>
             <TableHead className="w-[100px]">Peso (Kg)</TableHead>
             <TableHead className="w-[100px]">Estado</TableHead>
+            <TableHead className="w-[120px]">Acción</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {currentItems.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={13} className="text-center py-6">
+              <TableCell colSpan={14} className="text-center py-6">
                 No se encontraron productos en inventario.
               </TableCell>
             </TableRow>
@@ -79,23 +81,41 @@ export function InventarioTable({
               >
                 <TableCell className="truncate max-w-[150px]">{item.importacion}</TableCell>
                 <TableCell>{item.container}</TableCell>
+                <TableCell className="truncate max-w-[100px]">{item.order}</TableCell> {/* 🔹 */}
                 <TableCell className="truncate max-w-[150px]">{item.purchaseOrder}</TableCell>
                 <TableCell>{item.seal}</TableCell>
                 <TableCell className="truncate max-w-[200px]">{item.grade}</TableCell>
                 <TableCell>{item.type}</TableCell>
-                <TableCell>{item.width}</TableCell>
-                <TableCell>{item.gsm}</TableCell>
+                <TableCell>{item.lmetre}</TableCell>
+                <TableCell>{item.grossNetWt}</TableCell>
                 <TableCell>{item.lmetre}</TableCell>
                 <TableCell>{item.productId}</TableCell>
                 <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>
                 <TableCell>{item.estado}</TableCell>
                 <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(item)}
+                    className="text-primary hover:bg-primary/10 cursor-pointer"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(item)}
+                    className="text-primary hover:bg-primary/10 cursor-pointer"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
+
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-2">
           <Button

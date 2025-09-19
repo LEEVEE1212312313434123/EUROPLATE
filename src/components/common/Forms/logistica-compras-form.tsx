@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
@@ -6,10 +6,12 @@ import { ComprasTable } from "@/components/common/Logistica/ComprasTable";
 import { CompraDetail } from "@/components/common/Logistica/CompraDetail";
 import { CompraEditDialog } from "@/components/common/Dialog/CompraEditDialog";
 import type { Compra } from "@/types/logistica.types";
-import { useLogistica } from "@/hooks/useLogistica";
+import { obtenerComprasAdaptadas } from "@/services/ComprasAdapter.service";
 
 export default function ComprasLogistica() {
-  const { compras, loading, error, handleDeleteCompra, handleSaveCompra } = useLogistica();
+  const [compras, setCompras] = useState<Compra[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -17,8 +19,37 @@ export default function ComprasLogistica() {
   const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
   const [editingCompra, setEditingCompra] = useState<Compra | null>(null);
 
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  // Cargar compras desde localStorage al montar
+  useEffect(() => {
+    try {
+      const data = obtenerComprasAdaptadas();
+      setCompras(data);
+      setLoading(false);
+    } catch (err) {
+      setError("Error cargando compras desde localStorage");
+      setLoading(false);
+    }
+  }, []);
+
+  const handleDeleteCompra = (importacion_id: string) => {
+    const nuevasCompras = compras.filter(c => c.importacion_id !== importacion_id);
+    setCompras(nuevasCompras);
+    // Opción: actualizar localStorage también si quieres persistencia
+    localStorage.setItem("importaciones", JSON.stringify(nuevasCompras));
+  };
+
+  const handleSaveCompra = (updatedCompra: Compra) => {
+    const index = compras.findIndex(c => c.importacion_id === updatedCompra.importacion_id);
+    if (index !== -1) {
+      const nuevasCompras = [...compras];
+      nuevasCompras[index] = updatedCompra;
+      setCompras(nuevasCompras);
+      localStorage.setItem("importaciones", JSON.stringify(nuevasCompras));
+    }
+  };
+
   const FILTER_TYPE_MAP: Record<string, string | null> = {
     all: null,
     import: "importación",
@@ -33,23 +64,11 @@ export default function ComprasLogistica() {
 
   const filteredCompras = useMemo(() => {
     return compras.filter((c) => {
-      if (
-        searchTerm &&
-        !c.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-      ) {
-        return false;
-      }
-
+      if (searchTerm && !c.descripcion.toLowerCase().includes(searchTerm.toLowerCase())) return false;
       const tipoFilter = FILTER_TYPE_MAP[filterType];
-      if (tipoFilter && c.tipo !== tipoFilter) {
-        return false;
-      }
-
+      if (tipoFilter && c.tipo !== tipoFilter) return false;
       const statusFilter = STATUS_MAP[filterStatus];
-      if (statusFilter && c.logistica.estado !== statusFilter) {
-        return false;
-      }
-
+      if (statusFilter && c.logistica.estado !== statusFilter) return false;
       return true;
     });
   }, [compras, searchTerm, filterType, filterStatus]);
@@ -106,10 +125,7 @@ export default function ComprasLogistica() {
         </div>
         {selectedCompra && (
           <div className="absolute top-0 right-0 h-full w-[320px] border-l bg-transparent">
-            <CompraDetail
-              compra={selectedCompra}
-              onClose={() => setSelectedCompra(null)}
-            />
+            <CompraDetail compra={selectedCompra} onClose={() => setSelectedCompra(null)} />
           </div>
         )}
       </div>

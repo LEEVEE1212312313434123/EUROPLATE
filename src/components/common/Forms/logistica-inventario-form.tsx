@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import {
@@ -6,55 +6,79 @@ import {
   type InventarioItem,
 } from "@/components/common/Logistica/InventarioTable";
 import { toast } from "sonner";
-import { useLogistica } from "@/hooks/useLogistica";
 
 export default function InventarioLogistica() {
-  const { productos, loading, error } = useLogistica();
+  const [items, setItems] = useState<InventarioItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [,setEditingItem] = useState<InventarioItem | null>(null);
-  const mapEstado = (estado: string): "En tránsito" | "En stock" | "Vendido" => {
-    if (estado === "En stock") return "En stock";
-    if (estado === "Vendido") return "Vendido";
-    return "En tránsito"; 
-  };
-  const STATUS_MAP: Record<string, string | null> = {
+  const [, setEditingItem] = useState<InventarioItem | null>(null);
+
+  // Mapeo de estado para InventarioTable
+  const STATUS_MAP: Record<string, "En stock" | "En tránsito" | "Vendido" | null> = {
     all: null,
     transito: "En tránsito",
-    entregado: "Entregado",
+    entregado: "Vendido",
     stock: "En stock",
   };
 
-  const items: InventarioItem[] = productos.map((p) => ({
-    id: p.producto_id,
-    importacion: p.purchase_order,
-    container: p.container,
-    purchaseOrder: p.purchase_order,
-    seal: p.seal,
-    grade: p.material.grade,
-    type: p.material.tipo,
-    width: p.material.dimensiones.ancho_mm,
-    gsm: p.material.gramaje_gsm,
-    lmetre: p.material.longitud_m,
-    productId: p.producto_id,
-    grossNetWt: p.material.peso_bruto_kg,
-    estado: mapEstado(p.estado),
-  }));
+  // Cargar productos desde localStorage al montar
+  useEffect(() => {
+    try {
+      const comprasStr = localStorage.getItem("importaciones") || "[]";
+      const compras = JSON.parse(comprasStr);
+
+      const productosMap: InventarioItem[] = [];
+
+      compras.forEach((compra: any) => {
+        const importacionId = compra.datosGenerales?.numImportacion || "N/A";
+        const purchaseOrder = compra.datosGenerales?.purchaseOrder || "N/A";
+        const container = compra.datosImportacion?.container || "N/A"; // 🔹 container
+
+        compra.productos.forEach((producto: any, index: number) => {
+          productosMap.push({
+            id: `${producto.tempId}-${index}`, // tempId único
+            importacion: importacionId,
+            container: container, // 🔹 container agregado
+            order: producto.order || "N/A",
+            purchaseOrder: purchaseOrder,
+            seal: "Generado",
+            grade: producto.gradeTypeWidthGsm || "N/A",
+            type: producto.material?.tipo || "Bobina",
+            width: producto.material?.dimensiones?.ancho_mm || 0,
+            gsm: producto.material?.gramaje_gsm || 0,
+            lmetre: parseFloat(producto.lMetre || "0"),
+            productId: producto.productId,
+            grossNetWt: parseFloat(producto.grossNetWt || "0"),
+            estado: "En tránsito", // compatible con InventarioTable
+          });
+        });
+      });
+
+      setItems(productosMap);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Error cargando inventario desde localStorage");
+      setLoading(false);
+    }
+  }, []);
 
   const filteredItems = useMemo(() => {
     return items.filter((i) => {
-      if (
-        searchTerm &&
-        !i.grade.toLowerCase().includes(searchTerm.toLowerCase())
-      ) {
+      // Filtro por search term (grade)
+      if (searchTerm && !i.grade.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
 
+      // Filtro por tipo
       if (filterType === "importación" && !i.purchaseOrder) return false;
       if (filterType === "nacional" && i.purchaseOrder) return false;
 
+      // Filtro por estado
       if (filterStatus !== "all" && i.estado !== STATUS_MAP[filterStatus]) {
         return false;
       }
@@ -62,8 +86,6 @@ export default function InventarioLogistica() {
       return true;
     });
   }, [items, searchTerm, filterType, filterStatus]);
-
-  
 
   if (loading) return <div className="p-6">Cargando inventario...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
@@ -96,7 +118,7 @@ export default function InventarioLogistica() {
         selectOptions={[
           { value: "all", label: "Todos" },
           { value: "transito", label: "En Tránsito" },
-          { value: "entregado", label: "Entregado" },
+          { value: "entregado", label: "Vendido" },
           { value: "stock", label: "En Stock" },
         ]}
         searchTerm={searchTerm}
@@ -115,7 +137,6 @@ export default function InventarioLogistica() {
           }
         />
       </div>
-
     </div>
   );
 }

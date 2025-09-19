@@ -51,3 +51,28 @@ export interface ProductoBase {
   productName: string;
   isNew: boolean;
 }
+
+//-----------------------
+
+export interface ProductMaterialBobina {
+  grade: string; // nombre_producto
+  type: string;  // tipo de rollo
+  width_cm: number;
+  gsm: number;
+  unidad_medida: string;
+  peso_kg: number;
+}
+
+export interface ProductBobina {
+  id: number;
+  nombre_producto: string; // grade
+  categoria: "BobinasCarton";
+  material: ProductMaterialBobina;
+  precio: ProductPricing;
+  almacen: ProductStock;
+  estado: string;
+  accion: string;
+  fecha_registro: string;
+  imagen: string;
+  tipo: string;
+}

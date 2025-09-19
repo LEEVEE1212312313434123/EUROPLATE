@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Compra } from "@/components/common/Logistica/ComprasTable";
+import type { Compra } from "@/types/logistica.types";
 import {
   Dialog,
   DialogContent,
@@ -37,11 +37,28 @@ export function CompraEditDialog({
     setForm(compra);
   }, [compra]);
 
-  const handleChange = (field: keyof Compra, value: any) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleChange = (field: keyof Compra | keyof Compra["logistica"] | "proveedor", value: any) => {
+    if (field === "proveedor") {
+      setForm((prev: Compra) => ({
+        ...prev,
+        proveedor: { ...prev.proveedor, nombre: value },
+      }));
+    } else if (field === "origen" || field === "destino" || field === "estado" || field === "fecha_entrega") {
+      setForm((prev: Compra) => ({
+        ...prev,
+        logistica: { ...prev.logistica, [field]: value },
+      }));
+    } else if (field === "importacion_id") {
+      setForm((prev: Compra) => ({
+        ...prev,
+        importacion_id: value,
+      }));
+    } else if (field === "descripcion") {
+      setForm((prev: Compra) => ({
+        ...prev,
+        descripcion: value,
+      }));
+    }
   };
 
   const handleSave = () => {
@@ -59,15 +76,7 @@ export function CompraEditDialog({
         <div className="grid gap-4 py-4">
           <div className="grid gap-1">
             <Label>ID</Label>
-            <Input value={form.id} disabled />
-          </div>
-
-          <div className="grid gap-1">
-            <Label>Importación</Label>
-            <Input
-              value={form.importacion}
-              onChange={(e) => handleChange("importacion", e.target.value)}
-            />
+            <Input value={form.importacion_id} disabled />
           </div>
 
           <div className="grid gap-1">
@@ -81,7 +90,7 @@ export function CompraEditDialog({
           <div className="grid gap-1">
             <Label>Proveedor</Label>
             <Input
-              value={form.proveedor}
+              value={form.proveedor.nombre}
               onChange={(e) => handleChange("proveedor", e.target.value)}
             />
           </div>
@@ -89,7 +98,7 @@ export function CompraEditDialog({
           <div className="grid gap-1">
             <Label>Origen</Label>
             <Input
-              value={form.origen}
+              value={form.logistica.origen}
               onChange={(e) => handleChange("origen", e.target.value)}
             />
           </div>
@@ -97,7 +106,7 @@ export function CompraEditDialog({
           <div className="grid gap-1">
             <Label>Destino</Label>
             <Input
-              value={form.destino}
+              value={form.logistica.destino}
               onChange={(e) => handleChange("destino", e.target.value)}
             />
           </div>
@@ -105,14 +114,14 @@ export function CompraEditDialog({
           <div className="grid gap-1">
             <Label>Estado</Label>
             <Select
-              value={form.estado}
+              value={form.logistica.estado}
               onValueChange={(value) => handleChange("estado", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="En transito">En tránsito</SelectItem>
+                <SelectItem value="En tránsito">En tránsito</SelectItem>
                 <SelectItem value="Entregado">Entregado</SelectItem>
               </SelectContent>
             </Select>
@@ -122,8 +131,8 @@ export function CompraEditDialog({
             <Label>Fecha de Entrega</Label>
             <Input
               type="date"
-              value={form.fechaEntrega}
-              onChange={(e) => handleChange("fechaEntrega", e.target.value)}
+              value={form.logistica.fecha_entrega}
+              onChange={(e) => handleChange("fecha_entrega", e.target.value)}
             />
           </div>
         </div>

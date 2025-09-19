@@ -1,6 +1,6 @@
 export interface Proveedor {
   nombre: string;
-  pais: string;
+  pais?: string;
 }
 
 export interface LogisticaInfo {
@@ -33,7 +33,7 @@ export interface Producto {
 
 export interface Compra {
   importacion_id: string;
-  tipo: "importación" | "nacional"; 
+  tipo: "importación" | "nacional";
   descripcion: string;
   proveedor: Proveedor;
   logistica: LogisticaInfo;

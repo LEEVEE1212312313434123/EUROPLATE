@@ -1,7 +1,7 @@
-// src/components/common/Producto/TableAddProductos.tsx
+// src/components/common/Logistica/Table.add.tsx
 
-import { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { useState, useEffect } from "react"
+import { PlusCircle } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -9,20 +9,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface ProductoRow {
-  tempId: number;
-  order: string;
-  gradeTypeWidthGsm: string;
-  lMetre: string;
-  productId: string;
-  grossNetWt: string;
+  tempId: number
+  order: string
+  gradeTypeWidthGsm: string
+  lMetre: string
+  productId: string
+  grossNetWt: string
 }
 
-export default function TableAddProductos() {
+interface Props {
+  onChange: (rows: ProductoRow[]) => void
+}
+
+export default function TableAddImport({ onChange }: Props) {
   const [productos, setProductos] = useState<ProductoRow[]>([
     {
       tempId: 1,
@@ -32,7 +36,35 @@ export default function TableAddProductos() {
       productId: "",
       grossNetWt: "",
     },
-  ]);
+  ])
+
+  const [opciones, setOpciones] = useState<string[]>([])
+
+  // cargar opciones desde localStorage
+  useEffect(() => {
+    const productosLS = JSON.parse(localStorage.getItem("products") || "[]")
+
+    const opts: string[] = []
+
+    productosLS.forEach((p: any) => {
+      if (p.categoria === "BobinasCarton") {
+        opts.push(
+          `${p.nombre_producto || ""} ${p.material?.tipo || ""} ${p.material?.dimensiones?.ancho_cm || 0} ${p.material?.gramaje_g || 0}`
+        )
+      } else {
+        opts.push(
+          `${p.nombre_producto} ${p.material?.gramaje_g || 0} ${p.material?.calibre || 0} ${p.material?.unidad_medida || ""} ${p.material?.pliegos_por_paquete || 0}`
+        )
+      }
+    })
+
+    setOpciones(opts)
+  }, [])
+
+  // notificar cambios al padre
+  useEffect(() => {
+    onChange(productos)
+  }, [productos, onChange])
 
   const handleChange = (
     tempId: number,
@@ -41,12 +73,12 @@ export default function TableAddProductos() {
   ) => {
     setProductos((prev) =>
       prev.map((p) => (p.tempId === tempId ? { ...p, [field]: value } : p))
-    );
-  };
+    )
+  }
 
   const agregarFila = () => {
     const newTempId =
-      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
+      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1
     setProductos((prev) => [
       ...prev,
       {
@@ -57,22 +89,20 @@ export default function TableAddProductos() {
         productId: "",
         grossNetWt: "",
       },
-    ]);
-  };
+    ])
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 mt-6">
       <div className="flex items-start gap-4">
-        <h3 className="text-base font-semibold mb-4">Datos de la Importación</h3>
+        <h3 className="text-base font-semibold mb-4">Productos</h3>
       </div>
 
       <Table className="text-sm">
         <TableHeader>
           <TableRow className="h-8">
             <TableHead className="px-2 text-center">Order</TableHead>
-            <TableHead className="px-2 text-center">
-              Grade / Type / Width / Gsm
-            </TableHead>
+            <TableHead className="px-2 text-center">Grade / Type / Width / Gsm</TableHead>
             <TableHead className="px-2 text-center">LMetre</TableHead>
             <TableHead className="px-2 text-center">Product ID</TableHead>
             <TableHead className="px-2 text-center">Gross/net Wt</TableHead>
@@ -90,19 +120,24 @@ export default function TableAddProductos() {
                   className="h-7 text-sm w-full"
                 />
               </TableCell>
+
               <TableCell className="px-1 py-1">
-                <Input
+                <select
                   value={producto.gradeTypeWidthGsm}
                   onChange={(e) =>
-                    handleChange(
-                      producto.tempId,
-                      "gradeTypeWidthGsm",
-                      e.target.value
-                    )
+                    handleChange(producto.tempId, "gradeTypeWidthGsm", e.target.value)
                   }
-                  className="h-7 text-sm w-full"
-                />
+                  className="h-7 text-sm w-full border rounded px-1"
+                >
+                  <option value="">Selecciona...</option>
+                  {opciones.map((opt, idx) => (
+                    <option key={idx} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </TableCell>
+
               <TableCell className="px-1 py-1">
                 <Input
                   value={producto.lMetre}
@@ -112,6 +147,7 @@ export default function TableAddProductos() {
                   className="h-7 text-sm w-full"
                 />
               </TableCell>
+
               <TableCell className="px-1 py-1">
                 <Input
                   value={producto.productId}
@@ -121,6 +157,7 @@ export default function TableAddProductos() {
                   className="h-7 text-sm w-full"
                 />
               </TableCell>
+
               <TableCell className="px-1 py-1">
                 <Input
                   value={producto.grossNetWt}
@@ -147,5 +184,5 @@ export default function TableAddProductos() {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }
