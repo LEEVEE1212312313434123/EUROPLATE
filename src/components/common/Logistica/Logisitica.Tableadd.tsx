@@ -158,7 +158,7 @@ export default function ProductosAgregarForm({
 
     const productosConNombre = productosNuevos.map((p) => ({
       ...p,
-      productName: `${categoria} ${p.tipo}`, // Asegura que el nombre del producto esté basado en la categoría
+      productName: `${categoria} ${p.tipo}`, 
     }));
 
     if (onNext) {

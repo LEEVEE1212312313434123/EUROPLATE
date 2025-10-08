@@ -1,79 +1,66 @@
-import { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import { ComprasTable } from "@/components/common/Logistica/ComprasTable";
 import { CompraDetail } from "@/components/common/Logistica/CompraDetail";
 import { CompraEditDialog } from "@/components/common/Dialog/CompraEditDialog";
-import type { Compra } from "@/types/logistica.types";
-import { obtenerComprasAdaptadas } from "@/services/ComprasAdapter.service";
+import { useLogisticaCompras } from "@/hooks/useLogisticaCompras";
+import type { Importacion } from "@/types/importacion.types";
+import { ImportacionService } from "@/services/logistica.importacion.service";
 
 export default function ComprasLogistica() {
-  const [compras, setCompras] = useState<Compra[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { compras: importaciones, loading, error, reload: handleSave } =
+    useLogisticaCompras();
 
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCompra, setSelectedCompra] = useState<Compra | null>(null);
-  const [editingCompra, setEditingCompra] = useState<Compra | null>(null);
+  const [selectedCompra, setSelectedCompra] = useState<any>(null);
+  const [editingCompra, setEditingCompra] = useState<Importacion | null>(null);
 
-  const navigate = useNavigate();
+  const handleView = async (compraId: number) => {
+    const detail = await ImportacionService.getCompraDetailById(compraId);
+    if (detail) {
+      setSelectedCompra(detail);
+    }
+  };
 
-  // Cargar compras desde localStorage al montar
-  useEffect(() => {
+  const handleDelete = async (id: number) => {
     try {
-      const data = obtenerComprasAdaptadas();
-      setCompras(data);
-      setLoading(false);
+      await ImportacionService.delete(id);
+      await handleSave();
     } catch (err) {
-      setError("Error cargando compras desde localStorage");
-      setLoading(false);
+      console.error("Error eliminando la importación:", err);
     }
-  }, []);
-
-  const handleDeleteCompra = (importacion_id: string) => {
-    const nuevasCompras = compras.filter(c => c.importacion_id !== importacion_id);
-    setCompras(nuevasCompras);
-    // Opción: actualizar localStorage también si quieres persistencia
-    localStorage.setItem("importaciones", JSON.stringify(nuevasCompras));
-  };
-
-  const handleSaveCompra = (updatedCompra: Compra) => {
-    const index = compras.findIndex(c => c.importacion_id === updatedCompra.importacion_id);
-    if (index !== -1) {
-      const nuevasCompras = [...compras];
-      nuevasCompras[index] = updatedCompra;
-      setCompras(nuevasCompras);
-      localStorage.setItem("importaciones", JSON.stringify(nuevasCompras));
-    }
-  };
-
-  const FILTER_TYPE_MAP: Record<string, string | null> = {
-    all: null,
-    import: "importación",
-    nacional: "nacional",
-  };
-
-  const STATUS_MAP: Record<string, string | null> = {
-    all: null,
-    transito: "En tránsito",
-    entregado: "Entregado",
   };
 
   const filteredCompras = useMemo(() => {
-    return compras.filter((c) => {
-      if (searchTerm && !c.descripcion.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-      const tipoFilter = FILTER_TYPE_MAP[filterType];
-      if (tipoFilter && c.tipo !== tipoFilter) return false;
-      const statusFilter = STATUS_MAP[filterStatus];
-      if (statusFilter && c.logistica.estado !== statusFilter) return false;
+    return importaciones.filter((c) => {
+      if (
+        searchTerm &&
+        !(c.detalle ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+      )
+        return false;
+
+      if (filterType === "import" && c.pais_origen === "Perú") return false;
+      if (filterType === "nacional" && c.pais_origen !== "Perú") return false;
+      if (filterStatus === "entregado" && c.estado !== "Entregado") return false;
+      if (filterStatus === "cancelado" && c.estado !== "Cancelado") return false;
+
       return true;
     });
-  }, [compras, searchTerm, filterType, filterStatus]);
+  }, [importaciones, filterType, filterStatus, searchTerm]);
 
-  if (loading) return <div className="p-6">Cargando compras...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
@@ -92,20 +79,21 @@ export default function ComprasLogistica() {
           + Registrar Importación
         </Button>
       </div>
+
       <div className="relative">
         <div className={`${selectedCompra ? "lg:pr-[380px]" : ""}`}>
           <Toolbar
             filterType={filterType}
             filterStatus={filterStatus}
             tabs={[
-              { value: "all", label: `Todos (${compras.length})` },
+              { value: "all", label: `Todos (${importaciones.length})` },
               { value: "import", label: "Importación" },
               { value: "nacional", label: "Compra Nacional" },
             ]}
             selectOptions={[
               { value: "all", label: "Todos" },
-              { value: "transito", label: "En Tránsito" },
               { value: "entregado", label: "Entregado" },
+              { value: "cancelado", label: "Cancelado" },
             ]}
             searchTerm={searchTerm}
             searchPlaceholder="Buscar compra..."
@@ -118,23 +106,38 @@ export default function ComprasLogistica() {
             <ComprasTable
               compras={filteredCompras}
               onEdit={(c) => setEditingCompra(c)}
-              onDelete={(c) => handleDeleteCompra(c.importacion_id)}
-              onView={(c) => setSelectedCompra(c)}
+              onDelete={(c) => handleDelete(c.id)}
+              onView={(c) => handleView(c.id)}
             />
           </div>
         </div>
-        {selectedCompra && (
-          <div className="absolute top-0 right-0 h-full w-[320px] border-l bg-transparent">
-            <CompraDetail compra={selectedCompra} onClose={() => setSelectedCompra(null)} />
-          </div>
-        )}
+
+        {/* 🔹 Transición suave para CompraDetail */}
+        <AnimatePresence>
+          {selectedCompra && (
+            <motion.div
+              key="compra-detail"
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
+              className="absolute top-0 right-0 h-full w-[320px] border-l bg-transparent"
+            >
+              <CompraDetail
+                compra={selectedCompra}
+                onClose={() => setSelectedCompra(null)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
       {editingCompra && (
         <CompraEditDialog
           open={!!editingCompra}
-          compra={editingCompra}
+          importacion={editingCompra}
           onClose={() => setEditingCompra(null)}
-          onSave={handleSaveCompra}
+          onSave={handleSave}
         />
       )}
     </div>

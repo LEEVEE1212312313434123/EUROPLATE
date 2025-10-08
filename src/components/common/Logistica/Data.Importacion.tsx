@@ -1,55 +1,44 @@
-// src/components/common/Logistica/Data.Importacion.tsx
+"use client";
 
-"use client"
-
-import { useState, useEffect } from "react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-interface Props {
-  onChangeImport: (data: any) => void
-  onChangeEconomico: (data: any) => void
-}
-
-export default function DataImportacion({ onChangeImport, onChangeEconomico }: Props) {
-  const [importacion, setImportacion] = useState({
+export default function DataImportacion({
+  onChange,
+}: {
+  onChange: (data: any) => void;
+}) {
+  const [data, setData] = useState({
     proveedor: "",
-    agente: "",
-    origen: "",
-    destino: "",
-    puertoOrigen: "",
-    puertoDestino: "",
-    transportista: "",
-    aseguradora: "",
+    agente_aduanas: "",
+    pais_origen: "",
+    puerto_origen: "",
+    puerto_destino: "",
     container: "",
-  })
-
-  const [economicos, setEconomicos] = useState({
     factura: "",
-    fechaVencimiento: "",
+    fecha_vencimiento: "",
     cantidad: "",
     unidad: "",
-    valorFOB: "",
-    transporteMaritimo: "",
-    valorCFR: "",
-    liquidacion: { moneda: "", monto: "" },
-  })
+    valor_fob_usd: "",
+    transporte_maritimo_usd: "",
+    valor_cfr_usd: "",
+    liquidacion_moneda: "usd",
+    liquidacion_monto: "",
+  });
 
-  // 🔄 Disparamos cambios al padre
-  useEffect(() => {
-    onChangeImport(importacion)
-  }, [importacion])
-
-  useEffect(() => {
-    onChangeEconomico(economicos)
-  }, [economicos])
+  const handleChange = (field: string, value: string) => {
+    const updated = { ...data, [field]: value };
+    setData(updated);
+    onChange(updated);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 mt-6">
@@ -61,7 +50,8 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
           <div className="flex flex-col space-y-1">
             <Label htmlFor="proveedor" className="text-xs">Proveedor</Label>
             <Select
-              onValueChange={(value) => setImportacion({ ...importacion, proveedor: value })}
+              value={data.proveedor}
+              onValueChange={(value) => handleChange("proveedor", value)}
             >
               <SelectTrigger id="proveedor" className="h-8 text-xs w-full">
                 <SelectValue placeholder="Seleccionar proveedor" />
@@ -73,28 +63,30 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
             </Select>
           </div>
 
-          {/* Agente */}
+          {/* Agente Aduanas */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="agente" className="text-xs">Agente de aduanas</Label>
+            <Label htmlFor="agente_aduanas" className="text-xs">Agente de aduanas</Label>
             <Select
-              onValueChange={(value) => setImportacion({ ...importacion, agente: value })}
+              value={data.agente_aduanas}
+              onValueChange={(value) => handleChange("agente_aduanas", value)}
             >
-              <SelectTrigger id="agente" className="h-8 text-xs w-full">
+              <SelectTrigger id="agente_aduanas" className="h-8 text-xs w-full">
                 <SelectValue placeholder="Seleccionar agente" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ebl">EBL Grupo Logistico</SelectItem>
+                <SelectItem value="ebl">EBL Grupo Logístico</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Origen */}
+          {/* País Origen */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="origen" className="text-xs">País de Origen</Label>
+            <Label htmlFor="pais_origen" className="text-xs">País de Origen</Label>
             <Select
-              onValueChange={(value) => setImportacion({ ...importacion, origen: value })}
+              value={data.pais_origen}
+              onValueChange={(value) => handleChange("pais_origen", value)}
             >
-              <SelectTrigger id="origen" className="h-8 text-xs w-full">
+              <SelectTrigger id="pais_origen" className="h-8 text-xs w-full">
                 <SelectValue placeholder="Seleccionar país" />
               </SelectTrigger>
               <SelectContent>
@@ -104,28 +96,14 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
             </Select>
           </div>
 
-          {/* Destino */}
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="destino" className="text-xs">País de Destino</Label>
-            <Select
-              onValueChange={(value) => setImportacion({ ...importacion, destino: value })}
-            >
-              <SelectTrigger id="destino" className="h-8 text-xs w-full">
-                <SelectValue placeholder="Seleccionar país" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="peru">Perú</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Puerto Origen */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="puerto-origen" className="text-xs">Puerto Origen</Label>
+            <Label htmlFor="puerto_origen" className="text-xs">Puerto Origen</Label>
             <Select
-              onValueChange={(value) => setImportacion({ ...importacion, puertoOrigen: value })}
+              value={data.puerto_origen}
+              onValueChange={(value) => handleChange("puerto_origen", value)}
             >
-              <SelectTrigger id="puerto-origen" className="h-8 text-xs w-full">
+              <SelectTrigger id="puerto_origen" className="h-8 text-xs w-full">
                 <SelectValue placeholder="Seleccionar puerto" />
               </SelectTrigger>
               <SelectContent>
@@ -136,45 +114,16 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
 
           {/* Puerto Destino */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="puerto-destino" className="text-xs">Puerto Destino</Label>
+            <Label htmlFor="puerto_destino" className="text-xs">Puerto Destino</Label>
             <Select
-              onValueChange={(value) => setImportacion({ ...importacion, puertoDestino: value })}
+              value={data.puerto_destino}
+              onValueChange={(value) => handleChange("puerto_destino", value)}
             >
-              <SelectTrigger id="puerto-destino" className="h-8 text-xs w-full">
+              <SelectTrigger id="puerto_destino" className="h-8 text-xs w-full">
                 <SelectValue placeholder="Seleccionar puerto" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="callao">Callao</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Transportista */}
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="transportista" className="text-xs">Transportista</Label>
-            <Select
-              onValueChange={(value) => setImportacion({ ...importacion, transportista: value })}
-            >
-              <SelectTrigger id="transportista" className="h-8 text-xs w-full">
-                <SelectValue placeholder="Seleccionar" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="beate">Beate 4455 Gothenburg</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Aseguradora */}
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="aseguradora" className="text-xs">Aseguradora</Label>
-            <Select
-              onValueChange={(value) => setImportacion({ ...importacion, aseguradora: value })}
-            >
-              <SelectTrigger id="aseguradora" className="h-8 text-xs w-full">
-                <SelectValue placeholder="Seleccionar" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="anova">Anova Marine Insurance</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -184,10 +133,10 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
             <Label htmlFor="container" className="text-xs">Container</Label>
             <Input
               id="container"
-              value={importacion.container}
-              onChange={(e) => setImportacion({ ...importacion, container: e.target.value })}
-              placeholder="container"
+              placeholder="Container"
               className="h-8 text-xs w-full"
+              value={data.container}
+              onChange={(e) => handleChange("container", e.target.value)}
             />
           </div>
         </div>
@@ -200,43 +149,48 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
       <div>
         <h3 className="text-base font-semibold mb-4">Datos Económicos</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Factura */}
           <div className="flex flex-col space-y-1">
             <Label htmlFor="factura" className="text-xs">Factura</Label>
             <Input
               id="factura"
-              value={economicos.factura}
-              onChange={(e) => setEconomicos({ ...economicos, factura: e.target.value })}
               placeholder="N° Factura"
               className="h-8 text-xs w-full"
+              value={data.factura}
+              onChange={(e) => handleChange("factura", e.target.value)}
             />
           </div>
 
+          {/* Fecha Vencimiento */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="fecha-vencimiento" className="text-xs">Fecha de vencimiento</Label>
+            <Label htmlFor="fecha_vencimiento" className="text-xs">Fecha de vencimiento</Label>
             <Input
               type="date"
-              id="fecha-vencimiento"
-              value={economicos.fechaVencimiento}
-              onChange={(e) => setEconomicos({ ...economicos, fechaVencimiento: e.target.value })}
+              id="fecha_vencimiento"
               className="h-8 text-xs w-full"
+              value={data.fecha_vencimiento}
+              onChange={(e) => handleChange("fecha_vencimiento", e.target.value)}
             />
           </div>
 
+          {/* Cantidad */}
           <div className="flex flex-col space-y-1">
             <Label htmlFor="cantidad" className="text-xs">Cantidad</Label>
             <Input
               id="cantidad"
-              value={economicos.cantidad}
-              onChange={(e) => setEconomicos({ ...economicos, cantidad: e.target.value })}
               placeholder="Cantidad"
               className="h-8 text-xs w-full"
+              value={data.cantidad}
+              onChange={(e) => handleChange("cantidad", e.target.value)}
             />
           </div>
 
+          {/* Unidad */}
           <div className="flex flex-col space-y-1">
             <Label htmlFor="unidad" className="text-xs">Unidad</Label>
             <Select
-              onValueChange={(value) => setEconomicos({ ...economicos, unidad: value })}
+              value={data.unidad}
+              onValueChange={(value) => handleChange("unidad", value)}
             >
               <SelectTrigger id="unidad" className="h-8 text-xs w-full">
                 <SelectValue placeholder="Seleccionar" />
@@ -247,48 +201,51 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
             </Select>
           </div>
 
+          {/* Valor FOB */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="valor-fob" className="text-xs">Valor FOB (USD)</Label>
+            <Label htmlFor="valor_fob_usd" className="text-xs">Valor FOB (USD)</Label>
             <Input
-              id="valor-fob"
-              value={economicos.valorFOB}
-              onChange={(e) => setEconomicos({ ...economicos, valorFOB: e.target.value })}
+              id="valor_fob_usd"
               placeholder="0.00"
               className="h-8 text-xs w-full"
+              value={data.valor_fob_usd}
+              onChange={(e) => handleChange("valor_fob_usd", e.target.value)}
             />
           </div>
 
+          {/* Transporte marítimo */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="transporte" className="text-xs">Transporte marítimo (USD)</Label>
+            <Label htmlFor="transporte_maritimo_usd" className="text-xs">Transporte marítimo (USD)</Label>
             <Input
-              id="transporte"
-              value={economicos.transporteMaritimo}
-              onChange={(e) => setEconomicos({ ...economicos, transporteMaritimo: e.target.value })}
+              id="transporte_maritimo_usd"
               placeholder="0.00"
               className="h-8 text-xs w-full"
+              value={data.transporte_maritimo_usd}
+              onChange={(e) => handleChange("transporte_maritimo_usd", e.target.value)}
             />
           </div>
 
+          {/* Valor CFR */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="valor-cfr" className="text-xs">Valor CFR (USD)</Label>
+            <Label htmlFor="valor_cfr_usd" className="text-xs">Valor CFR (USD)</Label>
             <Input
-              id="valor-cfr"
-              value={economicos.valorCFR}
-              onChange={(e) => setEconomicos({ ...economicos, valorCFR: e.target.value })}
+              id="valor_cfr_usd"
               placeholder="0.00"
               className="h-8 text-xs w-full"
+              value={data.valor_cfr_usd}
+              onChange={(e) => handleChange("valor_cfr_usd", e.target.value)}
             />
           </div>
 
+          {/* Liquidación */}
           <div className="flex flex-col space-y-1">
-            <Label htmlFor="liquidacion" className="text-xs">Liquidación</Label>
+            <Label htmlFor="liquidacion_moneda" className="text-xs">Liquidación</Label>
             <div className="flex gap-2">
               <Select
-                onValueChange={(value) =>
-                  setEconomicos({ ...economicos, liquidacion: { ...economicos.liquidacion, moneda: value } })
-                }
+                value={data.liquidacion_moneda}
+                onValueChange={(value) => handleChange("liquidacion_moneda", value)}
               >
-                <SelectTrigger id="liquidacion" className="h-8 text-xs w-20">
+                <SelectTrigger id="liquidacion_moneda" className="h-8 text-xs w-20">
                   <SelectValue placeholder="USD" />
                 </SelectTrigger>
                 <SelectContent>
@@ -297,18 +254,15 @@ export default function DataImportacion({ onChangeImport, onChangeEconomico }: P
                 </SelectContent>
               </Select>
               <Input
-                id="monto-liquidacion"
-                value={economicos.liquidacion.monto}
-                onChange={(e) =>
-                  setEconomicos({ ...economicos, liquidacion: { ...economicos.liquidacion, monto: e.target.value } })
-                }
                 placeholder="0.00"
                 className="h-8 text-xs flex-1"
+                value={data.liquidacion_monto}
+                onChange={(e) => handleChange("liquidacion_monto", e.target.value)}
               />
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

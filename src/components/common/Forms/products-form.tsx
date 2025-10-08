@@ -79,7 +79,13 @@ export function ProductsForm() {
     );
   };
 
-  if (loading) return <div className="p-6">Cargando productos...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (

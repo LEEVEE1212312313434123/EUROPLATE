@@ -11,6 +11,7 @@ import EjemploPage from "@/pages/ejemplo.page";
 import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
 import LogisticaPage from "@/pages/logistica/logistica.page"
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
+import ClientesPage from "@/pages/clientes/clientes.page"
 
 
 export const dashboardRoutes = [
@@ -42,11 +43,11 @@ export const dashboardRoutes = [
     title: "Clientes",
     path: "/clientes",
     icon: IconUsers,
-    element: <EjemploPage />,
+    element: <ClientesPage />,
     showInSidebar: true,
   },
   {
-    key: "logistica",   // 👈 agregado
+    key: "logistica",   
     title: "Logística",
     path: "/logistica",
     icon: IconTruck,

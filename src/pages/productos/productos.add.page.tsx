@@ -13,15 +13,20 @@ import {
 
 export default function AgregarProductosPage() {
   const navigate = useNavigate();
-  const [categoria, setCategoria] = useState<string>("");
-  const [step, setStep] = useState<number>(1);
-  const [productosStep1, setProductosStep1] = useState<any[]>([]);
+  const [categoria, setCategoria] = useState("");
+  const [step, setStep] = useState(1);
+  const [productos, setProductos] = useState<any[]>([]);
+
+  const avanzarPaso = (productos: any[]) => {
+    setProductos(productos);
+    setStep(2);
+  };
 
   return (
     <div className="space-y-6 ml-6">
       <div className="flex items-start gap-4">
         <Package className="h-12 w-12 text-primary mt-1" />
-        <div className="flex flex-col">
+        <div>
           <h1 className="text-xl font-semibold">Nuevo Producto</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Completa los datos base para cada producto
@@ -34,7 +39,7 @@ export default function AgregarProductosPage() {
               </label>
               <Select
                 value={categoria}
-                onValueChange={(value) => setCategoria(value)}
+                onValueChange={setCategoria}
                 disabled={step > 1}
               >
                 <SelectTrigger className="w-64">
@@ -44,7 +49,9 @@ export default function AgregarProductosPage() {
                   <SelectItem value="Papel">Papel</SelectItem>
                   <SelectItem value="Cartón">Cartón</SelectItem>
                   <SelectItem value="Hoja">Hoja</SelectItem>
-                  <SelectItem value="BobinasCarton">Bobinas de cartón</SelectItem>
+                  <SelectItem value="BobinasCarton">
+                    Bobinas de cartón
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -55,20 +62,16 @@ export default function AgregarProductosPage() {
       <div className="mt-10 ml-[100px] max-w-6xl">
         {step === 1 && (
           <ProductosAgregarForm
-            navigate={navigate}
             categoria={categoria}
-            onNext={(productos) => {
-              setProductosStep1(productos);
-              setStep(2);
-            }}
+            navigate={navigate}
+            onNext={avanzarPaso}
           />
         )}
-
         {step === 2 && (
           <ProductosAgregarPreciosForm
-            navigate={navigate}
             categoria={categoria}
-            productosPrevios={productosStep1}
+            productosPrevios={productos}
+            navigate={navigate}
           />
         )}
       </div>

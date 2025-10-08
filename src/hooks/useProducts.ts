@@ -1,3 +1,4 @@
+// src/hooks/useProducts.ts
 import { useEffect, useState } from "react";
 import { ProductService } from "@/services/products.service";
 import type { Product } from "@/types/product.types";
@@ -8,23 +9,22 @@ export function useProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔹 Cargar productos al montar
   useEffect(() => {
-    ProductService.getAll()
-      .then((data) => {
-        // Primero intenta leer del localStorage si existe
-        const localData = localStorage.getItem("products");
-        if (localData) {
-          setProducts(JSON.parse(localData));
-        } else {
-          setProducts(data);
-        }
-      })
-      .catch(() => setError("No se pudieron cargar los productos."))
-      .finally(() => setLoading(false));
+    loadProducts();
   }, []);
 
-  // 🔹 Eliminar producto
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await ProductService.getAll();
+      setProducts(data);
+    } catch (err: any) {
+      setError(err.message ?? "Error al cargar los productos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDelete = async (id: number) => {
     try {
       await ProductService.delete(id);
@@ -35,24 +35,23 @@ export function useProducts() {
     }
   };
 
-  // 🔹 Guardar cambios (update o add según caso)
-  const handleSave = async (updated: Product) => {
+  const handleSave = async (product: Product) => {
     try {
-      if (products.some((p) => p.id === updated.id)) {
-        await ProductService.update(updated.id, updated);
+      if (products.some((p) => p.id === product.id)) {
+        await ProductService.update(product.id, product);
         setProducts((prev) =>
-          prev.map((p) => (p.id === updated.id ? updated : p))
+          prev.map((p) => (p.id === product.id ? product : p))
         );
         toast.success("Producto actualizado correctamente");
       } else {
-        await ProductService.add(updated);
-        setProducts((prev) => [...prev, updated]);
+        const newId = await ProductService.add(product);
+        setProducts((prev) => [...prev, { ...product, id: newId }]);
         toast.success("Producto agregado correctamente");
       }
-    } catch {
+    } catch (err) {
       toast.error("Error al guardar el producto");
     }
   };
 
-  return { products, setProducts, loading, error, handleDelete, handleSave };
+  return { products, loading, error, handleDelete, handleSave, reload: loadProducts };
 }

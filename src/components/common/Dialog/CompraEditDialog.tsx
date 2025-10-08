@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Compra } from "@/types/logistica.types";
+import type { Importacion } from "@/types/importacion.types";
 import {
   Dialog,
   DialogContent,
@@ -18,47 +18,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface CompraEditDialogProps {
+interface ImportacionEditDialogProps {
   open: boolean;
-  compra: Compra;
+  importacion: Importacion;
   onClose: () => void;
-  onSave: (updatedCompra: Compra) => void;
+  onSave: (updatedImportacion: Importacion) => void;
 }
 
 export function CompraEditDialog({
   open,
-  compra,
+  importacion,
   onClose,
   onSave,
-}: CompraEditDialogProps) {
-  const [form, setForm] = useState<Compra>(compra);
+}: ImportacionEditDialogProps) {
+  const [form, setForm] = useState<Importacion>(importacion);
 
   useEffect(() => {
-    setForm(compra);
-  }, [compra]);
+    setForm(importacion);
+  }, [importacion]);
 
-  const handleChange = (field: keyof Compra | keyof Compra["logistica"] | "proveedor", value: any) => {
-    if (field === "proveedor") {
-      setForm((prev: Compra) => ({
-        ...prev,
-        proveedor: { ...prev.proveedor, nombre: value },
-      }));
-    } else if (field === "origen" || field === "destino" || field === "estado" || field === "fecha_entrega") {
-      setForm((prev: Compra) => ({
-        ...prev,
-        logistica: { ...prev.logistica, [field]: value },
-      }));
-    } else if (field === "importacion_id") {
-      setForm((prev: Compra) => ({
-        ...prev,
-        importacion_id: value,
-      }));
-    } else if (field === "descripcion") {
-      setForm((prev: Compra) => ({
-        ...prev,
-        descripcion: value,
-      }));
-    }
+  const handleChange = (field: keyof Importacion, value: any) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleSave = () => {
@@ -70,52 +53,69 @@ export function CompraEditDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Editar Compra</DialogTitle>
+          <DialogTitle>Editar Importación</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          {/* ID */}
           <div className="grid gap-1">
             <Label>ID</Label>
-            <Input value={form.importacion_id} disabled />
+            <Input value={form.id} disabled />
           </div>
 
+          {/* Descripción */}
           <div className="grid gap-1">
             <Label>Descripción</Label>
             <Input
-              value={form.descripcion}
-              onChange={(e) => handleChange("descripcion", e.target.value)}
+              value={form.detalle ?? ""}
+              onChange={(e) => handleChange("detalle", e.target.value)}
             />
           </div>
 
+          {/* Proveedor */}
           <div className="grid gap-1">
             <Label>Proveedor</Label>
             <Input
-              value={form.proveedor.nombre}
+              value={form.proveedor ?? ""}
               onChange={(e) => handleChange("proveedor", e.target.value)}
             />
           </div>
 
+          {/* Origen */}
           <div className="grid gap-1">
             <Label>Origen</Label>
             <Input
-              value={form.logistica.origen}
-              onChange={(e) => handleChange("origen", e.target.value)}
+              value={form.pais_origen ?? ""}
+              onChange={(e) => handleChange("pais_origen", e.target.value)}
             />
           </div>
 
+          {/* Destino */}
           <div className="grid gap-1">
             <Label>Destino</Label>
             <Input
-              value={form.logistica.destino}
-              onChange={(e) => handleChange("destino", e.target.value)}
+              value={form.puerto_destino ?? ""}
+              onChange={(e) => handleChange("puerto_destino", e.target.value)}
             />
           </div>
 
+          {/* Estado */}
           <div className="grid gap-1">
             <Label>Estado</Label>
             <Select
-              value={form.logistica.estado}
-              onValueChange={(value) => handleChange("estado", value)}
+              value={
+                form.fecha_entrega
+                  ? "Entregado"
+                  : "En tránsito"
+              }
+              onValueChange={(value) =>
+                handleChange(
+                  "fecha_entrega",
+                  value === "Entregado"
+                    ? new Date().toISOString().split("T")[0]
+                    : ""
+                )
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar estado" />
@@ -127,11 +127,12 @@ export function CompraEditDialog({
             </Select>
           </div>
 
+          {/* Fecha de Entrega */}
           <div className="grid gap-1">
             <Label>Fecha de Entrega</Label>
             <Input
               type="date"
-              value={form.logistica.fecha_entrega}
+              value={form.fecha_entrega ?? ""}
               onChange={(e) => handleChange("fecha_entrega", e.target.value)}
             />
           </div>

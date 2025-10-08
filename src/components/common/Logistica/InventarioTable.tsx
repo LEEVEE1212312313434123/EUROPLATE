@@ -9,15 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { Edit, Trash } from "lucide-react";
 
 export interface InventarioItem {
   id: string;
   importacion: string;
-  container: string;
-  order: string; // 🔹 agregado
   purchaseOrder: string;
-  seal: string;
   grade: string;
   type: string;
   width: number;
@@ -25,7 +21,6 @@ export interface InventarioItem {
   lmetre: number;
   productId: string;
   grossNetWt: number;
-  estado: "En tránsito" | "En stock" | "Vendido";
 }
 
 interface InventarioTableProps {
@@ -34,7 +29,7 @@ interface InventarioTableProps {
   onDelete: (item: InventarioItem) => void;
 }
 
-export function InventarioTable({ items, onEdit, onDelete }: InventarioTableProps) {
+export function InventarioTable({ items, }: InventarioTableProps) {
   const [page, setPage] = useState(0);
   const pageSize = 4;
 
@@ -49,20 +44,15 @@ export function InventarioTable({ items, onEdit, onDelete }: InventarioTableProp
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[150px]">Importación</TableHead>
-            <TableHead className="w-[100px]">Container</TableHead>
-            <TableHead className="w-[100px]">Order</TableHead> {/* 🔹 agregado */}
-            <TableHead className="w-[150px]">Purchase Order</TableHead>
-            <TableHead className="w-[120px]">Seal</TableHead>
-            <TableHead className="w-[200px]">Grade</TableHead>
-            <TableHead className="w-[80px]">Type</TableHead>
-            <TableHead className="w-[80px]">Width</TableHead>
-            <TableHead className="w-[80px]">GSM</TableHead>
-            <TableHead className="w-[80px]">L. Metre</TableHead>
+            <TableHead className="w-[150px]">N° DUA</TableHead>
             <TableHead className="w-[120px]">Product ID</TableHead>
+            <TableHead className="w-[150px]">Orden de Compra</TableHead>
+            <TableHead className="w-[200px]">Descripcion del Producto</TableHead>
+            <TableHead className="w-[80px]">Unidad de Medida</TableHead>
+            <TableHead className="w-[80px]">Gramaje</TableHead>
+            <TableHead className="w-[80px]">Ancho</TableHead>
+            <TableHead className="w-[80px]">Largo MM</TableHead>
             <TableHead className="w-[100px]">Peso (Kg)</TableHead>
-            <TableHead className="w-[100px]">Estado</TableHead>
-            <TableHead className="w-[120px]">Acción</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -80,36 +70,14 @@ export function InventarioTable({ items, onEdit, onDelete }: InventarioTableProp
                 className="h-14 border-b transition-colors hover:bg-muted/50"
               >
                 <TableCell className="truncate max-w-[150px]">{item.importacion}</TableCell>
-                <TableCell>{item.container}</TableCell>
-                <TableCell className="truncate max-w-[100px]">{item.order}</TableCell> {/* 🔹 */}
+                <TableCell>{item.productId}</TableCell>
                 <TableCell className="truncate max-w-[150px]">{item.purchaseOrder}</TableCell>
-                <TableCell>{item.seal}</TableCell>
                 <TableCell className="truncate max-w-[200px]">{item.grade}</TableCell>
                 <TableCell>{item.type}</TableCell>
+                <TableCell>{item.gsm}</TableCell>
+                <TableCell>{item.width}</TableCell>
                 <TableCell>{item.lmetre}</TableCell>
-                <TableCell>{item.grossNetWt}</TableCell>
-                <TableCell>{item.lmetre}</TableCell>
-                <TableCell>{item.productId}</TableCell>
                 <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>
-                <TableCell>{item.estado}</TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(item)}
-                    className="text-primary hover:bg-primary/10 cursor-pointer"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(item)}
-                    className="text-primary hover:bg-primary/10 cursor-pointer"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </Button>
-                </TableCell>
               </TableRow>
             ))
           )}

@@ -30,7 +30,7 @@ export function ProductDeleteDialog({
     try {
       // Llamar al servicio para eliminar el producto
       await ProductService.delete(product.id);
-      onDeleteConfirm(product.id); // Notificar al componente padre que el producto fue eliminado
+      onDeleteConfirm(product.id); 
       onOpenChange(false); // Cerrar el diálogo
     } catch (error) {
       console.error("Error al eliminar el producto:", error);
@@ -40,7 +40,7 @@ export function ProductDeleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent  className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Confirmar eliminación</DialogTitle>
         </DialogHeader>
@@ -54,10 +54,10 @@ export function ProductDeleteDialog({
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button className="cursor-pointer" variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button className="cursor-pointer" onClick={handleDelete}>
             Eliminar
           </Button>
         </DialogFooter>

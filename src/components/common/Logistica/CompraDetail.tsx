@@ -36,9 +36,6 @@ export function CompraDetail({ compra, onClose }: CompraDetailProps) {
           <p><span className="font-semibold">Valor CFR:</span> USD {datosEconomicos?.valorCFR}</p>
           <p><span className="font-semibold">Liquidación:</span> {datosEconomicos?.liquidacion?.moneda} {datosEconomicos?.liquidacion?.monto}</p>
           <p><span className="font-semibold">País de Origen:</span> {logistica?.origen || "-"}</p>
-          <p><span className="font-semibold">País de Destino:</span> {logistica?.destino || "-"}</p>
-          <p><span className="font-semibold">Transportista:</span> {datosImportacion?.transportista || "-"}</p>
-          <p><span className="font-semibold">Aseguradora:</span> {datosImportacion?.aseguradora || "-"}</p>
           <p><span className="font-semibold">Proveedor:</span> {proveedor?.nombre} ({proveedor?.pais || "N/A"})</p>
           <p><span className="font-semibold">Agente de aduanas:</span> {datosImportacion?.agente || "-"}</p>
         </div>

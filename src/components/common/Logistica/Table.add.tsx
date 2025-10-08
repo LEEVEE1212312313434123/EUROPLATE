@@ -1,7 +1,6 @@
-// src/components/common/Logistica/Table.add.tsx
-
-import { useState, useEffect } from "react"
-import { PlusCircle } from "lucide-react"
+"use client";
+import { useState, useEffect, useMemo } from "react";
+import { PlusCircle } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,88 +8,152 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useProducts } from "@/hooks/useProducts";
 
 interface ProductoRow {
-  tempId: number
-  order: string
-  gradeTypeWidthGsm: string
-  lMetre: string
-  productId: string
-  grossNetWt: string
+  tempId: number;
+  producto_id?: number | null;
+  categoria: string;
+  descripcion: string;
+  cantidad: string;
+  unidadMedida: string;
+  precioUnitario: string;
+  importeUsd: string;
 }
 
 interface Props {
-  onChange: (rows: ProductoRow[]) => void
+  onChange: (rows: ProductoRow[]) => void;
 }
 
 export default function TableAddImport({ onChange }: Props) {
+  const { products, loading } = useProducts();
   const [productos, setProductos] = useState<ProductoRow[]>([
     {
       tempId: 1,
-      order: "",
-      gradeTypeWidthGsm: "",
-      lMetre: "",
-      productId: "",
-      grossNetWt: "",
+      producto_id: null,
+      categoria: "",
+      descripcion: "",
+      cantidad: "",
+      unidadMedida: "",
+      precioUnitario: "",
+      importeUsd: "",
     },
-  ])
+  ]);
 
-  const [opciones, setOpciones] = useState<string[]>([])
+  const [filtrados, setFiltrados] = useState<any[]>([]);
 
-  // cargar opciones desde localStorage
+  const categorias = useMemo(() => {
+    const set = new Set(products.map((p) => p.categoria));
+    return Array.from(set);
+  }, [products]);
+
   useEffect(() => {
-    const productosLS = JSON.parse(localStorage.getItem("products") || "[]")
+    onChange(productos);
+  }, [productos, onChange]);
 
-    const opts: string[] = []
+  // 🔹 Función para construir nombre legible del producto
+  const buildProductName = (p: any) => {
+    const parts = [
+      p.nombre_producto,
+      p.material?.tipo,
+      p.material?.dimensiones?.ancho_cm
+        ? `${p.material.dimensiones.ancho_cm}cm`
+        : "",
+      p.material?.gramaje_g ? `${p.material.gramaje_g}g` : "",
+      p.material?.calibre && p.material.calibre !== 0
+        ? `calibre ${p.material.calibre}`
+        : "",
+    ].filter(Boolean);
+    return parts.join(" ");
+  };
 
-    productosLS.forEach((p: any) => {
-      if (p.categoria === "BobinasCarton") {
-        opts.push(
-          `${p.nombre_producto || ""} ${p.material?.tipo || ""} ${p.material?.dimensiones?.ancho_cm || 0} ${p.material?.gramaje_g || 0}`
-        )
-      } else {
-        opts.push(
-          `${p.nombre_producto} ${p.material?.gramaje_g || 0} ${p.material?.calibre || 0} ${p.material?.unidad_medida || ""} ${p.material?.pliegos_por_paquete || 0}`
-        )
-      }
-    })
-
-    setOpciones(opts)
-  }, [])
-
-  // notificar cambios al padre
-  useEffect(() => {
-    onChange(productos)
-  }, [productos, onChange])
-
+  // 🔹 Manejar cambios en las celdas
   const handleChange = (
     tempId: number,
     field: keyof ProductoRow,
     value: string
   ) => {
     setProductos((prev) =>
-      prev.map((p) => (p.tempId === tempId ? { ...p, [field]: value } : p))
-    )
-  }
+      prev.map((p) => {
+        if (p.tempId !== tempId) return p;
 
+        let actualizado = { ...p, [field]: value };
+
+        // Cuando cambia la categoría → filtra productos
+        if (field === "categoria") {
+          const filtradosProd = products.filter(
+            (prod) => prod.categoria === value
+          );
+          setFiltrados(filtradosProd);
+          actualizado.descripcion = "";
+          actualizado.producto_id = null;
+          actualizado.unidadMedida = "";
+          actualizado.precioUnitario = "";
+          actualizado.importeUsd = "";
+        }
+
+        // Cuando cambia descripción → carga info del producto
+        if (field === "descripcion") {
+          const prodSel = products.find(
+            (prod) => buildProductName(prod) === value
+          );
+          if (prodSel) {
+            actualizado.producto_id = prodSel.id;
+            actualizado.unidadMedida = prodSel.material.unidad_medida || "";
+            actualizado.precioUnitario = String(
+              prodSel.precio.precio_min || ""
+            );
+
+            // Si ya hay cantidad → recalcula el importe
+            if (actualizado.cantidad) {
+              const cantidadNum = parseFloat(actualizado.cantidad) || 0;
+              const precioNum = parseFloat(actualizado.precioUnitario) || 0;
+              actualizado.importeUsd = (cantidadNum * precioNum).toFixed(2);
+            }
+          }
+        }
+
+        // 🔹 Cuando cambia la cantidad → recalcula importe
+        if (field === "cantidad") {
+          const cantidadNum = parseFloat(value) || 0;
+          const precioNum = parseFloat(p.precioUnitario) || 0;
+          actualizado.importeUsd = (cantidadNum * precioNum).toFixed(2);
+        }
+
+        return actualizado;
+      })
+    );
+  };
+
+  // 🔹 Agregar nueva fila de producto
   const agregarFila = () => {
     const newTempId =
-      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1
+      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
+
     setProductos((prev) => [
       ...prev,
       {
         tempId: newTempId,
-        order: "",
-        gradeTypeWidthGsm: "",
-        lMetre: "",
-        productId: "",
-        grossNetWt: "",
+        producto_id: null,
+        categoria: "",
+        descripcion: "",
+        cantidad: "",
+        unidadMedida: "",
+        precioUnitario: "",
+        importeUsd: "",
       },
-    ])
-  }
+    ]);
+  };
 
   return (
     <div className="grid grid-cols-1 gap-6 mt-6">
@@ -98,91 +161,138 @@ export default function TableAddImport({ onChange }: Props) {
         <h3 className="text-base font-semibold mb-4">Productos</h3>
       </div>
 
-      <Table className="text-sm">
-        <TableHeader>
-          <TableRow className="h-8">
-            <TableHead className="px-2 text-center">Order</TableHead>
-            <TableHead className="px-2 text-center">Grade / Type / Width / Gsm</TableHead>
-            <TableHead className="px-2 text-center">LMetre</TableHead>
-            <TableHead className="px-2 text-center">Product ID</TableHead>
-            <TableHead className="px-2 text-center">Gross/net Wt</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {productos.map((producto) => (
-            <TableRow key={producto.tempId} className="h-8">
-              <TableCell className="px-1 py-1">
-                <Input
-                  value={producto.order}
-                  onChange={(e) =>
-                    handleChange(producto.tempId, "order", e.target.value)
-                  }
-                  className="h-7 text-sm w-full"
-                />
-              </TableCell>
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Cargando productos...</p>
+      ) : (
+        <Table className="text-sm">
+          <TableHeader>
+            <TableRow className="h-8">
+              <TableHead className="px-2 text-center w-[160px]">
+                Categoría Principal
+              </TableHead>
+              <TableHead className="px-2 text-center w-[250px]">
+                Descripción Producto
+              </TableHead>
+              <TableHead className="px-2 text-center w-[100px]">
+                Cantidad
+              </TableHead>
+              <TableHead className="px-2 text-center w-[100px]">
+                Unidad Medida
+              </TableHead>
+              <TableHead className="px-2 text-center w-[120px]">
+                Precio Unitario
+              </TableHead>
+              <TableHead className="px-2 text-center w-[120px]">
+                Importe (USD)
+              </TableHead>
+            </TableRow>
+          </TableHeader>
 
-              <TableCell className="px-1 py-1">
-                <select
-                  value={producto.gradeTypeWidthGsm}
-                  onChange={(e) =>
-                    handleChange(producto.tempId, "gradeTypeWidthGsm", e.target.value)
-                  }
-                  className="h-7 text-sm w-full border rounded px-1"
+          <TableBody>
+            {productos.map((producto) => (
+              <TableRow key={producto.tempId} className="h-8">
+                {/* Categoría */}
+                <TableCell className="px-1 py-1">
+                  <Select
+                    value={producto.categoria}
+                    onValueChange={(v) =>
+                      handleChange(producto.tempId, "categoria", v)
+                    }
+                  >
+                    <SelectTrigger className="h-7 text-sm w-full">
+                      <SelectValue placeholder="Selecciona..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categorias.map((cat, i) => (
+                        <SelectItem key={i} value={cat}>
+                          {cat === "BobinasCarton"
+                            ? "Bobinas de Cartón"
+                            : cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+
+                {/* Descripción */}
+                <TableCell className="px-1 py-1">
+                  <Select
+                    value={producto.descripcion}
+                    onValueChange={(v) =>
+                      handleChange(producto.tempId, "descripcion", v)
+                    }
+                    disabled={!producto.categoria}
+                  >
+                    <SelectTrigger className="h-7 text-sm w-full">
+                      <SelectValue placeholder="Selecciona..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filtrados.map((p, idx) => (
+                        <SelectItem key={idx} value={buildProductName(p)}>
+                          {buildProductName(p)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+
+                {/* Cantidad */}
+                <TableCell className="px-1 py-1">
+                  <Input
+                    type="number"
+                    value={producto.cantidad}
+                    onChange={(e) =>
+                      handleChange(producto.tempId, "cantidad", e.target.value)
+                    }
+                    className="h-7 text-sm w-full"
+                    placeholder="0"
+                  />
+                </TableCell>
+
+                {/* Unidad medida */}
+                <TableCell className="px-1 py-1">
+                  <Input
+                    value={producto.unidadMedida}
+                    className="h-7 text-sm w-full"
+                    disabled
+                  />
+                </TableCell>
+
+                {/* Precio unitario */}
+                <TableCell className="px-1 py-1">
+                  <Input
+                    value={producto.precioUnitario}
+                    className="h-7 text-sm w-full"
+                    disabled
+                  />
+                </TableCell>
+
+                {/* Importe USD */}
+                <TableCell className="px-1 py-1">
+                  <Input
+                    value={producto.importeUsd}
+                    readOnly
+                    className="h-7 text-sm w-full bg-gray-50"
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+
+            <TableRow>
+              <TableCell colSpan={6} className="text-start py-1">
+                <Button
+                  variant="ghost"
+                  onClick={agregarFila}
+                  className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
                 >
-                  <option value="">Selecciona...</option>
-                  {opciones.map((opt, idx) => (
-                    <option key={idx} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </TableCell>
-
-              <TableCell className="px-1 py-1">
-                <Input
-                  value={producto.lMetre}
-                  onChange={(e) =>
-                    handleChange(producto.tempId, "lMetre", e.target.value)
-                  }
-                  className="h-7 text-sm w-full"
-                />
-              </TableCell>
-
-              <TableCell className="px-1 py-1">
-                <Input
-                  value={producto.productId}
-                  onChange={(e) =>
-                    handleChange(producto.tempId, "productId", e.target.value)
-                  }
-                  className="h-7 text-sm w-full"
-                />
-              </TableCell>
-
-              <TableCell className="px-1 py-1">
-                <Input
-                  value={producto.grossNetWt}
-                  onChange={(e) =>
-                    handleChange(producto.tempId, "grossNetWt", e.target.value)
-                  }
-                  className="h-7 text-sm w-full"
-                />
+                  <PlusCircle size={20} />
+                  <span>Agregar producto</span>
+                </Button>
               </TableCell>
             </TableRow>
-          ))}
-          <TableRow>
-            <TableCell colSpan={5} className="text-start py-1">
-              <Button
-                variant="ghost"
-                onClick={agregarFila}
-                className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
-              >
-                <PlusCircle size={20} />
-                <span>Agregar</span>
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+          </TableBody>
+        </Table>
+      )}
     </div>
-  )
+  );
 }
