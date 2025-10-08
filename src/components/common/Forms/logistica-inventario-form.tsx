@@ -9,18 +9,17 @@ import { toast } from "sonner";
 import { useLogisticaInventario } from "@/hooks/useLogisticaImportacion";
 
 export default function InventarioLogistica() {
-  const { inventario, loading, error, reload } = useLogisticaInventario();
+  const { inventario, loading, error } = useLogisticaInventario();
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [, setEditingItem] = useState<InventarioItem | null>(null);
 
-  // 🔹 Mapeamos el inventario (ya viene unido con productos y materiales)
   const items: InventarioItem[] = useMemo(() => {
     return inventario.map((item) => ({
       id: item.id.toString(),
-      importacion: item.num_dua ?? "N/A", // ← N° DUA
-      purchaseOrder: item.orden_compra ?? "N/A", // ← Orden de compra
+      importacion: item.num_dua ?? "N/A", 
+      purchaseOrder: item.orden_compra ?? "N/A", 
       grade: item.nombre_producto ?? "Sin nombre",
       type: item.unidad_medida ?? "N/A",
       width: item.ancho ?? 0,

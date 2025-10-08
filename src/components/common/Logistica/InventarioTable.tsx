@@ -11,16 +11,23 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 export interface InventarioItem {
-  id: string;
-  importacion: string;
-  purchaseOrder: string;
-  grade: string;
-  type: string;
-  width: number;
-  gsm: number;
-  lmetre: number;
-  productId: string;
-  grossNetWt: number;
+  id?: number;
+
+  // Datos de importación
+  importacion?: string; // fecha o identificador
+  container?: string;
+  purchaseOrder?: string;
+  seal?: string;
+  grade?: string;
+  type?: string;
+  width?: number;
+  gsm?: number;
+  lmetre?: number;
+  productId?: string;
+  grossNetWt?: number;
+
+  // Estado actual del producto
+  estado?: "En tránsito" | "En stock" | "Vendido";
 }
 
 interface InventarioTableProps {

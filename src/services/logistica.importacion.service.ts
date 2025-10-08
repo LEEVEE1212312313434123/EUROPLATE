@@ -1,8 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import type {
-  Importacion,
-  ImportacionAdjunto,
-  ImportacionProducto,
+  Importacion
 } from "@/types/importacion.types";
 
 export const ImportacionService = {
