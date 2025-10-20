@@ -25,6 +25,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.22",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.539.0",
     "pdfjs-dist": "^5.4.149",
     "react": "^19.1.1",

@@ -32,7 +32,7 @@ export function ComprasTable({
   const [almacenes, setAlmacenes] = useState<any[]>([]);
 
   const [page, setPage] = useState(0);
-  const pageSize = 4;
+  const pageSize = 10;
 
   const start = page * pageSize;
   const end = start + pageSize;
@@ -40,7 +40,6 @@ export function ComprasTable({
 
   const totalPages = Math.ceil(compras.length / pageSize);
   useEffect(() => {
-    // Cargar almacenes
     const fetchAlmacenes = async () => {
       const { data } = await supabase.from("almacenes").select("id, ubicacion");
       setAlmacenes(data || []);

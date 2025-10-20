@@ -50,19 +50,21 @@ export function Toolbar({
       <div className="flex items-center gap-4">
         <Tabs value={filterType} onValueChange={onFilterTypeChange}>
           <TabsList className="gap-2 bg-transparent">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="px-5 py-3 text-sm font-medium rounded-md border border-gray-300 
-                cursor-pointer transition-colors
-                hover:bg-gray-100
-                data-[state=active]:bg-primary data-[state=active]:text-primary-foreground 
-                data-[state=active]:border-primary"
-              >
-                {tab.label}
-              </TabsTrigger>
-            ))}
+            {tabs
+              .filter((tab) => tab.value !== "service")
+              .map((tab) => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="px-5 py-3 text-sm font-medium rounded-md border border-gray-300 
+                  cursor-pointer transition-colors
+                  hover:bg-gray-100
+                  data-[state=active]:bg-primary data-[state=active]:text-primary-foreground 
+                  data-[state=active]:border-primary"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
           </TabsList>
         </Tabs>
         <Select value={filterStatus} onValueChange={onFilterStatusChange}>
