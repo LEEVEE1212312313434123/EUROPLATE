@@ -31,7 +31,7 @@ export function ProductTable({
   onDelete,
 }: ProductTableProps) {
   const [page, setPage] = useState(0);
-  const pageSize = 4;
+  const pageSize = 10;
 
   const start = page * pageSize;
   const end = start + pageSize;

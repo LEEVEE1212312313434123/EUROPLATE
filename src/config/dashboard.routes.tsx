@@ -7,24 +7,23 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import ProductosPage from "@/pages/productos/productos.page";
-import EjemploPage from "@/pages/ejemplo.page";
 import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
-import LogisticaPage from "@/pages/logistica/logistica.page"
+import LogisticaPage from "@/pages/logistica/logistica.page";
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
-import ClientesPage from "@/pages/clientes/clientes.page"
-
+import ClientesPage from "@/pages/clientes/clientes.page";
+import Dashboardform from "@/components/common/Forms/Dashboard/dashboard-form";
 
 export const dashboardRoutes = [
   {
-    key: "dashboard",   
+    key: "dashboard",
     title: "Dashboard",
     path: "/dashboard",
     icon: IconHome,
-    element: <EjemploPage />,
+    element: <Dashboardform />,
     showInSidebar: true,
   },
   {
-    key: "productos",   
+    key: "productos",
     title: "Productos",
     path: "/products",
     icon: IconPackage,
@@ -44,10 +43,10 @@ export const dashboardRoutes = [
     path: "/clientes",
     icon: IconUsers,
     element: <ClientesPage />,
-    showInSidebar: true,
+    showInSidebar: false, 
   },
   {
-    key: "logistica",   
+    key: "logistica",
     title: "Logística",
     path: "/logistica",
     icon: IconTruck,
@@ -66,14 +65,14 @@ export const dashboardRoutes = [
     title: "Ventas",
     path: "/ventas",
     icon: IconShoppingCart,
-    element: <EjemploPage />,
-    showInSidebar: true,
+    element: <Dashboardform/>,
+    showInSidebar: false, 
   },
   {
     title: "Configuración",
     path: "/configuracion",
     icon: IconSettings,
-    element: <EjemploPage />,
-    showInSidebar: true,
+    element: <Dashboardform />,
+    showInSidebar: false, 
   },
 ];

@@ -13,8 +13,7 @@ import { useState } from "react";
 export interface InventarioItem {
   id?: number;
 
-  // Datos de importación
-  importacion?: string; // fecha o identificador
+  importacion?: string;
   container?: string;
   purchaseOrder?: string;
   seal?: string;
@@ -26,7 +25,6 @@ export interface InventarioItem {
   productId?: string;
   grossNetWt?: number;
 
-  // Estado actual del producto
   estado?: "En tránsito" | "En stock" | "Vendido";
 }
 
@@ -38,7 +36,7 @@ interface InventarioTableProps {
 
 export function InventarioTable({ items, }: InventarioTableProps) {
   const [page, setPage] = useState(0);
-  const pageSize = 4;
+  const pageSize = 10;
 
   const start = page * pageSize;
   const end = start + pageSize;
