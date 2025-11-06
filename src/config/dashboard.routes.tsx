@@ -8,6 +8,7 @@ import {
 } from "@tabler/icons-react";
 import ProductosPage from "@/pages/productos/productos.page";
 import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
+import EditarProductosStep1 from "@/pages/productos/productos.edit.page";
 import LogisticaPage from "@/pages/logistica/logistica.page";
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
 import ClientesPage from "@/pages/clientes/clientes.page";
@@ -39,11 +40,19 @@ export const dashboardRoutes = [
     parent: "/products",
   },
   {
+    title: "Editar Producto",
+    path: "/products/editProducts",
+    icon: IconPackage,
+    element: <EditarProductosStep1 />,
+    showInSidebar: false,
+    parent: "/products",
+  },
+  {
     title: "Clientes",
     path: "/clientes",
     icon: IconUsers,
     element: <ClientesPage />,
-    showInSidebar: false, 
+    showInSidebar: false,
   },
   {
     key: "logistica",
@@ -65,14 +74,14 @@ export const dashboardRoutes = [
     title: "Ventas",
     path: "/ventas",
     icon: IconShoppingCart,
-    element: <Dashboardform/>,
-    showInSidebar: false, 
+    element: <Dashboardform />,
+    showInSidebar: false,
   },
   {
     title: "Configuración",
     path: "/configuracion",
     icon: IconSettings,
     element: <Dashboardform />,
-    showInSidebar: false, 
+    showInSidebar: false,
   },
 ];

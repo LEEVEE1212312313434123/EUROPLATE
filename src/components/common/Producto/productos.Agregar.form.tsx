@@ -24,6 +24,7 @@ interface ProductoBase {
   tempId: number;
   [key: string]: string | number | boolean | undefined;
   isNew?: boolean;
+  grade?: string;
 }
 
 interface Props {
@@ -41,24 +42,24 @@ export default function ProductosAgregarForm({
   const [productos, setProductos] = useState<ProductoBase[]>([]);
 
   const columnasPorCategoria: Record<string, { key: string; label: string }[]> =
-    {
-      BobinasCarton: [
-        { key: "grade", label: "Descripción" },
-        { key: "tipo", label: "Tipo" },
-        { key: "ancho", label: "Ancho (mm)" },
-        { key: "gramaje", label: "Gramaje (g)" },
-        { key: "unidad", label: "Unidad medida" },
-      ],
-      default: [
-        { key: "tipo", label: "Tipo" },
-        { key: "ancho", label: "Ancho (cm)" },
-        { key: "largo", label: "Largo (cm)" },
-        { key: "gramaje", label: "Gramaje (g)" },
-        { key: "calibre", label: "Calibre" },
-        { key: "pliegos", label: "Pliegos x Paquete" },
-        { key: "unidad", label: "Unidad medida" },
-      ],
-    };
+  {
+    BobinasCarton: [
+      { key: "grade", label: "Descripción" },
+      { key: "tipo", label: "Tipo" },
+      { key: "ancho", label: "Ancho (mm)" },
+      { key: "gramaje", label: "Gramaje (g)" },
+      { key: "unidad", label: "Unidad medida" },
+    ],
+    default: [
+      { key: "tipo", label: "Tipo" },
+      { key: "ancho", label: "Ancho (cm)" },
+      { key: "largo", label: "Largo (cm)" },
+      { key: "gramaje", label: "Gramaje (g)" },
+      { key: "calibre", label: "Calibre" },
+      { key: "pliegos", label: "Pliegos x Paquete" },
+      { key: "unidad", label: "Unidad medida" },
+    ],
+  };
 
   const columnas =
     columnasPorCategoria[categoria] || columnasPorCategoria.default;
@@ -78,6 +79,7 @@ export default function ProductosAgregarForm({
         pliegos: String(p.material.pliegos_por_paquete ?? ""),
         unidad: p.material.unidad_medida ?? "",
         productName: p.nombre_producto ?? "",
+        grade: p.grade ?? "",
         isNew: false,
       }));
 
@@ -85,18 +87,19 @@ export default function ProductosAgregarForm({
       existentes.length
         ? existentes
         : [
-            {
-              tempId: 1,
-              tipo: "",
-              ancho: "",
-              largo: "",
-              gramaje: "",
-              calibre: "",
-              pliegos: "",
-              unidad: "",
-              isNew: true,
-            },
-          ]
+          {
+            tempId: 1,
+            tipo: "",
+            ancho: "",
+            largo: "",
+            gramaje: "",
+            calibre: "",
+            pliegos: "",
+            unidad: "",
+            grade: "",
+            isNew: true,
+          },
+        ]
     );
   }, [categoria, products]);
 
@@ -128,7 +131,7 @@ export default function ProductosAgregarForm({
       return toast.error("Completa todos los campos antes de continuar.");
 
     const nuevos = productos.filter((p) => p.isNew);
-    onNext(nuevos);
+    onNext(nuevos); // Pasamos los productos con el `grade` incluido
   };
 
   return (

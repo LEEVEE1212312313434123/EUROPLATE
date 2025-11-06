@@ -1,21 +1,9 @@
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import type { Product } from "@/types/product.types";
-
-interface ProductTableProps {
-  products: Product[];
-  onEdit: (product: Product) => void;
-  onDelete: (product: Product) => void;
-}
 
 // 🔹 Diccionario para mostrar nombres amigables de categorías
 const categoriaDisplayMap: Record<string, string> = {
@@ -25,29 +13,39 @@ const categoriaDisplayMap: Record<string, string> = {
   BobinasCarton: "Bobinas de cartón",
 };
 
-export function ProductTable({
-  products,
-  onEdit,
-  onDelete,
-}: ProductTableProps) {
+interface ProductTableProps {
+  products: Product[];
+  onDelete: (product: Product) => void;
+}
+
+export function ProductTable({ products, onDelete }: ProductTableProps) {
+  const navigate = useNavigate(); // Crear instancia de useNavigate
   const [page, setPage] = useState(0);
   const pageSize = 10;
 
   const start = page * pageSize;
   const end = start + pageSize;
   const currentProducts = products.slice(start, end);
-
   const totalPages = Math.ceil(products.length / pageSize);
+
+  // Manejar la edición de un producto
+  const handleEdit = (product: Product) => {
+    console.log("Producto que se está editando:", product);
+    // Pasar el producto completo como estado de navegación
+    navigate("/products/editProducts", { state: { product } });
+  };
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Tabla de productos */}
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Categoria</TableHead>
             <TableHead>Producto</TableHead>
             <TableHead className="text-center w-[100px]">Precio Min</TableHead>
             <TableHead className="text-center w-[100px]">Precio Max</TableHead>
-            <TableHead className="text-center w-[80px]">Stock</TableHead>
+            <TableHead className="text-center w-[80px]">Stock Actual</TableHead>
             <TableHead className="text-center w-[120px]">Disponibilidad</TableHead>
             <TableHead className="text-center w-[90px]">Acciones</TableHead>
           </TableRow>
@@ -63,17 +61,16 @@ export function ProductTable({
           ) : (
             currentProducts.map((product) => {
               const material = product.material;
-              const categoriaLegible =
-                categoriaDisplayMap[product.categoria] ?? product.categoria;
+              const categoriaLegible = categoriaDisplayMap[product.categoria] ?? product.categoria;
 
               // 🔹 Construcción dinámica del nombre del producto
               const partes = [
                 categoriaLegible,
                 material.tipo,
                 material.dimensiones.ancho_cm &&
-                material.dimensiones.largo_cm &&
-                (material.dimensiones.ancho_cm !== 0 ||
-                  material.dimensiones.largo_cm !== 0)
+                  material.dimensiones.largo_cm &&
+                  (material.dimensiones.ancho_cm !== 0 ||
+                    material.dimensiones.largo_cm !== 0)
                   ? `${material.dimensiones.ancho_cm}x${material.dimensiones.largo_cm}`
                   : "",
                 material.gramaje_g && material.gramaje_g !== 0
@@ -82,11 +79,8 @@ export function ProductTable({
                 material.calibre && material.calibre !== 0
                   ? `calibre ${material.calibre}`
                   : "",
-                material.unidad_medida
-                  ? material.unidad_medida.toLowerCase()
-                  : "",
-                material.pliegos_por_paquete &&
-                material.pliegos_por_paquete !== 0
+                material.unidad_medida ? material.unidad_medida.toLowerCase() : "",
+                material.pliegos_por_paquete && material.pliegos_por_paquete !== 0
                   ? `${material.pliegos_por_paquete} pliegos`
                   : "",
               ];
@@ -99,29 +93,20 @@ export function ProductTable({
                 product.almacen?.stock_actual > 0;
 
               return (
-                <TableRow
-                  key={product.id}
-                  className="h-14 border-b hover:bg-muted/50 transition-colors"
-                >
+                <TableRow key={product.id} className="h-14 border-b hover:bg-muted/50 transition-colors">
+                  <TableCell>{categoriaLegible}</TableCell>
                   <TableCell>{nombreProducto}</TableCell>
-                  <TableCell className="text-center w-[100px]">
-                    ${product.precio.precio_min.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-center w-[100px]">
-                    ${product.precio.precio_max.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-center w-[80px]">
-                    {product.almacen.stock_actual}
-                  </TableCell>
+                  <TableCell className="text-center w-[100px]">${product.precio.precio_min.toFixed(2)}</TableCell>
+                  <TableCell className="text-center w-[100px]">${product.precio.precio_max.toFixed(2)}</TableCell>
+                  <TableCell className="text-center w-[80px]">{product.almacen.stock_actual}</TableCell>
 
                   {/* 🔹 Estado visual actualizado */}
                   <TableCell className="text-center w-[120px]">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        disponible
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${disponible
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                        }`}
                     >
                       {disponible ? "Disponible" : "No disponible"}
                     </span>
@@ -132,7 +117,7 @@ export function ProductTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onEdit(product)}
+                        onClick={() => handleEdit(product)} // Llamar a la función handleEdit
                         className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
                       >
                         <Edit className="w-4 h-4" />
@@ -154,7 +139,7 @@ export function ProductTable({
         </TableBody>
       </Table>
 
-      {/* 🔹 Paginación (manteniendo tus botones y diseño) */}
+      {/* 🔹 Paginación */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-2">
           <Button

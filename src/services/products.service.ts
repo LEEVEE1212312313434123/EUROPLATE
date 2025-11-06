@@ -14,6 +14,7 @@ export const ProductService = {
         fecha_registro,
         imagen,
         tipo,
+        grade,
         materiales(*),
         precios(*),
         almacenes(*)
@@ -31,6 +32,7 @@ export const ProductService = {
       fecha_registro: p.fecha_registro,
       imagen: p.imagen,
       tipo: p.tipo,
+      grade: p.grade,
       material: {
         tipo: p.materiales?.[0]?.tipo ?? "",
         dimensiones: {
@@ -66,6 +68,7 @@ export const ProductService = {
           accion: producto.accion,
           imagen: producto.imagen,
           tipo: producto.tipo,
+          grade: producto.grade,
         },
       ])
       .select("id")
@@ -120,6 +123,7 @@ export const ProductService = {
         accion: producto.accion,
         imagen: producto.imagen,
         tipo: producto.tipo,
+        grade: producto.grade,
       })
       .eq("id", id);
     if (prodError) throw new Error(prodError.message);
