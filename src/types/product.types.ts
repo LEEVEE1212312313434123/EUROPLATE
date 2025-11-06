@@ -35,6 +35,7 @@ export interface Product {
   fecha_registro: string;
   imagen: string;
   tipo: string;
+  grade: string;
 }
 
 
@@ -49,6 +50,7 @@ export interface ProductoBase {
   pliegos?: string;
   unidad: string;
   productName: string;
+  grade: string;
   isNew: boolean;
 }
 
