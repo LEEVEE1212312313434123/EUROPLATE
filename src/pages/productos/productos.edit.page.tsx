@@ -4,7 +4,6 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import ProductosEditarForm from "@/components/common/Producto/productos.EditarAgregar.form";
 import ProductosEditarPreciosForm from "@/components/common/Producto/productos.EditarPrecios.form";
 import type { Product } from "@/types/product.types";
-// ⚠️ Importamos el tipo ProductoBase para usarlo en la firma de avanzarPaso
 import type { ProductoBase } from "@/components/common/Producto/productos.EditarAgregar.form";
 
 export default function EditarProductosPage() {
@@ -14,10 +13,8 @@ export default function EditarProductosPage() {
 
     const [producto, setProducto] = useState<Product | null>(null);
     const [step, setStep] = useState(1);
-    // El estado 'productos' almacenará un array que contiene el producto editado para el siguiente paso
     const [productos, setProductos] = useState<ProductoBase[]>([]);
 
-    // Si el estado de la navegación contiene el producto, lo usamos
     useEffect(() => {
         if (location.state && location.state.product) {
             setProducto(location.state.product);
@@ -26,7 +23,6 @@ export default function EditarProductosPage() {
         }
     }, [location.state, productId]);
 
-    // Función para obtener el producto desde el servidor
     const fetchProducto = async (id: string) => {
         try {
             const response = await fetch(`/api/productos/${id}`);
@@ -37,13 +33,9 @@ export default function EditarProductosPage() {
         }
     };
 
-    // Función para avanzar al siguiente paso después de editar los detalles
-    // ⚠️ CORRECCIÓN: La firma ahora espera un solo objeto ProductoBase
     const avanzarPaso = (productoEditado: ProductoBase) => {
-        // Envolvemos el producto editado en un array, que es lo que el estado 'productos' requiere
-        // para pasarlo a ProductosEditarPreciosForm.
         setProductos([productoEditado]);
-        setStep(2); // Avanzamos al siguiente paso
+        setStep(2); 
     };
 
     return (
@@ -58,9 +50,8 @@ export default function EditarProductosPage() {
 
                     {step === 1 && producto && (
                         <div className="mt-6 ml-[36px]">
-                            {/* Formulario de edición de producto */}
                             <ProductosEditarForm
-                                producto={producto}  // Pasamos el producto
+                                producto={producto}  
                                 navigate={navigate}
                                 onNext={avanzarPaso}  // Ahora el tipo de función es compatible
                             />

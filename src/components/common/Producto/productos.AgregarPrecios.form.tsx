@@ -41,19 +41,27 @@ export default function ProductosAgregarPreciosForm({
 
   const [isSaving, setIsSaving] = useState(false);
   const guardar = async () => {
-    if (isSaving) return; // evita doble clic
-    setIsSaving(true);
+  if (isSaving) return; // evita doble clic
+  setIsSaving(true);
 
-    const invalidos = productos.some(
-      (p) => !p.precioMin || !p.precioMax || isNaN(p.precioMin) || isNaN(p.precioMax)
-    );
-    if (invalidos) {
-      toast.error("Completa todos los precios válidamente.");
-      setIsSaving(false);
-      return;
-    }
+  const invalidos = productos.some(
+    (p) => !p.precioMin || !p.precioMax || isNaN(p.precioMin) || isNaN(p.precioMax)
+  );
+  if (invalidos) {
+    toast.error("Completa todos los precios válidamente.");
+    setIsSaving(false);
+    return;
+  }
 
-    const nuevos: Product[] = productos.map((p, i) => ({
+  const nuevos: Product[] = productos.map((p, i) => {
+    // 🔹 Lógica para stock según unidad
+    let stockActual = 10; // valor por defecto
+    const unidad = (p.unidad ?? "").toLowerCase();
+
+    if (unidad === "unidad") stockActual = 1;
+    else if (unidad === "docena") stockActual = 12;
+
+    return {
       id: maxId + i + 1,
       nombre_producto: p.productName ?? `${categoria} ${p.tipo ?? ""}`,
       categoria,
@@ -74,32 +82,43 @@ export default function ProductosAgregarPreciosForm({
         precio_max: Number(p.precioMax),
         moneda: "USD",
       },
-      almacen: { stock_actual: 10, stock_minimo: 3, ubicacion: "A1" },
+      almacen: {
+        stock_actual: stockActual, // 👈 ahora depende de la unidad
+        stock_minimo: 3,
+        ubicacion: "A1",
+      },
       estado: "Disponible",
       accion: "Ver",
       tipo: "producto",
       fecha_registro: new Date().toISOString(),
       imagen: p.imagen || "https://dummyimage.com/400x400/4c65bf/db398a",
-      grade: p.grade ?? "", // Aquí estamos guardando el `grade`
-    }));
+      grade: p.grade ?? "",
+    };
+  });
 
-    try {
-      await ProductService.addMany(nuevos);
-      toast.success("Productos guardados correctamente.");
-      navigate("/products?tab=lista");
-    } catch (err) {
-      console.error(err);
-      toast.error("Error al guardar los productos.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
+  try {
+    await ProductService.addMany(nuevos);
+    toast.success("Productos guardados correctamente.");
+    navigate("/products?tab=lista");
+  } catch (err) {
+    console.error(err);
+    toast.error("Error al guardar los productos.");
+  } finally {
+    setIsSaving(false);
+  }
+};
   const renderDescripcion = (p: any) => {
-    return `${categoria} ${p.tipo ?? ""} ${p.ancho ?? ""}x${p.largo ?? ""} ${p.gramaje ?? ""
-      }g calibre ${p.calibre ?? ""} ${p.unidad?.toLowerCase() ?? ""} ${p.pliegos ?? ""
-      } pliegos`;
-  };
+  const tipoVisual =
+    categoria === "BobinasCarton"
+      ? "Bobinas de Carton"
+      : categoria ?? "";
+
+  return `${tipoVisual} ${p.tipo ?? ""} ${p.ancho ?? ""}x${p.largo ?? ""} ${
+    p.gramaje ?? ""
+  }g calibre ${p.calibre ?? ""} ${p.unidad?.toLowerCase() ?? ""} ${
+    p.pliegos ?? ""
+  } pliegos`;
+};
 
   return (
     <>

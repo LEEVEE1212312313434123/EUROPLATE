@@ -29,17 +29,40 @@ export function ProductsForm() {
   const STATUS_MAP: Record<string, string | null> = {
     all: null,
     Available: "Disponible",
+    Few: "Pocas",
     Unavailable: "No disponible",
   };
 
   const filteredProducts = useMemo(() => {
+    const normalize = (text: string) =>
+      text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // elimina las tildes
+
     return products.filter((p) => {
-      if (searchTerm && !p.nombre_producto.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      // 🔹 Ocultar productos con precios o stock igual a 0
+      if (
+        p.precio.precio_min <= 0 ||
+        p.precio.precio_max <= 0 ||
+        p.almacen.stock_actual <= 0
+      ) {
+        return false;
+      }
+
+      if (searchTerm) {
+        const nombreNormalizado = normalize(p.nombre_producto);
+        const searchNormalizado = normalize(searchTerm);
+        if (!nombreNormalizado.includes(searchNormalizado)) return false;
+      }
 
       const tipoFilter = FILTER_TYPE_MAP[filterType];
       if (tipoFilter && p.tipo !== tipoFilter) return false;
-      const statusFilter = STATUS_MAP[filterStatus];
-      if (statusFilter && p.estado !== statusFilter) return false;
+
+      const statusFilter = filterStatus;
+      if (statusFilter === "Available" && p.almacen.stock_actual <= 5) return false;
+      if (statusFilter === "Few" && (p.almacen.stock_actual === 0 || p.almacen.stock_actual > 5)) return false;
+      if (statusFilter === "Unavailable" && p.almacen.stock_actual > 0) return false;
 
       return true;
     });
@@ -113,11 +136,12 @@ export function ProductsForm() {
           { value: "product", label: `Productos (${products.filter((p) => p.tipo === "producto").length})` },
           { value: "service", label: `Servicios (${products.filter((p) => p.tipo === "servicio").length})` },
         ]}
-        selectOptions={[
-          { value: "all", label: "Todos" },
-          { value: "Available", label: "Disponible" },
-          { value: "Unavailable", label: "No disponible" },
-        ]}
+       selectOptions={[
+        { value: "all", label: "Todos" },
+        { value: "Available", label: "Disponible" },
+        { value: "Few", label: "Pocas" },
+        { value: "Unavailable", label: "No disponible" },
+      ]}
         searchTerm={searchTerm}
         searchPlaceholder="Buscar producto..."
         onFilterTypeChange={setFilterType}

@@ -1,149 +1,89 @@
-import { useEffect, useState } from "react";
-import { PRODUCTS_CONFIG } from "@/config/products.config";
+import { useState, useMemo } from "react";
+import { useDiscontinuedProducts } from "@/hooks/useDiscontinuedProducts";
 import type { Product } from "@/types/product.types";
-import { ProductEditDialog } from "@/components/common/Producto/products.edit.dialog";
 import { ProductDeleteDialog } from "@/components/common/Producto/product.delete.dialog";
+import { Toolbar } from "@/components/common/Toolbar";
+import { ProductTableSimple } from "@/components/common/Producto/Products-Table-Simple";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-
-export function DashboardProductsDiscount() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [editOpen, setEditOpen] = useState(false);
-  const [selectedProductForEdit, setSelectedProductForEdit] =
-    useState<Product | null>(null);
+export function DiscontinuedProductsForm() {
+  const { products, loading, error, handleDelete, handleRestore } = useDiscontinuedProducts();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedProductForDelete, setSelectedProductForDelete] =
-    useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(PRODUCTS_CONFIG.PRODUCTS_JSON_PATH);
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data: Product[] = await res.json();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
-        // 🔹 Filtrar productos con descuentos
-        const discounted = data.filter(
-          (product) => product.precio.precio_min < product.precio.precio_max
-        );
-        setProducts(discounted);
-      } catch (err) {
-        setError("Failed to load discounted products.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  if (loading) return <div className="p-6">Cargando productos con descuento...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
-
-  const handleEditClick = (product: Product) => {
-    setSelectedProductForEdit(product);
-    setEditOpen(true);
+  const FILTER_TYPE_MAP: Record<string, string | null> = {
+    all: null,
+    product: "producto",
+    service: "servicio",
   };
 
-  const handleDeleteClick = (product: Product) => {
-    setSelectedProductForDelete(product);
-    setDeleteOpen(true);
-  };
+  // 🔍 Filtrado por nombre y tipo
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      if (searchTerm && !p.nombre_producto.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      const tipoFilter = FILTER_TYPE_MAP[filterType];
+      if (tipoFilter && p.tipo !== tipoFilter) return false;
+      return true;
+    });
+  }, [products, searchTerm, filterType]);
 
-  const handleDeleteConfirm = (productId: number) => {
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-    toast.success("Producto eliminado correctamente");
-    setDeleteOpen(false);
-  };
-
-  const handleSave = (updatedProduct: Product) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
-    toast.success("Producto actualizado correctamente");
-    setEditOpen(false);
-  };
+  }
+
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Productos con Descuento</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Productos Descontinuados</h2>
+          <p className="text-muted-foreground text-sm">
+            Administra los productos descontinuados de tu empresa
+          </p>
+        </div>
+      </div>
+      <Toolbar
+        filterType={filterType}
+        filterStatus={"Descontinuado"}
+        tabs={[
+          { value: "all", label: `Todos (${products.length})` },
+          { value: "product", label: `Productos (${products.filter((p) => p.tipo === "producto").length})` },
+          { value: "service", label: `Servicios (${products.filter((p) => p.tipo === "servicio").length})` },
+        ]}
+        selectOptions={[]} // ❌ sin select
+        searchTerm={searchTerm}
+        searchPlaceholder="Buscar producto descontinuado..."
+        onFilterTypeChange={setFilterType}
+        onFilterStatusChange={() => {}}
+        onSearchChange={setSearchTerm}
+        onExport={() => {}}
+      />
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Producto</TableHead>
-            <TableHead>Precio Mínimo</TableHead>
-            <TableHead>Precio Máximo</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Fecha Registro</TableHead>
-            <TableHead>Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {products.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>{product.nombre_producto}</TableCell>
-              <TableCell>${product.precio.precio_min}</TableCell>
-              <TableCell>${product.precio.precio_max}</TableCell>
-              <TableCell>{product.almacen.stock_actual}</TableCell>
-              <TableCell>{product.estado}</TableCell>
-              <TableCell>{product.fecha_registro}</TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleEditClick(product)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteClick(product)}
-                  >
-                    Eliminar
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {selectedProductForEdit && (
-        <ProductEditDialog
-          open={editOpen}
-          product={selectedProductForEdit}
-          onClose={() => setEditOpen(false)}
-          onSave={handleSave}
-        />
-      )}
-
-      {selectedProductForDelete && (
+      <ProductTableSimple
+        products={filteredProducts}
+        onRestore={(p) => handleRestore(p.id)}
+        onDelete={(p) => {
+          setSelectedProduct(p);
+          setDeleteOpen(true);
+        }}
+      />
+      {selectedProduct && (
         <ProductDeleteDialog
           open={deleteOpen}
-          product={selectedProductForDelete}
-          onOpenChange={setDeleteOpen}
-          onDeleteConfirm={handleDeleteConfirm}
+          product={selectedProduct}
+          onOpenChange={(open) => {
+            setDeleteOpen(open);
+            if (!open) setSelectedProduct(null);
+          }}
+          onDeleteConfirm={() => handleDelete(selectedProduct.id)}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import { ProductsForm } from "@/components/common/Forms/products-form";
-import Dashboardform from "@/components/common/Forms/Dashboard/dashboard-form";
+import { DiscontinuedProductsForm } from "@/components/common/Forms/products-Discotinued-form";
 import { DashboardTabs } from "@/components/common/Dashboards/dashboard-tabs";
 import { useQueryTabs } from "@/hooks/useQueryTabs";
 import { TABS_CONFIG } from "@/config/tabs.config";
@@ -19,7 +19,7 @@ export default function ProductosPage() {
 
       <div className="mt-4">
         {activeTab === "lista" && <ProductsForm />}
-        {activeTab === "descuentos" && <Dashboardform />}
+        {activeTab === "descuentos" && <DiscontinuedProductsForm />}
       </div>
     </div>
   );
