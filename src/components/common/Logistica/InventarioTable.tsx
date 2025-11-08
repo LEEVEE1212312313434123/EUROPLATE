@@ -26,6 +26,8 @@ export interface InventarioItem {
   grossNetWt?: number;
 
   estado?: "En tránsito" | "En stock" | "Vendido";
+
+  almacen?: string; // Asegúrate de incluir el campo 'almacen'
 }
 
 interface InventarioTableProps {
@@ -51,6 +53,7 @@ export function InventarioTable({ items, }: InventarioTableProps) {
           <TableRow>
             <TableHead className="w-[150px]">N° DUA</TableHead>
             <TableHead className="w-[120px]">Product ID</TableHead>
+            <TableHead className="w-[120px]">Almacen</TableHead>
             <TableHead className="w-[150px]">Orden de Compra</TableHead>
             <TableHead className="w-[200px]">Descripcion del Producto</TableHead>
             <TableHead className="w-[80px]">Unidad de Medida</TableHead>
@@ -75,6 +78,7 @@ export function InventarioTable({ items, }: InventarioTableProps) {
                 className="h-14 border-b transition-colors hover:bg-muted/50"
               >
                 <TableCell className="truncate max-w-[150px]">{item.importacion}</TableCell>
+                <TableCell>{item.productId}</TableCell>
                 <TableCell>{item.productId}</TableCell>
                 <TableCell className="truncate max-w-[150px]">{item.purchaseOrder}</TableCell>
                 <TableCell className="truncate max-w-[200px]">{item.grade}</TableCell>

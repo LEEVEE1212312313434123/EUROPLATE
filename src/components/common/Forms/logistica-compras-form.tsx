@@ -87,8 +87,7 @@ export default function ComprasLogistica() {
             filterStatus={filterStatus}
             tabs={[
               { value: "all", label: `Todos (${importaciones.length})` },
-              { value: "import", label: "Importación" },
-              { value: "nacional", label: "Compra Nacional" },
+              { value: "import", label: "Importación" }
             ]}
             selectOptions={[
               { value: "all", label: "Todos" },
