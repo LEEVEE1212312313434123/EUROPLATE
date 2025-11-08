@@ -319,6 +319,14 @@ export const ImportacionService = {
         ancho: prod?.ancho ?? 0,
         largo: prod?.largo ?? 0,
         peso: prod?.peso ?? 0,
+        precio_min: prod?.precio_min ?? 0,
+        precio_max: prod?.precio_max ?? 0,
+        moneda: prod?.moneda ?? 0,
+        stock_actual: prod?.precio_max ?? 0,
+        ubicacion: prod?.precio_max ?? 0,
+        cantidad: prod?.precio_max ?? 0,
+        precio_unitario: prod?.precio_max ?? 0,
+        importe_usd: prod?.precio_max ?? 0,
       };
     });
 
@@ -411,31 +419,31 @@ export const ImportacionService = {
     return compraDetail;
   },
   async registrarEstadoEntrega(importacionId: number, almacenId: number) {
-  const { error } = await supabase.from("estado_importaciones").insert([
-    {
-      importacion_id: importacionId,
-      estado: "Entregado",
-      almacen_id: almacenId,
-    },
-  ]);
+    const { error } = await supabase.from("estado_importaciones").insert([
+      {
+        importacion_id: importacionId,
+        estado: "Entregado",
+        almacen_id: almacenId,
+      },
+    ]);
 
-  if (error) throw new Error(error.message);
+    if (error) throw new Error(error.message);
 
-  // Actualizamos la importación
-  await supabase
-    .from("importaciones")
-    .update({ fecha_entrega: new Date().toISOString() })
-    .eq("id", importacionId);
-},
+    // Actualizamos la importación
+    await supabase
+      .from("importaciones")
+      .update({ fecha_entrega: new Date().toISOString() })
+      .eq("id", importacionId);
+  },
 
-async registrarEstadoCancelacion(importacionId: number, motivo: string) {
-  const { error } = await supabase.from("estado_importaciones").insert([
-    {
-      importacion_id: importacionId,
-      estado: "Cancelado",
-      motivo_cancelacion: motivo,
-    },
-  ]);
+  async registrarEstadoCancelacion(importacionId: number, motivo: string) {
+    const { error } = await supabase.from("estado_importaciones").insert([
+      {
+        importacion_id: importacionId,
+        estado: "Cancelado",
+        motivo_cancelacion: motivo,
+      },
+    ]);
 
     if (error) throw new Error(error.message);
 

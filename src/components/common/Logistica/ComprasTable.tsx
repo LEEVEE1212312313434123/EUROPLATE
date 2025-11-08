@@ -1,4 +1,4 @@
-import { useState, useEffect  } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -27,7 +27,7 @@ export function ComprasTable({
   onDelete,
   onView,
 }: ComprasTableProps) {
-  
+
   const [modalData, setModalData] = useState<any>(null);
   const [almacenes, setAlmacenes] = useState<any[]>([]);
 
@@ -76,30 +76,34 @@ export function ComprasTable({
                 <TableCell>{c.proveedor ?? "N/A"}</TableCell>
                 <TableCell>{c.pais_origen ?? "N/A"}</TableCell>
                 <TableCell>
-          <button
-            className="flex items-center gap-2 text-primary hover:underline cursor-pointer"
-            onClick={() =>
-              setModalData({
-                estado: c.estado === "Entregado" ? "Entregado" : "Cancelado",
-                importacionId: c.id,
-              })
-            }
-          >
-            {c.estado === "Entregado" ? (
-              <>
-                <PackageCheck className="w-4 h-4 text-green-500" />
-                Entregado
-              </>
-            ) : c.estado === "Cancelado" ? (
-              <>
-                <XCircle className="w-4 h-4 text-red-500" />
-                Cancelado
-              </>
-            ) : (
-              "En tránsito"
-            )}
-          </button>
-              </TableCell>
+                  <button
+                    className="flex items-center gap-2 text-primary hover:underline cursor-pointer"
+                    onClick={() =>
+                      setModalData({
+                        estado: c.estado,
+                        importacionId: c.id,
+                      })
+                    }
+                  >
+                    {c.estado === "Entregado" ? (
+                      <>
+                        <PackageCheck className="w-4 h-4 text-green-500" />
+                        Entregado
+                      </>
+                    ) : c.estado === "Cancelado" ? (
+                      <>
+                        <XCircle className="w-4 h-4 text-red-500" />
+                        Cancelado
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4 text-yellow-500" />
+                        En tránsito
+                      </>
+                    )}
+                  </button>
+                </TableCell>
+
                 <TableCell className="text-center">
                   {c.fecha_entrega ?? "No definida"}
                 </TableCell>

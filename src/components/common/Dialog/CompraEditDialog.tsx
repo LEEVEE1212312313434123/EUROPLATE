@@ -49,6 +49,16 @@ export function CompraEditDialog({
     onClose();
   };
 
+  const handleEstadoChange = (value: string) => {
+    // Handle the state change
+    if (value === "Entregado") {
+      handleChange("fecha_entrega", new Date().toISOString().split("T")[0]);
+    } else {
+      handleChange("fecha_entrega", "");
+    }
+    handleChange("estado", value);  // Set the new state (Entregado, En tránsito, Cancelado)
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
@@ -103,19 +113,8 @@ export function CompraEditDialog({
           <div className="grid gap-1">
             <Label>Estado</Label>
             <Select
-              value={
-                form.fecha_entrega
-                  ? "Entregado"
-                  : "En tránsito"
-              }
-              onValueChange={(value) =>
-                handleChange(
-                  "fecha_entrega",
-                  value === "Entregado"
-                    ? new Date().toISOString().split("T")[0]
-                    : ""
-                )
-              }
+              value={form.estado ?? "En tránsito"} // Default value is "En tránsito"
+              onValueChange={handleEstadoChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar estado" />
@@ -123,6 +122,7 @@ export function CompraEditDialog({
               <SelectContent>
                 <SelectItem value="En tránsito">En tránsito</SelectItem>
                 <SelectItem value="Entregado">Entregado</SelectItem>
+                <SelectItem value="Cancelado">Cancelado</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -133,6 +133,7 @@ export function CompraEditDialog({
             <Input
               type="date"
               value={form.fecha_entrega ?? ""}
+              disabled={form.estado !== "Entregado"} // Disable date input if state is not "Entregado"
               onChange={(e) => handleChange("fecha_entrega", e.target.value)}
             />
           </div>

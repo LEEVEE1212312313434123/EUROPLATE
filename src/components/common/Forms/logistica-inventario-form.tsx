@@ -18,8 +18,8 @@ export default function InventarioLogistica() {
   const items: InventarioItem[] = useMemo(() => {
     return inventario.map((item) => ({
       id: item.id.toString(),
-      importacion: item.num_dua ?? "N/A", 
-      purchaseOrder: item.orden_compra ?? "N/A", 
+      importacion: item.num_dua ?? "N/A",
+      purchaseOrder: item.orden_compra ?? "N/A",
       grade: item.nombre_producto ?? "Sin nombre",
       type: item.unidad_medida ?? "N/A",
       width: item.ancho ?? 0,
@@ -27,6 +27,13 @@ export default function InventarioLogistica() {
       lmetre: item.largo ?? 0,
       productId: item.producto_id?.toString() ?? "N/A",
       grossNetWt: item.peso ?? 0,
+      ubicacion: item.ubicacion ?? "N/A", // Mantén la ubicación
+      categoria: item.categoria ?? "Sin categoría", // Mantén todos los campos
+      stockActual: item.stock_actual ?? 0,
+      cantidad: item.cantidad ?? 0,
+      precioUnitario: item.precio_unitario ?? 0,
+      importeUsd: item.importe_usd ?? 0,
+      moneda: item.moneda ?? "N/A",
     }));
   }, [inventario]);
 
