@@ -27,7 +27,9 @@ export interface InventarioItem {
 
   estado?: "En tránsito" | "En stock" | "Vendido";
 
-  almacen?: string; // Asegúrate de incluir el campo 'almacen'
+  almacen?: string;
+  unidad?: string;
+  stockActual?: number;
 }
 
 interface InventarioTableProps {
@@ -36,7 +38,7 @@ interface InventarioTableProps {
   onDelete: (item: InventarioItem) => void;
 }
 
-export function InventarioTable({ items, }: InventarioTableProps) {
+export function InventarioTable({ items }: InventarioTableProps) {
   const [page, setPage] = useState(0);
   const pageSize = 10;
 
@@ -53,10 +55,12 @@ export function InventarioTable({ items, }: InventarioTableProps) {
           <TableRow>
             <TableHead className="w-[150px]">N° DUA</TableHead>
             <TableHead className="w-[120px]">Product ID</TableHead>
-            <TableHead className="w-[120px]">Almacen</TableHead>
+            <TableHead className="w-[120px]">Almacén</TableHead>
             <TableHead className="w-[150px]">Orden de Compra</TableHead>
-            <TableHead className="w-[200px]">Descripcion del Producto</TableHead>
-            <TableHead className="w-[80px]">Unidad de Medida</TableHead>
+            <TableHead className="w-[200px]">Descripción del Producto</TableHead>
+            <TableHead className="w-[100px]">Stock Actual</TableHead>
+            <TableHead className="w-[100px]">Unidad</TableHead>
+            <TableHead className="w-[100px]">Estado</TableHead> {/* ✅ Nueva columna */}
             <TableHead className="w-[80px]">Gramaje</TableHead>
             <TableHead className="w-[80px]">Ancho</TableHead>
             <TableHead className="w-[80px]">Largo MM</TableHead>
@@ -67,7 +71,7 @@ export function InventarioTable({ items, }: InventarioTableProps) {
         <TableBody>
           {currentItems.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={14} className="text-center py-6">
+              <TableCell colSpan={12} className="text-center py-6">
                 No se encontraron productos en inventario.
               </TableCell>
             </TableRow>
@@ -77,16 +81,30 @@ export function InventarioTable({ items, }: InventarioTableProps) {
                 key={item.id}
                 className="h-14 border-b transition-colors hover:bg-muted/50"
               >
-                <TableCell className="truncate max-w-[150px]">{item.importacion}</TableCell>
+                <TableCell>{item.importacion}</TableCell>
                 <TableCell>{item.productId}</TableCell>
-                <TableCell>{item.productId}</TableCell>
-                <TableCell className="truncate max-w-[150px]">{item.purchaseOrder}</TableCell>
-                <TableCell className="truncate max-w-[200px]">{item.grade}</TableCell>
-                <TableCell>{item.type}</TableCell>
+                <TableCell>{item.almacen}</TableCell>
+                <TableCell>{item.purchaseOrder}</TableCell>
+                <TableCell>{item.grade}</TableCell>
+                <TableCell>{item.stockActual ?? 0}</TableCell>
+                <TableCell>{item.unidad}</TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      item.estado === "En stock"
+                        ? "bg-green-100 text-green-700"
+                        : item.estado === "En tránsito"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {item.estado}
+                  </span>
+                </TableCell>
                 <TableCell>{item.gsm}</TableCell>
                 <TableCell>{item.width}</TableCell>
                 <TableCell>{item.lmetre}</TableCell>
-                <TableCell>{item.grossNetWt.toLocaleString()}</TableCell>
+                <TableCell>{item.grossNetWt?.toLocaleString()}</TableCell>
               </TableRow>
             ))
           )}
@@ -113,7 +131,9 @@ export function InventarioTable({ items, }: InventarioTableProps) {
             variant="outline"
             size="icon"
             disabled={page >= totalPages - 1}
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+            onClick={() =>
+              setPage((prev) => Math.min(prev + 1, totalPages - 1))
+            }
             className="rounded-full shadow-sm hover:bg-primary hover:text-white transition cursor-pointer"
           >
             <ChevronRight className="w-5 h-5" />
