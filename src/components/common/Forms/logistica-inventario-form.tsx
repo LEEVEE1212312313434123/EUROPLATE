@@ -81,7 +81,6 @@ export default function InventarioLogistica() {
         tabs={[
           { value: "all", label: `Todos (${items.length})` },
           { value: "import", label: "Importación" },
-          { value: "nacional", label: "Compra Nacional" },
         ]}
         selectOptions={[
           { value: "all", label: "Todos" },

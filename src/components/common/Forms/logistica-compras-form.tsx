@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import { ComprasTable } from "@/components/common/Logistica/ComprasTable";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { CompraDetail } from "@/components/common/Logistica/CompraDetail";
-import { CompraEditDialog } from "@/components/common/Dialog/CompraEditDialog";
 import { useLogisticaCompras } from "@/hooks/useLogisticaCompras";
-import type { Importacion } from "@/types/importacion.types";
 import { ImportacionService } from "@/services/logistica.importacion.service";
 
 export default function ComprasLogistica() {
@@ -19,8 +18,12 @@ export default function ComprasLogistica() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCompra, setSelectedCompra] = useState<any>(null);
-  const [editingCompra, setEditingCompra] = useState<Importacion | null>(null);
-
+  const [deleteTarget, setDeleteTarget] = useState<any>(null); 
+  const [showConfirm, setShowConfirm] = useState(false);
+  const confirmDelete = (compra: any) => {
+    setDeleteTarget(compra);
+    setShowConfirm(true);
+  }; 
   const handleView = async (compraId: number) => {
     const detail = await ImportacionService.getCompraDetailById(compraId);
     if (detail) {
@@ -47,8 +50,10 @@ export default function ComprasLogistica() {
 
       if (filterType === "import" && c.pais_origen === "Perú") return false;
       if (filterType === "nacional" && c.pais_origen !== "Perú") return false;
+
       if (filterStatus === "entregado" && c.estado !== "Entregado") return false;
       if (filterStatus === "cancelado" && c.estado !== "Cancelado") return false;
+      if (filterStatus === "pendiente" && c.estado !== "Pendiente") return false;
 
       return true;
     });
@@ -91,6 +96,7 @@ export default function ComprasLogistica() {
             ]}
             selectOptions={[
               { value: "all", label: "Todos" },
+              { value: "pendiente", label: "Pendiente" },
               { value: "entregado", label: "Entregado" },
               { value: "cancelado", label: "Cancelado" },
             ]}
@@ -104,14 +110,51 @@ export default function ComprasLogistica() {
           <div className="mt-6">
             <ComprasTable
               compras={filteredCompras}
-              onEdit={(c) => setEditingCompra(c)}
-              onDelete={(c) => handleDelete(c.id)}
+              onEdit={(c) => navigate(`/logistica/editimport?id=${c.id}`)}
+              onDelete={(c) => confirmDelete(c)}
               onView={(c) => handleView(c.id)}
             />
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-primary font-semibold">
+            ¿Eliminar importación?
+          </AlertDialogTitle>
+
+          <AlertDialogDescription className="text-muted-foreground font-normal">
+            {deleteTarget?.estado === "Entregado" ? (
+              <span className="text-foreground">
+                Esta importación ya fue ENTREGADA y no puede eliminarse.
+              </span>
+            ) : (
+              "Esta acción eliminará la importación seleccionada. ¿Deseas continuar?"
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          {deleteTarget?.estado === "Entregado" ? (
+            <AlertDialogAction
+              onClick={() => setShowConfirm(false)}
+              className="bg-primary text-white hover:bg-primary/90 cursor-pointer"
+            >
+              Aceptar
+            </AlertDialogAction>
+          ) : (
+            <>
+              <AlertDialogCancel className="cursor-pointer">
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction className="bg-muted text-foreground hover:bg-muted/80 cursor-pointer">
+                Eliminar
+              </AlertDialogAction>
+            </>
+          )}
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
           </div>
         </div>
-
-        {/* 🔹 Transición suave para CompraDetail */}
         <AnimatePresence>
           {selectedCompra && (
             <motion.div
@@ -130,15 +173,6 @@ export default function ComprasLogistica() {
           )}
         </AnimatePresence>
       </div>
-
-      {editingCompra && (
-        <CompraEditDialog
-          open={!!editingCompra}
-          importacion={editingCompra}
-          onClose={() => setEditingCompra(null)}
-          onSave={handleSave}
-        />
-      )}
     </div>
   );
 }

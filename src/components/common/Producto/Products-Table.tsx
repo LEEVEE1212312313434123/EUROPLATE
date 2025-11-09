@@ -36,109 +36,93 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
     <div className="flex flex-col gap-4">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Categoria</TableHead>
-            <TableHead>Producto</TableHead>
-            <TableHead className="text-center w-[100px]">Precio Min</TableHead>
-            <TableHead className="text-center w-[100px]">Precio Max</TableHead>
-            {/* 🔹 Intercambiado el orden aquí */}
-            <TableHead className="text-center w-[120px]">Disponibilidad</TableHead>
-            <TableHead className="text-center w-[80px]">Stock Actual</TableHead>
-            <TableHead className="text-center w-[90px]">Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
+      <TableRow>
+        <TableHead>Categoria</TableHead>
+        <TableHead>Producto</TableHead>
+        <TableHead className="text-center w-[100px]">Precio Min</TableHead>
+        <TableHead className="text-center w-[100px]">Precio Max</TableHead>
+        <TableHead className="text-center w-[120px]">Disponibilidad</TableHead>
+        <TableHead className="text-center w-[80px]">Stock Actual</TableHead>
+        <TableHead className="text-center w-[80px]">Unidad</TableHead>
 
-        <TableBody>
-          {currentProducts.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center py-6">
-                No se encontraron productos.
+        <TableHead className="text-center w-[90px]">Acciones</TableHead>
+      </TableRow>
+    </TableHeader>
+
+    <TableBody>
+      {currentProducts.length === 0 ? (
+        <TableRow>
+          <TableCell colSpan={7} className="text-center py-6">
+            No se encontraron productos.
+          </TableCell>
+        </TableRow>
+      ) : (
+        currentProducts.map((product) => {
+          const categoriaLegible = categoriaDisplayMap[product.categoria] ?? product.categoria;
+          const material = product.material;
+          const nombreProducto = [
+            categoriaLegible,
+            material.tipo,
+            material.dimensiones.ancho_cm && material.dimensiones.largo_cm
+              ? `${material.dimensiones.ancho_cm}x${material.dimensiones.largo_cm}`
+              : "",
+            material.gramaje_g ? `${material.gramaje_g}g` : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+          return (
+            <TableRow key={product.id} className="h-14 border-b hover:bg-muted/50 transition-colors">
+              <TableCell>{categoriaLegible}</TableCell>
+              <TableCell>{nombreProducto}</TableCell>
+              <TableCell className="text-center">${product.precio.precio_min.toFixed(2)}</TableCell>
+              <TableCell className="text-center">${product.precio.precio_max.toFixed(2)}</TableCell>
+
+              <TableCell className="text-center">
+                {product.almacen.stock_actual === 0 ? (
+                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                    No disponible
+                  </span>
+                ) : product.almacen.stock_actual <= 5 ? (
+                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                    Pocas
+                  </span>
+                ) : (
+                  <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                    Disponible
+                  </span>
+                )}
+              </TableCell>
+              <TableCell className="text-center">{product.almacen.stock_actual}</TableCell>
+              <TableCell className="text-center">
+                {product.material.unidad_medida || "-"}
+              </TableCell>
+
+              <TableCell className="text-center">
+                <div className="flex justify-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(product)}
+                    className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(product)}
+                    className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
-          ) : (
-            currentProducts.map((product) => {
-              const material = product.material;
-              const categoriaLegible = categoriaDisplayMap[product.categoria] ?? product.categoria;
-
-              const partes = [
-                categoriaLegible,
-                material.tipo,
-                material.dimensiones.ancho_cm &&
-                material.dimensiones.largo_cm &&
-                (material.dimensiones.ancho_cm !== 0 || material.dimensiones.largo_cm !== 0)
-                  ? `${material.dimensiones.ancho_cm}x${material.dimensiones.largo_cm}`
-                  : "",
-                material.gramaje_g && material.gramaje_g !== 0 ? `${material.gramaje_g}g` : "",
-                material.calibre && material.calibre !== 0 ? `calibre ${material.calibre}` : "",
-                material.unidad_medida ? material.unidad_medida.toLowerCase() : "",
-                material.pliegos_por_paquete && material.pliegos_por_paquete !== 0
-                  ? `${material.pliegos_por_paquete} pliegos`
-                  : "",
-              ];
-
-              const nombreProducto = partes.filter(Boolean).join(" ");
-
-              const disponible =
-                product.estado?.toLowerCase() === "disponible" ||
-                product.almacen?.stock_actual > 0;
-
-              return (
-                <TableRow key={product.id} className="h-14 border-b hover:bg-muted/50 transition-colors">
-                  <TableCell>{categoriaLegible}</TableCell>
-                  <TableCell>{nombreProducto}</TableCell>
-                  <TableCell className="text-center w-[100px]">
-                    ${product.precio.precio_min.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-center w-[100px]">
-                    ${product.precio.precio_max.toFixed(2)}
-                  </TableCell>
-
-                  {/* 🔹 Intercambiado el orden aquí */}
-                  <TableCell className="text-center w-[120px]">
-                    {product.almacen.stock_actual === 0 ? (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                        No disponible
-                      </span>
-                    ) : product.almacen.stock_actual <= 5 ? (
-                      <span className="flex items-center justify-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
-                        <AlertTriangle className="w-4 h-4" />
-                        Pocas
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                        Disponible
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center w-[80px]">
-                    {product.almacen.stock_actual}
-                  </TableCell>
-
-                  <TableCell className="text-center w-[90px]">
-                    <div className="flex justify-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(product)}
-                        className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(product)}
-                        className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
-                      >
-                        <Trash className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
+          );
+        })
+      )}
+    </TableBody>
       </Table>
 
       {totalPages > 1 && (

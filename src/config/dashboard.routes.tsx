@@ -13,6 +13,7 @@ import LogisticaPage from "@/pages/logistica/logistica.page";
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
 import ClientesPage from "@/pages/clientes/clientes.page";
 import Dashboardform from "@/components/common/Forms/Dashboard/dashboard-form";
+import EditarLogistica from "@/pages/logistica/logistica.edit";
 
 export const dashboardRoutes = [
   {
@@ -67,6 +68,14 @@ export const dashboardRoutes = [
     path: "/logistica/addimport",
     icon: IconPackage,
     element: <AgregarLogistica />,
+    showInSidebar: false,
+    parent: "/logistica",
+  },
+  {
+    title: "Editar Importación",
+    path: "/logistica/editimport",
+    icon: IconPackage,
+    element: <EditarLogistica />,
     showInSidebar: false,
     parent: "/logistica",
   },

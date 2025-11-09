@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Eye, ChevronLeft, ChevronRight, PackageCheck, XCircle } from "lucide-react";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { EstadoImportacionDialog } from "@/components/common/Dialog/EstadoImportacionDialog";
 import type { Importacion } from "@/types/importacion.types";
 import { supabase } from "@/lib/supabaseClient";
@@ -37,7 +38,6 @@ export function ComprasTable({
   const start = page * pageSize;
   const end = start + pageSize;
   const currentCompras = compras.slice(start, end);
-
   const totalPages = Math.ceil(compras.length / pageSize);
   useEffect(() => {
     const fetchAlmacenes = async () => {
