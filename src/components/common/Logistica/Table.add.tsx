@@ -32,23 +32,30 @@ interface ProductoRow {
 }
 
 interface Props {
+  initialData?: ProductoRow[];
   onChange: (rows: ProductoRow[]) => void;
 }
 
-export default function TableAddImport({ onChange }: Props) {
+const UNIDADES = ["Paquete", "Pliego", "Unidad", "Docena"];
+
+export default function TableAddImport({ initialData = [], onChange }: Props) {
   const { products, loading } = useProducts();
-  const [productos, setProductos] = useState<ProductoRow[]>([
-    {
-      tempId: 1,
-      producto_id: null,
-      categoria: "",
-      descripcion: "",
-      cantidad: "",
-      unidadMedida: "",
-      precioUnitario: "",
-      importeUsd: "",
-    },
-  ]);
+  const [productos, setProductos] = useState<ProductoRow[]>(() =>
+    initialData.length > 0
+      ? initialData
+      : [
+        {
+          tempId: 1,
+          producto_id: null,
+          categoria: "",
+          descripcion: "",
+          cantidad: "",
+          unidadMedida: "",
+          precioUnitario: "",
+          importeUsd: "",
+        },
+      ]
+  );
 
   const [filtrados, setFiltrados] = useState<any[]>([]);
 
@@ -59,41 +66,29 @@ export default function TableAddImport({ onChange }: Props) {
 
   useEffect(() => {
     onChange(productos);
-  }, [productos, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productos]);
 
-  // 🔹 Función para construir nombre legible del producto
   const buildProductName = (p: any) => {
     const parts = [
       p.nombre_producto,
       p.material?.tipo,
-      p.material?.dimensiones?.ancho_cm
-        ? `${p.material.dimensiones.ancho_cm}cm`
-        : "",
+      p.material?.dimensiones?.ancho_cm ? `${p.material.dimensiones.ancho_cm}cm` : "",
       p.material?.gramaje_g ? `${p.material.gramaje_g}g` : "",
-      p.material?.calibre && p.material.calibre !== 0
-        ? `calibre ${p.material.calibre}`
-        : "",
+      p.material?.calibre && p.material.calibre !== 0 ? `calibre ${p.material.calibre}` : "",
     ].filter(Boolean);
     return parts.join(" ");
   };
 
-  // 🔹 Manejar cambios en las celdas
-  const handleChange = (
-    tempId: number,
-    field: keyof ProductoRow,
-    value: string
-  ) => {
+  const handleChange = (tempId: number, field: keyof ProductoRow, value: string) => {
     setProductos((prev) =>
       prev.map((p) => {
         if (p.tempId !== tempId) return p;
 
         let actualizado = { ...p, [field]: value };
 
-        // Cuando cambia la categoría → filtra productos
         if (field === "categoria") {
-          const filtradosProd = products.filter(
-            (prod) => prod.categoria === value
-          );
+          const filtradosProd = products.filter((prod) => prod.categoria === value);
           setFiltrados(filtradosProd);
           actualizado.descripcion = "";
           actualizado.producto_id = null;
@@ -102,31 +97,19 @@ export default function TableAddImport({ onChange }: Props) {
           actualizado.importeUsd = "";
         }
 
-        // Cuando cambia descripción → carga info del producto
         if (field === "descripcion") {
-          const prodSel = products.find(
-            (prod) => buildProductName(prod) === value
-          );
+          const prodSel = products.find((prod) => buildProductName(prod) === value);
           if (prodSel) {
             actualizado.producto_id = prodSel.id;
             actualizado.unidadMedida = prodSel.material.unidad_medida || "";
-            actualizado.precioUnitario = String(
-              prodSel.precio.precio_min || ""
-            );
-
-            // Si ya hay cantidad → recalcula el importe
-            if (actualizado.cantidad) {
-              const cantidadNum = parseFloat(actualizado.cantidad) || 0;
-              const precioNum = parseFloat(actualizado.precioUnitario) || 0;
-              actualizado.importeUsd = (cantidadNum * precioNum).toFixed(2);
-            }
+            actualizado.precioUnitario = String(prodSel.precio.precio_min || 0);
           }
         }
 
-        // 🔹 Cuando cambia la cantidad → recalcula importe
-        if (field === "cantidad") {
-          const cantidadNum = parseFloat(value) || 0;
-          const precioNum = parseFloat(p.precioUnitario) || 0;
+        // Recalcular importeUSD en cualquier cambio de cantidad o precioUnitario
+        if (["cantidad", "precioUnitario"].includes(field)) {
+          const cantidadNum = parseFloat(actualizado.cantidad) || 0;
+          const precioNum = parseFloat(actualizado.precioUnitario) || 0;
           actualizado.importeUsd = (cantidadNum * precioNum).toFixed(2);
         }
 
@@ -135,11 +118,8 @@ export default function TableAddImport({ onChange }: Props) {
     );
   };
 
-  // 🔹 Agregar nueva fila de producto
   const agregarFila = () => {
-    const newTempId =
-      productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
-
+    const newTempId = productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
     setProductos((prev) => [
       ...prev,
       {
@@ -167,37 +147,22 @@ export default function TableAddImport({ onChange }: Props) {
         <Table className="text-sm">
           <TableHeader>
             <TableRow className="h-8">
-              <TableHead className="px-2 text-center w-[160px]">
-                Categoría Principal
-              </TableHead>
-              <TableHead className="px-2 text-center w-[250px]">
-                Descripción Producto
-              </TableHead>
-              <TableHead className="px-2 text-center w-[100px]">
-                Cantidad
-              </TableHead>
-              <TableHead className="px-2 text-center w-[100px]">
-                Unidad Medida
-              </TableHead>
-              <TableHead className="px-2 text-center w-[120px]">
-                Precio Unitario
-              </TableHead>
-              <TableHead className="px-2 text-center w-[120px]">
-                Importe (USD)
-              </TableHead>
+              <TableHead className="px-2 text-center w-[160px]">Categoría Principal</TableHead>
+              <TableHead className="px-2 text-center w-[250px]">Descripción Producto</TableHead>
+              <TableHead className="px-2 text-center w-[100px]">Cantidad</TableHead>
+              <TableHead className="px-2 text-center w-[100px]">Unidad Medida</TableHead>
+              <TableHead className="px-2 text-center w-[120px]">Costo</TableHead>
+              <TableHead className="px-2 text-center w-[120px]">Importe (USD)</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {productos.map((producto) => (
               <TableRow key={producto.tempId} className="h-8">
-                {/* Categoría */}
                 <TableCell className="px-1 py-1">
                   <Select
                     value={producto.categoria}
-                    onValueChange={(v) =>
-                      handleChange(producto.tempId, "categoria", v)
-                    }
+                    onValueChange={(v) => handleChange(producto.tempId, "categoria", v)}
                   >
                     <SelectTrigger className="h-7 text-sm w-full">
                       <SelectValue placeholder="Selecciona..." />
@@ -205,28 +170,27 @@ export default function TableAddImport({ onChange }: Props) {
                     <SelectContent>
                       {categorias.map((cat, i) => (
                         <SelectItem key={i} value={cat}>
-                          {cat === "BobinasCarton"
-                            ? "Bobinas de Cartón"
-                            : cat}
+                          {cat === "BobinasCarton" ? "Bobinas de Cartón" : cat}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </TableCell>
 
-                {/* Descripción */}
                 <TableCell className="px-1 py-1">
                   <Select
                     value={producto.descripcion}
-                    onValueChange={(v) =>
-                      handleChange(producto.tempId, "descripcion", v)
-                    }
+                    onValueChange={(v) => handleChange(producto.tempId, "descripcion", v)}
                     disabled={!producto.categoria}
                   >
                     <SelectTrigger className="h-7 text-sm w-full">
                       <SelectValue placeholder="Selecciona..." />
                     </SelectTrigger>
                     <SelectContent>
+                      {producto.descripcion &&
+                        !filtrados.some((p) => buildProductName(p) === producto.descripcion) && (
+                          <SelectItem value={producto.descripcion}>{producto.descripcion}</SelectItem>
+                        )}
                       {filtrados.map((p, idx) => (
                         <SelectItem key={idx} value={buildProductName(p)}>
                           {buildProductName(p)}
@@ -236,38 +200,47 @@ export default function TableAddImport({ onChange }: Props) {
                   </Select>
                 </TableCell>
 
-                {/* Cantidad */}
                 <TableCell className="px-1 py-1">
                   <Input
                     type="number"
                     value={producto.cantidad}
-                    onChange={(e) =>
-                      handleChange(producto.tempId, "cantidad", e.target.value)
-                    }
+                    onChange={(e) => handleChange(producto.tempId, "cantidad", e.target.value)}
                     className="h-7 text-sm w-full"
                     placeholder="0"
                   />
                 </TableCell>
 
-                {/* Unidad medida */}
+                {/* Unidad de Medida como Select */}
                 <TableCell className="px-1 py-1">
-                  <Input
+                  <Select
                     value={producto.unidadMedida}
-                    className="h-7 text-sm w-full"
-                    disabled
-                  />
+                    onValueChange={(v) => handleChange(producto.tempId, "unidadMedida", v)}
+                  >
+                    <SelectTrigger className="h-7 text-sm w-full">
+                      <SelectValue placeholder="Unidad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {UNIDADES.map((u, idx) => (
+                        <SelectItem key={idx} value={u}>
+                          {u}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </TableCell>
 
-                {/* Precio unitario */}
+                {/* Precio Unitario editable */}
                 <TableCell className="px-1 py-1">
                   <Input
                     value={producto.precioUnitario}
+                    onChange={(e) =>
+                      handleChange(producto.tempId, "precioUnitario", e.target.value)
+                    }
                     className="h-7 text-sm w-full"
-                    disabled
+                    placeholder="0.00"
                   />
                 </TableCell>
 
-                {/* Importe USD */}
                 <TableCell className="px-1 py-1">
                   <Input
                     value={producto.importeUsd}
