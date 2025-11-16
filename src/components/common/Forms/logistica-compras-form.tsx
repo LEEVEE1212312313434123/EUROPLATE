@@ -196,7 +196,6 @@ export default function ComprasLogistica() {
           <div className="mt-6">
             <ComprasTable
               compras={filteredCompras}
-              onEdit={(c) => navigate(`/logistica/editimport?id=${c.id}`)}
               onDelete={(c) => {
                 setDeleteTarget(c);
                 setShowConfirm(true);
