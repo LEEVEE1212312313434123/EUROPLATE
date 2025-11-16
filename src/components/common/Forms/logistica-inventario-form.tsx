@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import {
@@ -6,48 +6,62 @@ import {
   type InventarioItem,
 } from "@/components/common/Logistica/InventarioTable";
 import { toast } from "sonner";
-import { useLogisticaInventario } from "@/hooks/useLogisticaImportacion";
+import { InventarioService } from "@/services/inventario.service"; // ✅ importa tu service
 
 export default function InventarioLogistica() {
-  const { inventario, loading, error } = useLogisticaInventario();
+  const [inventario, setInventario] = useState<InventarioItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [, setEditingItem] = useState<InventarioItem | null>(null);
 
-  // ✅ Normalizamos y mapeamos los datos para tabla
-  const items: InventarioItem[] = useMemo(() => {
-    return inventario.map((item) => {
-      const estado =
-        item.stock_actual > 0
-          ? "En stock"
-          : item.fecha_entrega
-          ? "Vendido"
-          : "En tránsito";
+  // ✅ Cargar inventario usando el service
+  useEffect(() => {
+    const fetchInventario = async () => {
+      setLoading(true);
+      try {
+        const data = await InventarioService.getAll();
 
-      return {
-        id: item.id?.toString(),
-        importacion: item.num_dua ?? "N/A",
-        purchaseOrder: item.orden_compra ?? "N/A",
-        grade: item.nombre_producto ?? "Sin nombre",
-        type: item.unidad_medida ?? "N/A",
-        width: item.ancho ?? 0,
-        gsm: item.gramaje ?? 0,
-        lmetre: item.largo ?? 0,
-        productId: item.producto_id?.toString() ?? "N/A",
-        grossNetWt: item.peso ?? 0,
-        almacen: item.almacen ?? "N/A",
-        unidad: item.unidad_medida ?? "N/A",
-        stockActual: item.stock_actual ?? 0,
-        estado,
-      };
-    });
-  }, [inventario]);
+        // Mapear tus datos al tipo InventarioItem para la tabla
+        const mappedItems: InventarioItem[] = data.map((item) => ({
+          id: item.importacion_producto_id,
+          importacion: item.num_dua ?? "N/A",
+          purchaseOrder: item.orden_compra ?? "N/A",
+          grade: item.nombre_producto ?? "Sin nombre",
+          type: item.unidad_medida ?? "N/A",
+          width: item.ancho_cm ?? 0,
+          gsm: item.gramaje_g ?? 0,
+          lmetre: item.largo_cm ?? 0,
+          productId: item.producto_id?.toString() ?? "N/A",
+          grossNetWt: item.peso_kg ?? 0,
+          almacen: item.ubicacion ?? "N/A",
+          unidad: item.unidad_medida ?? "N/A",
+          stockActual: item.stock_actual ?? 0,
+          estado:
+            item.stock_actual && item.stock_actual > 0
+              ? "En stock"
+              : "En tránsito",
+        }));
+
+        setInventario(mappedItems);
+        setError(null);
+      } catch (err: any) {
+        console.error(err);
+        setError("Error cargando inventario");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventario();
+  }, []);
 
   // ✅ Filtro y búsqueda
   const filteredItems = useMemo(() => {
-    return items.filter((i) => {
+    return inventario.filter((i) => {
       const matchesSearch =
         !searchTerm ||
         i.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,7 +80,7 @@ export default function InventarioLogistica() {
 
       return true;
     });
-  }, [items, searchTerm, filterType, filterStatus]);
+  }, [inventario, searchTerm, filterType, filterStatus]);
 
   // ✅ Vista de carga
   if (loading)
@@ -100,7 +114,7 @@ export default function InventarioLogistica() {
         filterType={filterType}
         filterStatus={filterStatus}
         tabs={[
-          { value: "all", label: `Todos (${items.length})` },
+          { value: "all", label: `Todos (${inventario.length})` },
           { value: "import", label: "Importación" },
         ]}
         selectOptions={[

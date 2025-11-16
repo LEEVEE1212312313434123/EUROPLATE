@@ -1,20 +1,24 @@
-// src/components/common/Logistica/PDF.Adjunt.tsx
 "use client"
 
 import { useState, useEffect } from "react"
 import { useDropzone } from "react-dropzone"
-import { FileText, FileSpreadsheet } from "lucide-react"
+import { FileText, FileSpreadsheet, Trash } from "lucide-react"
 import { FaFileWord } from "react-icons/fa"
+import { Button } from "@/components/ui/button"
 
 interface PDFAdjuntoProps {
-  onChangeFiles?: (urls: string[]) => void
+  initialFiles?: { url: string; nombre_archivo: string }[]
+  onChangeFiles?: (adjuntos: { url: string; nombre_archivo: string }[]) => void
 }
 
-export default function PDFAdjunto({ onChangeFiles }: PDFAdjuntoProps) {
+export default function PDFAdjunto({ initialFiles = [], onChangeFiles }: PDFAdjuntoProps) {
   const [files, setFiles] = useState<File[]>([])
+  const [existingUrls, setExistingUrls] = useState<
+    { url: string; nombre_archivo: string }[]
+  >(initialFiles)
 
   const onDrop = (acceptedFiles: File[]) => {
-    const newFiles = [...files, ...acceptedFiles].slice(0, 5) // máximo 5
+    const newFiles = [...files, ...acceptedFiles].slice(0, 5)
     setFiles(newFiles)
   }
 
@@ -30,26 +34,42 @@ export default function PDFAdjunto({ onChangeFiles }: PDFAdjuntoProps) {
     multiple: true,
   })
 
-  // Generar URLs y notificar al padre
+  // 🚀 FIX DEL LOOP + INCLUIR nombre_archivo
   useEffect(() => {
-    const urls = files.map((f) => `https://europlate.com/documents/${f.name}`)
-    if (onChangeFiles) {
-      onChangeFiles(urls)
-    }
-  }, [files])
+    const nuevosAdjuntos = files.map((file) => {
+      const url = `https://europlate.com/documents/${file.name}`
+      return {
+        url,
+        nombre_archivo: file.name,
+      }
+    })
 
-  // Ícono según tipo
+    const combinados = [...existingUrls, ...nuevosAdjuntos]
+    onChangeFiles?.(combinados)
+  }, [files]) // ❗ solo depende de "files"
+
   const getFileIcon = (file: File) => {
     if (file.type.includes("pdf")) return <FileText className="text-red-500" size={20} />
     if (file.type.includes("word")) return <FaFileWord className="text-blue-500" size={20} />
-    if (file.type.includes("sheet") || file.type.includes("excel"))
-      return <FileSpreadsheet className="text-green-500" size={20} />
+    if (file.type.includes("sheet") || file.type.includes("excel")) return <FileSpreadsheet className="text-green-500" size={20} />
     return <FileText size={20} />
+  }
+
+  const removeExistingFile = (url: string) => {
+    const updated = existingUrls.filter((file) => file.url !== url)
+    setExistingUrls(updated)
+    onChangeFiles?.(updated) // actualizar padre
+  }
+
+  const removeNewFile = (file: File) => {
+    const updated = files.filter((f) => f !== file)
+    setFiles(updated)
   }
 
   return (
     <div className="mt-6">
       <h3 className="text-base font-medium mb-3">Adjuntos</h3>
+
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition
@@ -57,19 +77,32 @@ export default function PDFAdjunto({ onChangeFiles }: PDFAdjuntoProps) {
       >
         <input {...getInputProps()} />
         <p className="text-sm text-gray-600">
-          Arrastra y suelta tus archivos PDF, Word o Excel aquí, o haz clic para subir (máx 5).
+          Arrastra archivos PDF, Word o Excel aquí, o haz clic para subir (máx 5).
         </p>
       </div>
 
-      {/* Lista de archivos */}
       <div className="mt-3 space-y-2">
+        {existingUrls.map((file, idx) => (
+          <div key={idx} className="flex items-center justify-between border p-2 rounded-md bg-gray-50 text-sm">
+            <div className="flex items-center gap-2">
+              <FileText className="text-gray-500" size={20} />
+              <span className="truncate">{file.nombre_archivo}</span>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => removeExistingFile(file.url)}>
+              <Trash className="w-4 h-4" />
+            </Button>
+          </div>
+        ))}
+
         {files.map((file, idx) => (
-          <div
-            key={idx}
-            className="flex items-center gap-2 border p-2 rounded-md bg-gray-50 text-sm"
-          >
-            {getFileIcon(file)}
-            <span className="truncate">{`https://europlate.com/documents/${file.name}`}</span>
+          <div key={idx} className="flex items-center justify-between border p-2 rounded-md bg-gray-50 text-sm">
+            <div className="flex items-center gap-2">
+              {getFileIcon(file)}
+              <span className="truncate">{file.name}</span>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => removeNewFile(file)}>
+              <Trash className="w-4 h-4" />
+            </Button>
           </div>
         ))}
       </div>

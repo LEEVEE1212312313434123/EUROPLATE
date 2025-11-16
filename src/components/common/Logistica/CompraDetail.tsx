@@ -48,15 +48,18 @@ export function CompraDetail({ compra, onClose }: CompraDetailProps) {
         <h4 className="font-semibold mb-2">Adjuntos:</h4>
         <div className="grid grid-cols-3 gap-4">
           {compra.adjuntos && compra.adjuntos.length > 0 ? (
-            compra.adjuntos.map((fileUrl, index) => {
-              const fileName = fileUrl.split("/").pop() || `Archivo ${index + 1}`;
+            compra.adjuntos.map((file: any, index: number) => {
+              const fileUrl = typeof file === "string" ? file : file.url || "";
+              const fileName = typeof file === "string"
+                ? file.split("/").pop() || `Archivo ${index + 1}`
+                : file.nombre || `Archivo ${index + 1}`;
               const ext = fileName.split(".").pop()?.toLowerCase();
 
               return (
                 <div
                   key={index}
                   className="border rounded-lg shadow hover:shadow-lg transition cursor-pointer flex flex-col items-center justify-center p-4"
-                  onClick={() => window.open(fileUrl, "_blank")}
+                  onClick={() => fileUrl && window.open(fileUrl, "_blank")}
                 >
                   {ext === "xlsx" || ext === "xls" ? (
                     <FileSpreadsheet className="w-10 h-10 text-gray-400 mb-2" />
