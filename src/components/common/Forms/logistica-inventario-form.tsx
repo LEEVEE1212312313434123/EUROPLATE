@@ -7,6 +7,7 @@ import {
 } from "@/components/common/Logistica/InventarioTable";
 import { toast } from "sonner";
 import { InventarioService } from "@/services/inventario.service"; // ✅ importa tu service
+import { useNavigate } from "react-router-dom";
 
 export default function InventarioLogistica() {
   const [inventario, setInventario] = useState<InventarioItem[]>([]);
@@ -18,6 +19,7 @@ export default function InventarioLogistica() {
   const [searchTerm, setSearchTerm] = useState("");
   const [, setEditingItem] = useState<InventarioItem | null>(null);
 
+  const navigate = useNavigate();
   // ✅ Cargar inventario usando el service
   useEffect(() => {
     const fetchInventario = async () => {
@@ -103,7 +105,7 @@ export default function InventarioLogistica() {
           </p>
         </div>
         <Button
-          onClick={() => toast.info("Función de registrar importación en desarrollo")}
+          onClick={() => navigate("/logistica/addimport")}
           className="flex items-center gap-2 cursor-pointer"
         >
           + Registrar Importación

@@ -15,6 +15,7 @@ export const ProductService = {
         imagen,
         tipo,
         grade,
+        activo,
         materiales(*),
         precios(*),
         almacenes(*)
@@ -33,6 +34,7 @@ export const ProductService = {
       imagen: p.imagen,
       tipo: p.tipo,
       grade: p.grade,
+      activo: p.activo,
       material: {
         tipo: p.materiales?.[0]?.tipo ?? "",
         dimensiones: {
@@ -153,9 +155,17 @@ export const ProductService = {
   },
 
   async delete(id: number) {
-    const { error } = await supabase.from("productos").delete().eq("id", id);
-    if (error) throw new Error(error.message);
+    const { error } = await supabase
+      .from("productos")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      // Lanzar el error con el mensaje y el código de error si está disponible
+      throw new Error(`Supabase Error: ${error.message} (Code: ${error.code})`);
+    }
   },
+
   async addMany(productos: Product[]) {
     await Promise.all(productos.map((p) => this.add(p)));
   },
@@ -171,4 +181,12 @@ export const ProductService = {
 
     return data[0].id;
   },
+  async updateActivo(id: number, activo: boolean) {
+    const { error } = await supabase
+      .from("productos")
+      .update({ activo })
+      .eq("id", id);
+
+    if (error) throw new Error(error.message);
+  }
 };

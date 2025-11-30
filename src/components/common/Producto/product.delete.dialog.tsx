@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ProductService } from "@/services/products.service"; // Importa el servicio
 import type { Product } from "@/types/product.types";
 
 interface ProductDeleteDialogProps {
@@ -26,21 +25,14 @@ export function ProductDeleteDialog({
 }: ProductDeleteDialogProps) {
   if (!product) return null;
 
-  const handleDelete = async () => {
-    try {
-      // Llamar al servicio para eliminar el producto
-      await ProductService.delete(product.id);
-      onDeleteConfirm(product.id); 
-      onOpenChange(false); // Cerrar el diálogo
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-      // Aquí puedes mostrar un mensaje de error si lo deseas
-    }
+  const handleDelete = () => {
+    onDeleteConfirm(product.id);   // ← Solo dispara el handler del hook
+    onOpenChange(false);           // ← Cierra el modal
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent  className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Confirmar eliminación</DialogTitle>
         </DialogHeader>
@@ -54,9 +46,14 @@ export function ProductDeleteDialog({
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
-          <Button className="cursor-pointer" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Cancelar
           </Button>
+
           <Button className="cursor-pointer" onClick={handleDelete}>
             Eliminar
           </Button>

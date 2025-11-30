@@ -36,6 +36,7 @@ export interface Product {
   imagen: string;
   tipo: string;
   grade: string;
+  activo: boolean;
 }
 
 

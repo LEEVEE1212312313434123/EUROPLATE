@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Trash, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import type { Product } from "@/types/product.types";
+import { formatProductName } from "@/utils/formatProductName";
 
 const categoriaDisplayMap: Record<string, string> = {
   Papel: "Papel",
@@ -47,25 +48,7 @@ export function ProductTableSimple({ products, onDelete, onRestore }: ProductTab
           ) : (
             currentProducts.map((product) => {
               const categoriaLegible = categoriaDisplayMap[product.categoria] ?? product.categoria;
-              const material = product.material;
-
-              const partes = [
-                categoriaLegible,
-                material?.tipo,
-                material?.dimensiones?.ancho_cm &&
-                material?.dimensiones?.largo_cm &&
-                (material?.dimensiones?.ancho_cm !== 0 || material?.dimensiones?.largo_cm !== 0)
-                  ? `${material.dimensiones.ancho_cm}x${material.dimensiones.largo_cm}`
-                  : "",
-                material?.gramaje_g && material?.gramaje_g !== 0 ? `${material.gramaje_g}g` : "",
-                material?.calibre && material?.calibre !== 0 ? `calibre ${material.calibre}` : "",
-                material?.unidad_medida ? material.unidad_medida.toLowerCase() : "",
-                material?.pliegos_por_paquete && material?.pliegos_por_paquete !== 0
-                  ? `${material.pliegos_por_paquete} pliegos`
-                  : "",
-              ];
-
-              const nombreProducto = partes.filter(Boolean).join(" ");
+              const nombreProducto = formatProductName(product);
 
               return (
                 <TableRow key={product.id} className="h-14 border-b hover:bg-muted/50 transition-colors">

@@ -7,7 +7,7 @@ import { ProductTableSimple } from "@/components/common/Producto/Products-Table-
 
 export function DiscontinuedProductsForm() {
   const { products, loading, error, handleDelete, handleRestore } = useDiscontinuedProducts();
-
+  console.log(products);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -62,9 +62,9 @@ export function DiscontinuedProductsForm() {
         searchTerm={searchTerm}
         searchPlaceholder="Buscar producto descontinuado..."
         onFilterTypeChange={setFilterType}
-        onFilterStatusChange={() => {}}
+        onFilterStatusChange={() => { }}
         onSearchChange={setSearchTerm}
-        onExport={() => {}}
+        onExport={() => { }}
       />
 
       <ProductTableSimple
