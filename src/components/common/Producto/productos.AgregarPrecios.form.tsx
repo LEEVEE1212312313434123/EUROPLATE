@@ -83,7 +83,7 @@ export default function ProductosAgregarPreciosForm({
         moneda: "USD",
       },
       almacen: {
-        stock_actual: stockActual, // 👈 ahora depende de la unidad
+        stock_actual: stockActual,
         stock_minimo: 3,
         ubicacion: "A1",
       },
@@ -93,6 +93,7 @@ export default function ProductosAgregarPreciosForm({
       fecha_registro: new Date().toISOString(),
       imagen: p.imagen || "https://dummyimage.com/400x400/4c65bf/db398a",
       grade: p.grade ?? "",
+      activo: true,
     };
   });
 

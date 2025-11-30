@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     Table,
     TableBody,
@@ -10,37 +10,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-// Importamos el tipo ProductoBase (asumido exportado en el archivo de edición/agregar)
 import type { ProductoBase } from "@/components/common/Producto/productos.EditarAgregar.form";
-
-// ⚠️ Se importa el servicio y el tipo Product para la actualización real
 import { ProductService } from "@/services/products.service";
 import type { Product } from "@/types/product.types";
 
-// Definición de las propiedades esperadas
 interface ProductosEditarPreciosFormProps {
     categoria: string;
-    // productsPrevios contiene el único ProductoBase editado del paso 1, más cualquier campo de precio
-    // Asumimos que también contiene los campos originales del producto, incluyendo 'id', 'nombre_producto', etc.
     productosPrevios: ProductoBase[];
     navigate: any;
 }
 
-// ⚠️ REMOVIDO: Se elimina mockUpdateProduct ya que usaremos ProductService.update
 
 export default function ProductosEditarPreciosForm({
     categoria,
     productosPrevios,
     navigate
 }: ProductosEditarPreciosFormProps) {
-    // Inicializamos con el producto (o productos, aunque en este flujo será solo uno)
     const [productos, setProductos] = useState<ProductoBase[]>(() => {
-        // Aseguramos que el producto tenga los campos de precio para editar
         return productosPrevios.map(p => ({
             ...p,
             precioMin: p.precioMin ?? "",
             precioMax: p.precioMax ?? "",
-            // El campo 'peso' no se editó en el paso 1, pero se puede añadir aquí
             peso: p.peso_kg ?? "",
         }));
     });
@@ -89,7 +79,6 @@ export default function ProductosEditarPreciosForm({
 
             // 2. Mapear los campos planos de ProductoBase a la estructura anidada de Product
             const productoMapeado: Product = {
-                // Campos principales (asumimos que vienen del producto original)
                 id: productoId,
                 nombre_producto: String(productoActualizado.nombre_producto ?? ""),
                 categoria: String(productoActualizado.categoria ?? categoria),
@@ -100,7 +89,11 @@ export default function ProductosEditarPreciosForm({
                 tipo: String(productoActualizado.tipo ?? ""),
                 grade: String(productoActualizado.grade ?? ""),
 
-                // Material (editado en el paso 1 y peso aquí)
+                // ⚠️ PROPIEDAD FALTANTE
+                activo: productoActualizado.activo
+                    ? String(productoActualizado.activo).toLowerCase() === "true"
+                    : true,
+
                 material: {
                     tipo: String(productoActualizado.tipo ?? ""),
                     dimensiones: {
@@ -111,18 +104,15 @@ export default function ProductosEditarPreciosForm({
                     calibre: Number(productoActualizado.calibre) || 0,
                     pliegos_por_paquete: Number(productoActualizado.pliegos) || 0,
                     unidad_medida: String(productoActualizado.unidad ?? "Unidad"),
-                    // ⚠️ Campo 'peso' actualizado aquí
                     peso_kg: Number(productoActualizado.peso),
                 },
 
-                // Precio (actualizado aquí)
                 precio: {
                     precio_min: Number(productoActualizado.precioMin),
                     precio_max: Number(productoActualizado.precioMax),
-                    moneda: String(productoActualizado.moneda ?? "PEN"), // Asumo PEN por defecto si no existe
+                    moneda: String(productoActualizado.moneda ?? "PEN"),
                 },
 
-                // Almacen (asumimos que vienen del producto original)
                 almacen: {
                     stock_actual: Number(productoActualizado.stock_actual) || 0,
                     stock_minimo: Number(productoActualizado.stock_minimo) || 0,
@@ -196,7 +186,6 @@ export default function ProductosEditarPreciosForm({
                                     <Input
                                         type="number"
                                         name={f}
-                                        // ✅ CORRECCIÓN TS: Se asegura que el valor sea string para la prop 'value'
                                         value={String(p[f] ?? "")}
                                         onChange={(e) => handleChange(index, f, e.target.value)}
                                         className="h-7 text-sm"
