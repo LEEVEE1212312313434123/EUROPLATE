@@ -453,5 +453,70 @@ export const ImportacionService = {
       .update({ fecha_entrega: null })
       .eq("id", importacionId);
   },
+
+  async actualizarEstado(
+    id: number,
+    estado: string,
+    opts?: { almacenId?: number; motivo?: string }
+  ) {
+    // validación de estados permitidos (opcional pero recomendada)
+    const estadosValidos = ["Registrado", "En Transito", "Entregado", "Cancelado"];
+    if (!estadosValidos.includes(estado)) {
+      throw new Error(`Estado inválido: ${estado}`);
+    }
+
+    // 1) Buscar el registro de estado más reciente
+    const { data: ultimo, error: selErr } = await supabase
+      .from("estado_importaciones")
+      .select("id, estado, almacen_id")
+      .eq("importacion_id", id)
+      .order("fecha_registro", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (selErr) throw new Error(selErr.message);
+
+    // 2) Regla de negocio: no permitir cancelar si ya fue entregado
+    if (ultimo?.estado === "Entregado" && estado === "Cancelado") {
+      throw new Error("No se puede cambiar a 'Cancelado' una importación que ya fue 'Entregado'.");
+    }
+
+    // 3) Preparar payload para update/insert
+    const payload: any = { estado };
+    if (opts?.almacenId !== undefined) payload.almacen_id = opts.almacenId;
+    if (opts?.motivo !== undefined) payload.motivo_cancelacion = opts.motivo;
+
+    if (ultimo && ultimo.id) {
+      // 4a) Actualizar el registro existente (no insertar)
+      const { error: updErr } = await supabase
+        .from("estado_importaciones")
+        .update(payload)
+        .eq("id", ultimo.id);
+
+      if (updErr) throw new Error(updErr.message);
+    } else {
+      // 4b) Si no existe registro previo, insertar uno nuevo
+      const insertBody = {
+        importacion_id: id,
+        ...payload,
+      };
+      const { error: insErr } = await supabase
+        .from("estado_importaciones")
+        .insert([insertBody]);
+
+      if (insErr) throw new Error(insErr.message);
+    }
+
+    // 5) Sincronizar el campo 'estado' en tabla importaciones
+    const { error: impErr } = await supabase
+      .from("importaciones")
+      .update({ estado })
+      .eq("id", id);
+
+    if (impErr) throw new Error(impErr.message);
+
+    return true;
+  }
+
 };
 

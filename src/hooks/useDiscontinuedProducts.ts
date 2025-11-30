@@ -20,7 +20,7 @@ export function useDiscontinuedProducts() {
 
       // ✅ Mostrar productos que estén "Descontinuados" o con stock = 0
       const discontinued = data.filter(
-        (p) => p.estado === "Descontinuado" || p.almacen.stock_actual === 0
+        (p) => p.activo === false
       );
 
       setProducts(discontinued);
@@ -32,14 +32,22 @@ export function useDiscontinuedProducts() {
   };
 
   const handleDelete = async (id: number) => {
+    // Mostrar el id que se está enviando
+    console.log(`Eliminando producto con id: ${id}`);
+
     try {
       await ProductService.delete(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success("Producto eliminado correctamente");
-    } catch {
-      toast.error("Error al eliminar el producto");
+    } catch (error: any) {
+      // Capturamos el error completo
+      const errorMessage = error?.message || "Error desconocido al eliminar el producto.";
+
+      // Mostrar el error en el toast
+      toast.error(`Error al eliminar el producto: ${errorMessage}`);
     }
   };
+
 
   const handleRestore = async (id: number) => {
     try {

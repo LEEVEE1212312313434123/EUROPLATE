@@ -27,13 +27,22 @@ export function useProducts() {
 
   const handleDelete = async (id: number) => {
     try {
-      await ProductService.delete(id);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Producto eliminado correctamente");
+      // 👉 Actualizar solo el campo "activo" en el registro principal
+      await ProductService.updateActivo(id, false);
+
+      // 👉 Actualizar en estado local sin eliminar
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, activo: false } : p
+        )
+      );
+
+      toast.success("Producto descontinuado correctamente");
     } catch {
-      toast.error("Error al eliminar el producto");
+      toast.error("Error al descontinuar el producto");
     }
   };
+
 
   const handleSave = async (product: Product) => {
     try {

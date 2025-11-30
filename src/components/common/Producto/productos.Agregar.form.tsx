@@ -46,8 +46,6 @@ export default function ProductosAgregarForm({
     BobinasCarton: [
       { key: "grade", label: "Descripción" },
       { key: "tipo", label: "Tipo" },
-      { key: "ancho", label: "Ancho (mm)" },
-      { key: "gramaje", label: "Gramaje (g)" },
       { key: "unidad", label: "Unidad medida" },
     ],
     default: [

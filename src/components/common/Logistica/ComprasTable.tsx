@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Eye, ChevronLeft, ChevronRight, PackageCheck, XCircle } from "lucide-react";
-import { EstadoImportacionDialog } from "@/components/common/Dialog/EstadoImportacionDialog";
+import EstadoImportacionDialog from "@/components/common/Dialog/EstadoImportacionDialog";
 import type { Importacion } from "@/types/editimportacion.type";
 import { supabase } from "@/lib/supabaseClient";
 import { ImportacionService } from "@/services/editimportacion.service";
@@ -101,7 +101,14 @@ export function ComprasTable({ compras, onDelete, onView }: ComprasTableProps) {
                 <TableCell>
                   <button
                     className="flex items-center gap-2 hover:underline cursor-pointer"
-                    onClick={() => setModalData({ estado: c.estado, importacionId: c.id })}
+                    onClick={() =>
+                      setModalData({
+                        estadoActual: c.estado,
+                        importacionId: c.id,
+                        estadosPosibles: ["Registrado", "En Transito", "Entregado", "Cancelado"]
+                      })
+                    }
+
                   >
                     {renderEstado(c.estado)}
                   </button>
@@ -129,7 +136,8 @@ export function ComprasTable({ compras, onDelete, onView }: ComprasTableProps) {
           <EstadoImportacionDialog
             open={!!modalData}
             onClose={() => setModalData(null)}
-            estado={modalData.estado}
+            estadoActual={modalData.estadoActual}
+            estadosPosibles={modalData.estadosPosibles}
             importacionId={modalData.importacionId}
             almacenes={almacenes}
             onSuccess={() => window.location.reload()}

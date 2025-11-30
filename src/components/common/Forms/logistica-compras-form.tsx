@@ -181,6 +181,7 @@ export default function ComprasLogistica() {
             ]}
             selectOptions={[
               { value: "all", label: "Todos" },
+              { value: "Pendientes", label: "Pendientes" },
               { value: "Registrado", label: "Registrado" },
               { value: "En Transito", label: "En Transito" },
               { value: "Entregado", label: "Entregado" },
