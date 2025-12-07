@@ -91,7 +91,7 @@ export default function DataImportacion({
               onValueChange={(value) => handleChange("proveedor", value)}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Seleccionar proveedor" />
               </SelectTrigger>
               <SelectContent>
                 {ensureOptionExists(proveedorOpts, localData.proveedor).map(
@@ -113,7 +113,7 @@ export default function DataImportacion({
               onValueChange={(value) => handleChange("agente_aduanas", value)}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Seleccionar agente" />
               </SelectTrigger>
               <SelectContent>
                 {ensureOptionExists(agenteOpts, localData.agente_aduanas).map(
@@ -135,7 +135,7 @@ export default function DataImportacion({
               onValueChange={(value) => handleChange("pais_origen", value)}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Seleccionar país" />
               </SelectTrigger>
               <SelectContent>
                 {ensureOptionExists(paisesOpts, localData.pais_origen).map(
@@ -157,7 +157,7 @@ export default function DataImportacion({
               onValueChange={(value) => handleChange("puerto_origen", value)}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Seleccionar puerto" />
               </SelectTrigger>
               <SelectContent>
                 {ensureOptionExists(
@@ -180,7 +180,7 @@ export default function DataImportacion({
               onValueChange={(value) => handleChange("puerto_destino", value)}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Seleccionar puerto" />
               </SelectTrigger>
               <SelectContent>
                 {ensureOptionExists(
@@ -255,7 +255,7 @@ export default function DataImportacion({
               onValueChange={(value) => handleChange("unidad", value)}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Seleccionar unidad" />
               </SelectTrigger>
               <SelectContent>
                 {ensureOptionExists(unidadOpts, localData.unidad).map(

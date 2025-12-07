@@ -253,10 +253,6 @@ export const ImportacionService = {
             }
 
             const importacionId = newImport.id;
-
-            // ============================================================
-            // 2️⃣ PRODUCTOS (CRUD COMPLETO)
-            // ============================================================
             for (const p of productos) {
                 await supabase
                     .from("importacion_productos")
@@ -265,10 +261,6 @@ export const ImportacionService = {
                         importacion_id: importacionId
                     });
             }
-
-            // ============================================================
-            // 3️⃣ ADJUNTOS (CRUD COMPLETO)
-            // ============================================================
             for (const a of adjuntos) {
                 await supabase
                     .from("importacion_adjuntos")
@@ -278,10 +270,6 @@ export const ImportacionService = {
                         created_at: a.created_at ?? new Date().toISOString()
                     });
             }
-
-            // ============================================================
-            // 4️⃣ ESTADOS (CRUD COMPLETO)
-            // ============================================================
             for (const e of estados) {
                 await supabase
                     .from("estado_importaciones")

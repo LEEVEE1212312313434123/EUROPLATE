@@ -29,6 +29,8 @@ interface ProductoRow {
   unidadMedida: string;
   precioUnitario: string;
   importeUsd: string;
+
+  idBobina?: string;
 }
 
 interface Props {
@@ -53,6 +55,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
           unidadMedida: "",
           precioUnitario: "",
           importeUsd: "",
+          idBobina: "",
         },
       ]
   );
@@ -117,6 +120,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
       })
     );
   };
+  const mostrarColumnaBobina = productos.some(p => p.categoria === "BobinasCarton");
 
   const agregarFila = () => {
     const newTempId = productos.length > 0 ? productos[productos.length - 1].tempId + 1 : 1;
@@ -131,6 +135,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
         unidadMedida: "",
         precioUnitario: "",
         importeUsd: "",
+        idBobina: "",
       },
     ]);
   };
@@ -148,6 +153,11 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
           <TableHeader>
             <TableRow className="h-8">
               <TableHead className="px-2 text-center w-[160px]">Categoría Principal</TableHead>
+
+              {mostrarColumnaBobina && (
+                <TableHead className="px-2 text-center w-[120px]">ID Bobina</TableHead>
+              )}
+
               <TableHead className="px-2 text-center w-[250px]">Descripción Producto</TableHead>
               <TableHead className="px-2 text-center w-[100px]">Cantidad</TableHead>
               <TableHead className="px-2 text-center w-[100px]">Unidad Medida</TableHead>
@@ -159,6 +169,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
           <TableBody>
             {productos.map((producto) => (
               <TableRow key={producto.tempId} className="h-8">
+                {/* Categoría */}
                 <TableCell className="px-1 py-1">
                   <Select
                     value={producto.categoria}
@@ -177,6 +188,24 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
                   </Select>
                 </TableCell>
 
+                {/* ID Bobina solo si es categoría BobinasCarton */}
+                {mostrarColumnaBobina && (
+                  <TableCell className="px-1 py-1">
+                    {producto.categoria === "BobinasCarton" ? (
+                      <Input
+                        value={producto.idBobina}
+                        onChange={(e) =>
+                          handleChange(producto.tempId, "idBobina", e.target.value)
+                        }
+                        placeholder="ID"
+                        className="h-7 text-sm w-full"
+                      />
+                    ) : (
+                      <div className="text-center text-xs text-muted-foreground">—</div>
+                    )}
+                  </TableCell>
+                )}
+                {/* Descripción */}
                 <TableCell className="px-1 py-1">
                   <Select
                     value={producto.descripcion}
@@ -187,10 +216,6 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
                       <SelectValue placeholder="Selecciona..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {producto.descripcion &&
-                        !filtrados.some((p) => buildProductName(p) === producto.descripcion) && (
-                          <SelectItem value={producto.descripcion}>{producto.descripcion}</SelectItem>
-                        )}
                       {filtrados.map((p, idx) => (
                         <SelectItem key={idx} value={buildProductName(p)}>
                           {buildProductName(p)}
@@ -199,7 +224,6 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
                     </SelectContent>
                   </Select>
                 </TableCell>
-
                 <TableCell className="px-1 py-1">
                   <Input
                     type="number"

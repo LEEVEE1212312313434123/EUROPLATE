@@ -20,12 +20,8 @@ type Adjunto = {
 export default function AgregarLogistica() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
-
-  // -------------------------------------------------------------------
-  // Campos principales de la tabla importaciones
-  // -------------------------------------------------------------------
   const [datosGenerales, setDatosGenerales] = useState({
-    id_importacion: "",      // <-- NUEVO CAMPO
+    id_importacion: "",      
     num_dua: "",
     fecha_llegada: "",
     fecha_entrega: "",
@@ -118,9 +114,18 @@ export default function AgregarLogistica() {
       toast.success("Importación registrada correctamente 🎉");
       setTimeout(() => navigate("/logistica?tab=compras"), 1200);
 
-    } catch (err) {
-      console.error("❌ Error al guardar:", err);
-      toast.error("Error al guardar la importación.");
+    } catch (err: any) {
+      console.error("❌ ERROR COMPLETO AL GUARDAR ➜");
+
+      if (err?.message) console.error("📌 Mensaje:", err.message);
+      if (err?.code) console.error("🛑 Código:", err.code);
+      if (err?.details) console.error("🔍 Detalles:", err.details);
+      if (err?.hint) console.error("💡 Hint:", err.hint);
+      if (err?.stack) console.error("📚 Stacktrace:", err.stack);
+
+      console.error("📦 Error crudo:", err);
+
+      toast.error("Error al guardar la importación. Revisa consola.");
     } finally {
       setIsSaving(false);
     }
@@ -168,8 +173,6 @@ export default function AgregarLogistica() {
                 }
               />
             </div>
-
-            {/* N° DUA */}
             <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
               <Label className="text-xs">N° DUA</Label>
               <Input
@@ -180,8 +183,6 @@ export default function AgregarLogistica() {
                 }
               />
             </div>
-
-            {/* Fecha Llegada */}
             <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
               <Label className="text-xs">Fecha Llegada</Label>
               <Input
@@ -193,8 +194,6 @@ export default function AgregarLogistica() {
                 }
               />
             </div>
-
-            {/* Fecha Entrega */}
             <div className="flex flex-col space-y-0.5 md:w-1/4 w-full">
               <Label className="text-xs">Fecha Entrega</Label>
               <Input
