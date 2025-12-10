@@ -1,6 +1,6 @@
-import ComprasLogistica from "@/components/common/Forms/logistica-compras-form"
-import InventarioLogistica from "@/components/common/Forms/logistica-inventario-form"
-import Provedor from "@/components/common/Forms/logistica-provedores-form";
+import ComprasLogistica from "@/components/common/Forms/Logistica/logisticaCompras-form"
+import InventarioLogistica from "@/components/common/Forms/Logistica/logisticaInventario-form"
+import Provedor from "@/components/common/Forms/Logistica/logisticaProvedores-form";
 import { DashboardTabs } from "@/components/common/Dashboards/dashboard-tabs";
 import { useQueryTabs } from "@/hooks/useQueryTabs";
 import { TABS_CONFIG } from "@/config/tabs.config";

@@ -8,10 +8,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import type { Product } from "@/types/product.types";
+
+import type { ProductWithRelations } from "@/types/products/product.relations";
 
 interface ProductDeleteDialogProps {
-  product: Product | null;
+  product: ProductWithRelations | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDeleteConfirm: (productId: number) => void;
@@ -26,8 +27,8 @@ export function ProductDeleteDialog({
   if (!product) return null;
 
   const handleDelete = () => {
-    onDeleteConfirm(product.id);   // ← Solo dispara el handler del hook
-    onOpenChange(false);           // ← Cierra el modal
+    onDeleteConfirm(product.id);
+    onOpenChange(false);
   };
 
   return (
@@ -39,7 +40,7 @@ export function ProductDeleteDialog({
 
         <div className="py-4">
           <p>
-            ¿Estás seguro que deseas eliminar el producto{" "}
+            ¿Estás seguro de eliminar el producto{" "}
             <strong>{product.nombre_producto}</strong>? Esta acción no se puede
             deshacer.
           </p>

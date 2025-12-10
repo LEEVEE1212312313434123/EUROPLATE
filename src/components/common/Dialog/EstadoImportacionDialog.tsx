@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ImportacionService } from "@/services/logistica.importacion.service";
 
 interface EstadoImportacionDialogProps {
   open: boolean;
@@ -16,7 +15,7 @@ interface EstadoImportacionDialogProps {
   estadosPosibles: string[];
   importacionId: number;
   almacenes?: { id: number; ubicacion: string }[];
-  onSuccess: () => void;
+  onSubmit: (estado: string, options?: any) => Promise<void>;
 }
 
 export default function EstadoImportacionDialog({
@@ -24,9 +23,8 @@ export default function EstadoImportacionDialog({
   onClose,
   estadoActual,
   estadosPosibles,
-  importacionId,
   almacenes = [],
-  onSuccess,
+  onSubmit,
 }: EstadoImportacionDialogProps) {
 
   const [nuevoEstado, setNuevoEstado] = useState(estadoActual);
@@ -44,43 +42,30 @@ export default function EstadoImportacionDialog({
     try {
       setSaving(true);
 
-      // ❌ No permitir cancelar si ya está entregado
       if (estadoActual === "Entregado" && nuevoEstado === "Cancelado") {
         toast.error("No puedes cancelar una importación ya entregada.");
         return;
       }
 
-      // ✔ ENTREGADO → requiere almacén
       if (nuevoEstado === "Entregado") {
         if (!selectedAlmacen) {
           toast.error("Seleccione un almacén.");
           return;
         }
-
-        await ImportacionService.actualizarEstado(importacionId, "Entregado", {
-          almacenId: Number(selectedAlmacen),
-        });
+        await onSubmit("Entregado", { almacenId: Number(selectedAlmacen) });
       }
-
-      // ✔ CANCELADO → requiere motivo
       else if (nuevoEstado === "Cancelado") {
         if (!motivo.trim()) {
           toast.error("Debe ingresar un motivo.");
           return;
         }
-
-        await ImportacionService.actualizarEstado(importacionId, "Cancelado", {
-          motivo: motivo.trim(),
-        });
+        await onSubmit("Cancelado", { motivo: motivo.trim() });
       }
-
-      // ✔ OTROS ESTADOS (Registrado / En tránsito)
       else {
-        await ImportacionService.actualizarEstado(importacionId, nuevoEstado);
+        await onSubmit(nuevoEstado);
       }
 
       toast.success("Estado actualizado correctamente.");
-      onSuccess();
       onClose();
 
     } catch (err: any) {
@@ -89,7 +74,6 @@ export default function EstadoImportacionDialog({
       setSaving(false);
     }
   };
-
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -115,7 +99,6 @@ export default function EstadoImportacionDialog({
           </Select>
         </div>
 
-        {/* ENTREGADO → requiere almacén */}
         {nuevoEstado === "Entregado" && (
           <div className="space-y-3">
             <Label>Seleccionar almacén</Label>
@@ -134,7 +117,6 @@ export default function EstadoImportacionDialog({
           </div>
         )}
 
-        {/* CANCELADO → requiere motivo */}
         {nuevoEstado === "Cancelado" && (
           <div className="space-y-3">
             <Label>Motivo</Label>
@@ -146,7 +128,6 @@ export default function EstadoImportacionDialog({
           </div>
         )}
 
-        {/* BOTONES */}
         <div className="flex justify-end space-x-3 mt-6">
           <Button variant="outline" onClick={onClose} disabled={saving}>
             Cerrar
@@ -155,6 +136,7 @@ export default function EstadoImportacionDialog({
             {saving ? "Guardando..." : "Guardar"}
           </Button>
         </div>
+
       </DialogContent>
     </Dialog>
   );

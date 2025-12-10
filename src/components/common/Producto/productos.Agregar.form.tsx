@@ -129,7 +129,7 @@ export default function ProductosAgregarForm({
       return toast.error("Completa todos los campos antes de continuar.");
 
     const nuevos = productos.filter((p) => p.isNew);
-    onNext(nuevos); // Pasamos los productos con el `grade` incluido
+    onNext(nuevos);
   };
 
   return (

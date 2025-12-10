@@ -1,29 +1,29 @@
-import type { Product } from "@/types/product.types";
+import type { ProductWithRelations } from "@/types/products/product.relations";
+import type { MaterialEntity } from "@/types/products/entity/material.entity";
+export function formatProductName(product: ProductWithRelations) {
+  const categoria = product.categoria;
 
-export function formatProductName(product: Product) {
-    const categoria = product.categoria;
-    const m = product.material;
+  const m: MaterialEntity | undefined = product.materiales?.[0];
 
-    const partes: string[] = [];
+  if (!m) return categoria;
 
-    // Tipo de material
-    if (m.tipo) partes.push(m.tipo);
+  const partes: string[] = [];
 
-    // Dimensiones válidas
-    const ancho = Number(m.dimensiones?.ancho_cm);
-    const largo = Number(m.dimensiones?.largo_cm);
-    if (ancho > 0 && largo > 0) partes.push(`${ancho}x${largo}`);
+  if (m.tipo) partes.push(m.tipo);
 
-    // Gramaje válido
-    if (m.gramaje_g > 0) partes.push(`${m.gramaje_g}g`);
+  if (m.ancho_cm && m.largo_cm && m.ancho_cm > 0 && m.largo_cm > 0) {
+    partes.push(`${m.ancho_cm}x${m.largo_cm}`);
+  }
 
-    // Calibre válido
-    if (m.calibre > 0) partes.push(`Cal ${m.calibre}`);
-
-    // Unidades
-    if (m.unidad_medida) partes.push(m.unidad_medida);
-
-    const detalle = partes.filter(Boolean).join(" ");
-
-    return detalle.trim().length > 0 ? `${categoria} ${detalle}` : categoria;
+  if (m.gramaje_g && m.gramaje_g > 0) {
+    partes.push(`${m.gramaje_g}g`);
+  }
+  if (m.calibre && m.calibre > 0) {
+    partes.push(`Cal ${m.calibre}`);
+  }
+  if (m.unidad_medida) {
+    partes.push(m.unidad_medida);
+  }
+  const detalle = partes.filter(Boolean).join(" ");
+  return detalle.trim().length > 0 ? `${categoria} ${detalle}` : categoria;
 }

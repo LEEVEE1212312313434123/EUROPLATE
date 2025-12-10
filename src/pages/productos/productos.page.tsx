@@ -1,5 +1,5 @@
-import { ProductsForm } from "@/components/common/Forms/products-form";
-import { DiscontinuedProductsForm } from "@/components/common/Forms/products-Discotinued-form";
+import { ProductsForm } from "@/components/common/Forms/Products/products-form";
+import { DiscontinuedProductsForm } from "@/components/common/Forms/Products/productsDiscotinued-form";
 import { DashboardTabs } from "@/components/common/Dashboards/dashboard-tabs";
 import { useQueryTabs } from "@/hooks/useQueryTabs";
 import { TABS_CONFIG } from "@/config/tabs.config";

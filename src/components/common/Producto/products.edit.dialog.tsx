@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import type { Product } from "@/types/product.types";
-import { ProductService } from "@/services/products.service";
+import type { ProductWithRelations } from "@/types/products/product.relations";
+
 import {
   Dialog,
   DialogContent,
@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 
 interface ProductEditDialogProps {
   open: boolean;
-  product: Product;
+  product: ProductWithRelations;
   onClose: () => void;
-  onSave: (updatedProduct: Product) => void;
+  onSave: (updated: ProductWithRelations) => void;
 }
 
 export function ProductEditDialog({
@@ -25,40 +25,41 @@ export function ProductEditDialog({
   onClose,
   onSave,
 }: ProductEditDialogProps) {
-  const [nombreProducto, setNombreProducto] = useState(product.nombre_producto);
-  const [precioMin, setPrecioMin] = useState(product.precio.precio_min);
-  const [precioMax, setPrecioMax] = useState(product.precio.precio_max);
-  const [stockActual, setStockActual] = useState(product.almacen.stock_actual);
+  const price = product.precios[0];
+  const stock = product.almacenes[0];
 
-  // 🔹 Reset form cuando cambie el producto
+  const [nombreProducto, setNombreProducto] = useState(product.nombre_producto);
+  const [precioMin, setPrecioMin] = useState(price?.precio_min ?? 0);
+  const [precioMax, setPrecioMax] = useState(price?.precio_max ?? 0);
+  const [stockActual, setStockActual] = useState(stock?.stock_actual ?? 0);
+
   useEffect(() => {
     setNombreProducto(product.nombre_producto);
-    setPrecioMin(product.precio.precio_min);
-    setPrecioMax(product.precio.precio_max);
-    setStockActual(product.almacen.stock_actual);
+    setPrecioMin(price?.precio_min ?? 0);
+    setPrecioMax(price?.precio_max ?? 0);
+    setStockActual(stock?.stock_actual ?? 0);
   }, [product]);
 
-  const handleSave = async () => {
-    // Crear el objeto de producto actualizado
-    const updatedProduct: Product = {
+  const handleSave = () => {
+    const updated: ProductWithRelations = {
       ...product,
       nombre_producto: nombreProducto,
-      precio: {
-        ...product.precio,
-        precio_min: precioMin,
-        precio_max: precioMax,
-      },
-      almacen: {
-        ...product.almacen,
-        stock_actual: stockActual,
-      },
+      precios: [
+        {
+          ...price,
+          precio_min: precioMin,
+          precio_max: precioMax,
+        },
+      ],
+      almacenes: [
+        {
+          ...stock,
+          stock_actual: stockActual,
+        },
+      ],
     };
 
-    // Actualizar el producto en el servicio
-    await ProductService.update(product.id, updatedProduct);
-
-    // Llamar a la función onSave para notificar al componente padre
-    onSave(updatedProduct);
+    onSave(updated);
     onClose();
   };
 
@@ -70,63 +71,50 @@ export function ProductEditDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* ID del producto (no editable) */}
           <div className="grid gap-1">
-            <Label htmlFor="id">ID (no editable)</Label>
-            <Input id="id" value={product.id} disabled />
+            <Label>ID (no editable)</Label>
+            <Input value={product.id} disabled />
           </div>
-
-          {/* Nombre del Producto */}
           <div className="grid gap-1">
-            <Label htmlFor="nombreProducto">Nombre del Producto</Label>
+            <Label>Nombre del Producto</Label>
             <Input
-              id="nombreProducto"
               value={nombreProducto}
               onChange={(e) => setNombreProducto(e.target.value)}
               autoFocus
             />
           </div>
-
-          {/* Precio Mínimo */}
           <div className="grid gap-1">
-            <Label htmlFor="precioMin">Precio Mínimo</Label>
+            <Label>Precio mínimo</Label>
             <Input
-              id="precioMin"
               type="number"
+              min={0}
+              step="0.01"
               value={precioMin}
               onChange={(e) => setPrecioMin(Number(e.target.value))}
-              min={0}
-              step="0.01"
             />
           </div>
-
-          {/* Precio Máximo */}
           <div className="grid gap-1">
-            <Label htmlFor="precioMax">Precio Máximo</Label>
+            <Label>Precio máximo</Label>
             <Input
-              id="precioMax"
               type="number"
-              value={precioMax}
-              onChange={(e) => setPrecioMax(Number(e.target.value))}
               min={precioMin}
               step="0.01"
+              value={precioMax}
+              onChange={(e) => setPrecioMax(Number(e.target.value))}
             />
           </div>
-
-          {/* Stock Actual */}
           <div className="grid gap-1">
-            <Label htmlFor="stockActual">Stock Actual</Label>
+            <Label>Stock actual</Label>
             <Input
-              id="stockActual"
               type="number"
+              min={0}
               value={stockActual}
               onChange={(e) => setStockActual(Number(e.target.value))}
-              min={0}
             />
           </div>
         </div>
 
-        <DialogFooter className="flex justify-end gap-2">
+        <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
