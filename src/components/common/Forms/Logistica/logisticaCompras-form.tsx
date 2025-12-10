@@ -85,12 +85,33 @@ export default function ComprasLogistica() {
         />
       }
     >
-      <ComprasTable
-        compras={filteredCompras}
-        onDelete={openDelete}
-        onView={(c) => openDetail(c.id)}
-      />
-
+      <div className="relative w-full h-full flex">
+        <div
+          className={`flex-1 transition-all duration-300 ${
+            compraDetail ? "mr-[320px]" : ""
+          }`}
+        >
+          <ComprasTable
+            compras={filteredCompras}
+            onDelete={openDelete}
+            onView={(c) => openDetail(c.id)}
+          />
+        </div>
+        <AnimatePresence>
+          {compraDetail && (
+            <motion.div
+              key="compra-detail"
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
+              className="absolute top-0 right-0 h-full w-[320px] bg-white"
+            >
+              <CompraDetail compra={compraDetail} onClose={closeDetail} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -130,21 +151,6 @@ export default function ComprasLogistica() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <AnimatePresence>
-        {compraDetail && (
-          <motion.div
-            key="compra-detail"
-            initial={{ x: 320, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 320, opacity: 0 }}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="absolute top-0 right-0 h-full w-[320px] border-l bg-transparent"
-          >
-            <CompraDetail compra={compraDetail} onClose={closeDetail} />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </ResourcePage>
   );
 }
