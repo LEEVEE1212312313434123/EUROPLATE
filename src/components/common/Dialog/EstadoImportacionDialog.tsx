@@ -81,8 +81,6 @@ export default function EstadoImportacionDialog({
         <DialogHeader>
           <DialogTitle>Cambiar estado</DialogTitle>
         </DialogHeader>
-
-        {/* Seleccionar Estado */}
         <div className="space-y-3 mt-2">
           <Label>Nuevo Estado</Label>
           <Select value={nuevoEstado} onValueChange={setNuevoEstado}>

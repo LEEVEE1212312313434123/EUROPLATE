@@ -1,21 +1,23 @@
-import Lottie from "lottie-react";
-import developmentAnimation from "@/assets/animations/development.json";
+import { ResourcePage } from "@/components/common/ResourcePage"
+import { MetricCard } from "./MetricCard"
+import { METRICS } from "./metrics.data"
+import { VisitorsBarChart } from "./VisitorsBarChart"
 
-export default function Dashboardform() {
+export function DashboardForm() {
   return (
-    <div className="flex flex-col items-center justify-center h-[80vh] text-center bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-inner p-6">
-      <Lottie
-        animationData={developmentAnimation}
-        loop={true}
-        style={{ width: 250, height: 250 }}
-      />
-
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mt-4">
-        🚧 Proceso en desarrollo
-      </h1>
-      <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-md">
-        Estamos trabajando para brindarte esta funcionalidad muy pronto.
-      </p>
-    </div>
-  );
+    <ResourcePage
+      title="Dashboard"
+      subtitle="Visualiza desde aquí los principales indicadores de tu negocio"
+      isLoading={false}
+    >
+      <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 px-4 lg:px-6">
+        {METRICS.map((metric) => (
+          <MetricCard key={metric.id} metric={metric} size="sm" />
+        ))}
+      </section>
+      <section className="mt-6 px-4 lg:px-6">
+        <VisitorsBarChart />
+      </section>
+    </ResourcePage>
+  )
 }
