@@ -74,6 +74,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-desktop: oklch(37.369% 0.12535 266.034);
+  --color-mobile: oklch(45.942% 0.08427 269.447);
 }
 
 .dark {

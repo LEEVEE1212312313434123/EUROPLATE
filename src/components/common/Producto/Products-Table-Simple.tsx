@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Trash, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
-import type { Product } from "@/types/product.types";
 import { formatProductName } from "@/utils/formatProductName";
+import type { ProductWithRelations } from "@/types/products/product.relations";
 
 const categoriaDisplayMap: Record<string, string> = {
   Papel: "Papel",
@@ -13,9 +13,9 @@ const categoriaDisplayMap: Record<string, string> = {
 };
 
 interface ProductTableSimpleProps {
-  products: Product[];
-  onDelete: (product: Product) => void;
-  onRestore?: (product: Product) => void;
+  products: ProductWithRelations[];
+  onDelete: (product: ProductWithRelations) => void;
+  onRestore?: (product: ProductWithRelations) => void;
 }
 
 export function ProductTableSimple({ products, onDelete, onRestore }: ProductTableSimpleProps) {

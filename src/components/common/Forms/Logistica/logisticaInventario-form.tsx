@@ -1,69 +1,50 @@
-import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import {
   InventarioTable,
   type InventarioItem,
 } from "@/components/common/Logistica/InventarioTable";
+
+import { useInventarioCompleto } from "@/hooks/inventario/useInventarioCompleto";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { InventarioService } from "@/services/inventario.service"; // ✅ importa tu service
 import { useNavigate } from "react-router-dom";
 
 export default function InventarioLogistica() {
-  const [inventario, setInventario] = useState<InventarioItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const { data, isLoading, error } = useInventarioCompleto();
 
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [, setEditingItem] = useState<InventarioItem | null>(null);
+  const items: InventarioItem[] = useMemo(() => {
+    if (!data) return [];
 
-  const navigate = useNavigate();
-  // ✅ Cargar inventario usando el service
-  useEffect(() => {
-    const fetchInventario = async () => {
-      setLoading(true);
-      try {
-        const data = await InventarioService.getAll();
+    return data.map((row) => ({
+      id: row.id,
+      importacion: row.num_dua ?? "N/A",
+      purchaseOrder: row.orden_compra ?? "N/A",
+      grade: row.nombre_producto ?? "Sin nombre",
+      type: row.unidad_medida ?? "N/A",
+      width: row.ancho ?? 0,
+      gsm: row.gramaje ?? 0,
+      lmetre: row.largo ?? 0,
+      productId: row.producto_id?.toString() ?? "N/A",
+      grossNetWt: row.peso ?? 0,
+      almacen: row.ubicacion ?? "N/A",
+      unidad: row.unidad_medida ?? "N/A",
+      stockActual: row.stock_actual ?? 0,
 
-        // Mapear tus datos al tipo InventarioItem para la tabla
-        const mappedItems: InventarioItem[] = data.map((item) => ({
-          id: item.importacion_producto_id,
-          importacion: item.num_dua ?? "N/A",
-          purchaseOrder: item.orden_compra ?? "N/A",
-          grade: item.nombre_producto ?? "Sin nombre",
-          type: item.unidad_medida ?? "N/A",
-          width: item.ancho_cm ?? 0,
-          gsm: item.gramaje_g ?? 0,
-          lmetre: item.largo_cm ?? 0,
-          productId: item.producto_id?.toString() ?? "N/A",
-          grossNetWt: item.peso_kg ?? 0,
-          almacen: item.ubicacion ?? "N/A",
-          unidad: item.unidad_medida ?? "N/A",
-          stockActual: item.stock_actual ?? 0,
-          estado:
-            item.stock_actual && item.stock_actual > 0
-              ? "En stock"
-              : "En tránsito",
-        }));
+      estado:
+        row.stock_actual > 0
+          ? "En stock"
+          : "En tránsito",
+    }));
+  }, [data]);
 
-        setInventario(mappedItems);
-        setError(null);
-      } catch (err: any) {
-        console.error(err);
-        setError("Error cargando inventario");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInventario();
-  }, []);
-
-  // ✅ Filtro y búsqueda
   const filteredItems = useMemo(() => {
-    return inventario.filter((i) => {
+    return items.filter((i) => {
       const matchesSearch =
         !searchTerm ||
         i.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -82,32 +63,29 @@ export default function InventarioLogistica() {
 
       return true;
     });
-  }, [inventario, searchTerm, filterType, filterStatus]);
+  }, [items, searchTerm, filterType, filterStatus]);
 
-  // ✅ Vista de carga
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center items-center h-[60vh]">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
 
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (error)
+    return <div className="p-6 text-red-500">Error cargando inventario</div>;
 
-  // ✅ Render principal
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold">Inventario</h2>
           <p className="text-muted-foreground text-sm">
             Administra los materiales y productos registrados
           </p>
         </div>
-        <Button
-          onClick={() => navigate("/logistica/addimport")}
-          className="flex items-center gap-2 cursor-pointer"
-        >
+
+        <Button onClick={() => navigate("/logistica/addimport")}>
           + Registrar Importación
         </Button>
       </div>
@@ -116,7 +94,7 @@ export default function InventarioLogistica() {
         filterType={filterType}
         filterStatus={filterStatus}
         tabs={[
-          { value: "all", label: `Todos (${inventario.length})` },
+          { value: "all", label: `Todos (${items.length})` },
           { value: "import", label: "Importación" },
         ]}
         selectOptions={[
@@ -135,7 +113,7 @@ export default function InventarioLogistica() {
       <div className="mt-6 overflow-x-auto">
         <InventarioTable
           items={filteredItems}
-          onEdit={(item) => setEditingItem(item)}
+          onEdit={() => toast.info("Función editar pendiente")}
           onDelete={(item) =>
             toast.warning(`Función eliminar pendiente para ${item.id}`)
           }

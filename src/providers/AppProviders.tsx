@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -7,7 +10,7 @@ interface AppProvidersProps {
 
 export function AppProviders({ children }: AppProvidersProps) {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       {children}
       <Toaster
         position="top-center"
@@ -20,6 +23,6 @@ export function AppProviders({ children }: AppProvidersProps) {
           },
         }}
       />
-    </>
+    </QueryClientProvider>
   );
 }

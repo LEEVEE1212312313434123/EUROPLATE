@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { Product } from "@/types/product.types";
+import type { ProductWithRelations } from "@/types/products/product.relations";
 import { formatProductName } from "@/utils/formatProductName";
 import { toast } from "sonner";
 
@@ -15,8 +22,9 @@ const categoriaDisplayMap: Record<string, string> = {
 };
 
 interface ProductTableProps {
-  products: Product[];
-  onDelete: (product: Product) => void;
+  products: ProductWithRelations[];
+  onEdit: (product: ProductWithRelations) => void;
+  onDelete: (product: ProductWithRelations) => void;
 }
 
 export function ProductTable({ products, onDelete }: ProductTableProps) {
@@ -29,8 +37,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
   const currentProducts = products.slice(start, end);
   const totalPages = Math.ceil(products.length / pageSize);
 
-  const handleEdit = (product: Product) => {
-    console.log("Producto que se está editando:", product);
+  const handleEdit = (product: ProductWithRelations) => {
     navigate("/products/editProducts", { state: { product } });
   };
 
@@ -53,31 +60,50 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
         <TableBody>
           {currentProducts.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6">
+              <TableCell colSpan={8} className="text-center py-6">
                 No se encontraron productos.
               </TableCell>
             </TableRow>
           ) : (
             currentProducts.map((product) => {
-              const categoriaLegible = categoriaDisplayMap[product.categoria] ?? product.categoria;
+              const material = product.materiales?.[0] ?? null;
+              const precio = product.precios?.[0] ?? null;
+              const almacen = product.almacenes?.[0] ?? null;
+
+              const categoriaLegible =
+                categoriaDisplayMap[product.categoria] ?? product.categoria;
+
               const nombreProducto = formatProductName(product);
 
               return (
-                <TableRow key={product.id} className="h-14 border-b hover:bg-muted/50 transition-colors">
+                <TableRow
+                  key={product.id}
+                  className="h-14 border-b hover:bg-muted/50 transition-colors"
+                >
                   <TableCell>{categoriaLegible}</TableCell>
                   <TableCell>{nombreProducto}</TableCell>
-                  <TableCell className="text-center">${product.precio.precio_min.toFixed(2)}</TableCell>
-                  <TableCell className="text-center">${product.precio.precio_max.toFixed(2)}</TableCell>
-                  <TableCell className="text-center">{product.almacen.stock_actual}</TableCell>
                   <TableCell className="text-center">
-                    {product.material.unidad_medida || "-"}
+                    {precio?.precio_min != null
+                      ? `$${precio.precio_min.toFixed(2)}`
+                      : "-"}
                   </TableCell>
                   <TableCell className="text-center">
-                    {product.almacen.stock_actual === 0 ? (
+                    {precio?.precio_max != null
+                      ? `$${precio.precio_max.toFixed(2)}`
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {almacen?.stock_actual ?? 0}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {material?.unidad_medida ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {!almacen || almacen.stock_actual === 0 ? (
                       <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                         No disponible
                       </span>
-                    ) : product.almacen.stock_actual <= 5 ? (
+                    ) : almacen.stock_actual <= 5 ? (
                       <span className="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 flex items-center">
                         <AlertTriangle className="w-4 h-4 mr-1" />
                         Pocas
@@ -94,24 +120,26 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(product)}
-                        className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
+                        className="text-primary hover:bg-primary/10"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
+
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          if (product.almacen.stock_actual > 0) {
-                            return toast.error("No puedes eliminar un producto con stock disponible");
+                          if (almacen && almacen.stock_actual > 0) {
+                            return toast.error(
+                              "No puedes eliminar un producto con stock disponible"
+                            );
                           }
-                          onDelete(product); // → esto abrirá el modal
+                          onDelete(product);
                         }}
-                        className="text-primary hover:bg-primary/10 focus:ring-2 focus:ring-primary cursor-pointer"
+                        className="text-primary hover:bg-primary/10"
                       >
                         <Trash className="w-4 h-4" />
                       </Button>
-
                     </div>
                   </TableCell>
                 </TableRow>
@@ -120,7 +148,6 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
           )}
         </TableBody>
       </Table>
-
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-2">
           <Button
@@ -128,7 +155,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
             size="icon"
             disabled={page === 0}
             onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
-            className="rounded-full shadow-sm hover:bg-primary hover:text-white transition cursor-pointer"
+            className="rounded-full shadow-sm hover:bg-primary hover:text-white"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
@@ -142,7 +169,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
             size="icon"
             disabled={page >= totalPages - 1}
             onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
-            className="rounded-full shadow-sm hover:bg-primary hover:text-white transition cursor-pointer"
+            className="rounded-full shadow-sm hover:bg-primary hover:text-white"
           >
             <ChevronRight className="w-5 h-5" />
           </Button>

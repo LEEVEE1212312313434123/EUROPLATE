@@ -12,8 +12,10 @@ import EditarProductosStep1 from "@/pages/productos/productos.edit.page";
 import LogisticaPage from "@/pages/logistica/logistica.page";
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
 import ClientesPage from "@/pages/clientes/clientes.page";
-import Dashboardform from "@/components/common/Forms/Dashboard/dashboard-form";
 import EditarLogistica from "@/pages/logistica/logistica.edit";
+import { DashboardForm } from "@/components/common/Forms/Dashboard/dashboard-form";
+import BuildForm from "@/components/common/Forms/Build-form";
+import { VentasPage } from "@/pages/ventas/ventas.page";
 
 export const dashboardRoutes = [
   {
@@ -21,7 +23,7 @@ export const dashboardRoutes = [
     title: "Dashboard",
     path: "/dashboard",
     icon: IconHome,
-    element: <Dashboardform />,
+    element: <DashboardForm />,
     showInSidebar: true,
   },
   {
@@ -83,14 +85,14 @@ export const dashboardRoutes = [
     title: "Ventas",
     path: "/ventas",
     icon: IconShoppingCart,
-    element: <Dashboardform />,
-    showInSidebar: false,
+    element: <VentasPage />,
+    showInSidebar: true,
   },
   {
     title: "Configuración",
     path: "/configuracion",
     icon: IconSettings,
-    element: <Dashboardform />,
+    element: <BuildForm />,
     showInSidebar: false,
   },
 ];

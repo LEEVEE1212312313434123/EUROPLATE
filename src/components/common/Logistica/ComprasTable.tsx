@@ -1,55 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Eye, ChevronLeft, ChevronRight, PackageCheck, XCircle } from "lucide-react";
 import EstadoImportacionDialog from "@/components/common/Dialog/EstadoImportacionDialog";
-import type { Importacion } from "@/types/editimportacion.type";
-import { supabase } from "@/lib/supabaseClient";
-import { ImportacionService } from "@/services/editimportacion.service";
 import { useNavigate } from "react-router-dom";
+import { useActualizarEstadoCompra, type CompraEstado } from "@/hooks/Compras/useActualizarEstadoCompra";
+import { useRegistrarEntrega } from "@/hooks/Compras/useRegistrarEntrega";
+import type { ImportacionWithRelations } from "@/types/importaciones/importacion.relations";
 
-interface ComprasTableProps {
-  compras: Importacion[];
-  onDelete: (compra: Importacion) => void;
-  onView?: (compra: Importacion) => void;
+export interface ComprasTableProps {
+  compras: ImportacionWithRelations[];
+  onDelete: (compra: ImportacionWithRelations) => void;
+  onView?: (compra: ImportacionWithRelations) => void;
 }
 
 export function ComprasTable({ compras, onDelete, onView }: ComprasTableProps) {
   const navigate = useNavigate();
+
   const [modalData, setModalData] = useState<any>(null);
-  const [almacenes, setAlmacenes] = useState<any[]>([]);
   const [page, setPage] = useState(0);
 
   const pageSize = 10;
   const start = page * pageSize;
-  const end = start + pageSize;
-  const currentCompras = compras.slice(start, end);
+  const currentCompras = compras.slice(start, start + pageSize);
   const totalPages = Math.ceil(compras.length / pageSize);
+  const actualizarEstado = useActualizarEstadoCompra();
+  const registrarEntrega = useRegistrarEntrega();
 
-  useEffect(() => {
-    console.log("Compras recibidas en ComprasTable:", compras);
-  }, [compras]);
-
-  useEffect(() => {
-    const fetchAlmacenes = async () => {
-      const { data } = await supabase.from("almacenes").select("id, ubicacion");
-      setAlmacenes(data || []);
-    };
-    fetchAlmacenes();
-  }, []);
-
-  const handleEdit = async (compraId: number) => {
-    const detalle = await ImportacionService.getById(compraId);
-    console.log("Detalle cargado para editar:", detalle);
-    if (!detalle) return;
-    navigate("/logistica/editimport", { state: { compra: detalle } });
+  const handleEdit = (id: number) => {
+    navigate("/logistica/editimport", { state: { compraId: id } });
   };
 
   const renderEstado = (estado: string) => {
@@ -65,6 +46,25 @@ export function ComprasTable({ compras, onDelete, onView }: ComprasTableProps) {
       default:
         return <span className="flex items-center gap-2 text-gray-500"><Eye className="w-4 h-4" />Desconocido</span>;
     }
+  };
+
+  const handleEstadoSubmit = async (estado: CompraEstado, options?: any) => {
+    if (!modalData) return;
+
+    if (estado === "Entregado" && options?.almacenId) {
+      await registrarEntrega.mutateAsync({
+        importacionId: modalData.importacionId,
+        almacenId: options.almacenId
+      });
+    } else {
+      await actualizarEstado.mutateAsync({
+        id: modalData.importacionId,
+        estado,
+        options
+      });
+    }
+
+    setModalData(null);
   };
 
   return (
@@ -93,11 +93,12 @@ export function ComprasTable({ compras, onDelete, onView }: ComprasTableProps) {
           ) : (
             currentCompras.map((c) => (
               <TableRow key={c.id} className="h-14 border-b hover:bg-muted/50 transition-colors">
-                <TableCell>{c.id_importacion ?? "-"}</TableCell>
+                <TableCell>{c.id ?? "-"}</TableCell>
                 <TableCell>{c.num_dua}</TableCell>
                 <TableCell>{c.detalle ?? "Sin descripción"}</TableCell>
                 <TableCell>{c.proveedor ?? "N/A"}</TableCell>
                 <TableCell>{c.pais_origen ?? "N/A"}</TableCell>
+
                 <TableCell>
                   <button
                     className="flex items-center gap-2 hover:underline cursor-pointer"
@@ -108,52 +109,69 @@ export function ComprasTable({ compras, onDelete, onView }: ComprasTableProps) {
                         estadosPosibles: ["Registrado", "En Transito", "Entregado", "Cancelado"]
                       })
                     }
-
                   >
                     {renderEstado(c.estado)}
                   </button>
                 </TableCell>
-                <TableCell className="text-center">{c.fecha_entrega ?? "No definida"}</TableCell>
+
+                <TableCell className="text-center">
+                  {c.fecha_entrega ?? "No definida"}
+                </TableCell>
+
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-1">
                     <Button variant="ghost" size="icon" onClick={() => onView && onView(c)}>
                       <Eye className="w-4 h-4" />
                     </Button>
+
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(c.id)}>
                       <Edit className="w-4 h-4" />
                     </Button>
+
                     <Button variant="ghost" size="icon" onClick={() => onDelete(c)}>
                       <Trash className="w-4 h-4" />
                     </Button>
                   </div>
                 </TableCell>
+
               </TableRow>
             ))
           )}
         </TableBody>
-
-        {modalData && (
-          <EstadoImportacionDialog
-            open={!!modalData}
-            onClose={() => setModalData(null)}
-            estadoActual={modalData.estadoActual}
-            estadosPosibles={modalData.estadosPosibles}
-            importacionId={modalData.importacionId}
-            almacenes={almacenes}
-            onSuccess={() => window.location.reload()}
-          />
-        )}
       </Table>
+
+      {modalData && (
+        <EstadoImportacionDialog
+          open
+          onClose={() => setModalData(null)}
+          estadoActual={modalData.estadoActual}
+          estadosPosibles={modalData.estadosPosibles}
+          importacionId={modalData.importacionId}
+          onSubmit={handleEstadoSubmit}
+        />
+      )}
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-2">
-          <Button variant="outline" size="icon" disabled={page === 0} onClick={() => setPage((prev) => Math.max(prev - 1, 0))}>
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={page === 0}
+            onClick={() => setPage((p) => p - 1)}
+          >
             <ChevronLeft className="w-5 h-5" />
           </Button>
+
           <span className="text-sm text-muted-foreground">
             Página {page + 1} de {totalPages}
           </span>
-          <Button variant="outline" size="icon" disabled={page >= totalPages - 1} onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}>
+
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={page === totalPages - 1}
+            onClick={() => setPage((p) => p + 1)}
+          >
             <ChevronRight className="w-5 h-5" />
           </Button>
         </div>

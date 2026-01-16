@@ -14,4 +14,9 @@ export const TABS_CONFIG = {
     { value: "inventario", label: "Inventario", icon: <Package size={16} /> },
     { value: "proveedores", label: "Proveedores", icon: <Users size={16} /> },
   ],
+  ventas: [
+    { value: "venta", label: "Ventas", icon: <List size={16} /> },
+    { value: "notacredito", label: "Nota Crédito", icon: <PackageX size={16} /> },
+    { value: "notadebito", label: "Nota Débito", icon: <PackageX size={16} /> },
+  ],
 };
