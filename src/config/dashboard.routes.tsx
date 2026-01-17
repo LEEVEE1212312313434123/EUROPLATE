@@ -16,6 +16,7 @@ import EditarLogistica from "@/pages/logistica/logistica.edit";
 import { DashboardForm } from "@/components/common/Forms/Dashboard/dashboard-form";
 import BuildForm from "@/components/common/Forms/Build-form";
 import { VentasPage } from "@/pages/ventas/ventas.page";
+import VentasView from "@/components/common/Ventas/VentasView";
 
 export const dashboardRoutes = [
   {
@@ -87,6 +88,14 @@ export const dashboardRoutes = [
     icon: IconShoppingCart,
     element: <VentasPage />,
     showInSidebar: true,
+  },
+  {
+    title: "Registrar Venta",
+    path: "/ventas/add",
+    icon: IconShoppingCart,
+    element: <VentasView />,
+    showInSidebar: false,
+    parent: "/ventas",
   },
   {
     title: "Configuración",
