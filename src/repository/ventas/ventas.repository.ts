@@ -2,18 +2,25 @@ import { supabase } from "@/lib/supabaseClient";
 import type { CreateVentaDTO } from "@/types/ventas/venta.dto";
 
 export class VentasRepository {
+
     // Obtener todas las ventas con sus productos
     static async getAll() {
         const { data, error } = await supabase
             .from("ventas")
             .select(`
-        *,
-        venta_productos (*)
-      `)
+            *,
+            cliente:clientes (nombre) 
+        `) // <-- Esto hace el JOIN con la tabla clientes
             .order("id", { ascending: false });
 
         if (error) throw new Error(error.message);
         return data;
+    }
+
+    static async delete(id: number) {
+        const { error } = await supabase.from("ventas").delete().eq("id", id);
+        if (error) throw error;
+        return true;
     }
 
     // Crear una venta completa (Cabecera + Detalle)

@@ -6,22 +6,18 @@ export class VentasInventarioRepository {
      * Se recomienda llamar a esto después de registrarVenta.
      */
     static async descontarStock(productoId: number, cantidadVendida: number) {
-        // 1. Obtener stock actual
         const { data: almacen, error: fetchError } = await supabase
             .from("almacenes")
             .select("stock_actual")
             .eq("producto_id", productoId)
-            .single();
+            .maybeSingle(); // <--- Cambia .single() por .maybeSingle()
 
-        if (fetchError) throw new Error("Producto no encontrado en almacén");
+        if (fetchError || !almacen) {
+            throw new Error(`Producto ${productoId} no encontrado en almacén`);
+        }
 
         const nuevoStock = (almacen.stock_actual || 0) - cantidadVendida;
 
-        if (nuevoStock < 0) {
-            throw new Error("Stock insuficiente para realizar la venta");
-        }
-
-        // 2. Actualizar stock
         const { error: updateError } = await supabase
             .from("almacenes")
             .update({ stock_actual: nuevoStock })
@@ -64,9 +60,16 @@ export class VentasInventarioRepository {
             .from("almacenes")
             .select("stock_actual")
             .eq("producto_id", productoId)
-            .single();
+            .maybeSingle(); // <--- Cambia .single() por .maybeSingle()
 
-        if (error || !data) return false;
+        if (error) {
+            console.error("Error validando stock:", error);
+            return false;
+        }
+
+        // Si data es null, significa que el producto no tiene registro en almacén
+        if (!data) return false;
+
         return data.stock_actual >= cantidadRequerida;
     }
 
