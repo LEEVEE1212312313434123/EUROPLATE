@@ -80,8 +80,6 @@ export function VentasForm() {
           )}
         </DialogContent>
       </Dialog>
-
-      {/* MODAL ELIMINAR */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>

@@ -59,13 +59,8 @@ export function InformacionPago({
 
     return (
         <div className="space-y-6">
-            <h3 className="text-sm font-bold flex items-center gap-2">
-                <CreditCard className="w-4 h-4" /> Información de Pago
-            </h3>
-
-            {/* Tipo Comprobante */}
             <div className="flex gap-2 items-center">
-                <Label className="text-xs">Tipo</Label>
+                <Label className="text-xs text-primary font-bold">TIPO</Label>
                 <Select value={tipoComprobante} onValueChange={setTipoComprobante}>
                     <SelectTrigger>
                         <SelectValue />
@@ -76,15 +71,13 @@ export function InformacionPago({
                     </SelectContent>
                 </Select>
             </div>
-
-            {/* Métodos */}
             {pagos.map((pago, index) => (
                 <div
                     key={index}
                     className="grid grid-cols-12 gap-2 items-end border-b pb-2"
                 >
                     <div className="col-span-3">
-                        <Label className="text-[10px]">Medio</Label>
+                        <Label className="text-[10px] text-primary font-bold">MEDIO</Label>
                         <Select
                             value={pago.metodo}
                             onValueChange={(v) =>
@@ -108,7 +101,7 @@ export function InformacionPago({
                     </div>
 
                     <div className="col-span-3">
-                        <Label className="text-[10px]">Referencia</Label>
+                        <Label className="text-[10px] text-primary font-bold">REFERENCIA</Label>
                         <Input
                             className="h-8 text-xs"
                             value={pago.nro_operacion}
@@ -123,18 +116,19 @@ export function InformacionPago({
                     </div>
 
                     <div className="col-span-2">
-                        <Label className="text-[10px]">Monto</Label>
+                        <Label className="text-[10px] text-primary font-bold">MONTO</Label>
                         <Input
-                            type="number"
-                            className="h-8 text-xs"
-                            value={pago.monto}
-                            onChange={(e) =>
-                                actualizarPago(
-                                    index,
-                                    "monto",
-                                    Number(e.target.value) || 0
-                                )
-                            }
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0.00"
+                            className="h-8 text-xs text-right"
+                            value={pago.monto === 0 ? "" : pago.monto}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(",", ".");
+                                if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                    actualizarPago(index, "monto", value === "" ? 0 : Number(value));
+                                }
+                            }}
                         />
                     </div>
 

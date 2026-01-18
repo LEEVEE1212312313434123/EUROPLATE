@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VentasInventarioService } from "@/services/ventas/venta.inventario.service";
+import { CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
     productosSeleccionados: any[];
@@ -18,6 +19,39 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
     const [showResults, setShowResults] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const CATEGORIAS = [
+        "Materia Prima",
+        "Productos Terminados",
+        "Insumos de Producción",
+        "Suministros Técnicos",
+        ];
+
+        const SUBCATEGORIAS: Record<string, string[]> = {
+        "Materia Prima": [
+            "Bobinas de cartón",
+            "Bobinas de papel",
+            "Papel en hojas",
+            "Cartón kraft",
+        ],
+        "Productos Terminados": [
+            "Cajas para paquetes",
+            "Empaques personalizados",
+            "Cajas corrugadas",
+        ],
+        "Insumos de Producción": [
+            "Placas de impresión",
+            "Tintas",
+            "Barnices",
+        ],
+        "Suministros Técnicos": [
+            "Repuestos de máquina",
+            "Rodillos",
+            "Lubricantes",
+        ],
+    };
+    const selectBase = "h-10 min-w-[190px] max-w-[230px] bg-white border border-primary/30 text-[11px] font-semibold text-primary focus:ring-2 focus:ring-primary/30 transition-all";
+    const [categoria, setCategoria] = useState<string | null>(null);
+    const [subcategoria, setSubcategoria] = useState<string | null>(null);
     useEffect(() => {
         async function cargarInventario() {
             try {
@@ -41,9 +75,17 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const resultadosFiltrados = searchTerm.trim() === ""
-        ? catalogo.slice(0, 15)
-        : catalogo.filter(p => p.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+    const resultadosFiltrados = catalogo
+        .filter(p => {
+            if (categoria && p.categoria !== categoria) return false;
+            if (subcategoria && p.subcategoria !== subcategoria) return false;
+            if (
+            searchTerm.trim() &&
+            !p.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+            ) return false;
+            return true;
+        })
+        .slice(0, 15);
 
     const addProducto = (p: any) => {
         if (productosSeleccionados.some(item => item.id === p.id)) return;
@@ -72,11 +114,12 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
 
     return (
         <div className="space-y-6" ref={containerRef}>
-            {/* 1. TÍTULO DE SECCIÓN */}
-            <div className="flex items-center gap-2 mb-2">
-                <PackageSearch className="w-5 h-5 text-slate-400" />
-                <h2 className="text-lg font-bold text-slate-800 tracking-tight">Selección de Artículos</h2>
-            </div>
+            <CardHeader className="px-0 pb-4">
+                <CardTitle className="text-sm flex items-center gap-2 uppercase text-primary font-bold">
+                    <PackageSearch className="w-4 h-4" />
+                    Selección de Artículos
+                </CardTitle>
+            </CardHeader>
 
             {/* 2. BARRA DE BÚSQUEDA Y SELECTS DE ADORNO */}
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-end">
@@ -122,47 +165,80 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
                         </div>
                     )}
                 </div>
+                <div className="xl:col-span-6 flex flex-wrap gap-3 justify-end">
+                    <div className="space-y-1">
+                        <Select
+                            value={categoria ?? ""}
+                            onValueChange={(value) => {
+                                setCategoria(value);
+                                setSubcategoria(null);
+                            }}
+                            >
+                            <SelectTrigger className={selectBase}>
+                                <div className="flex items-center gap-2 truncate">
+                                    <Tag className="w-3 h-3 text-primary shrink-0" />
+                                    <SelectValue
+                                    placeholder="Categoría"
+                                    className="text-primary/60"
+                                    />
+                                </div>
+                            </SelectTrigger>
 
-                {/* Selects Decorativos (Derecha) */}
-                <div className="xl:col-span-6 grid grid-cols-3 gap-2">
-                    <div className="space-y-1">
-                        <Select disabled defaultValue="cat">
-                            <SelectTrigger className="h-10 bg-slate-50 border-none text-[11px] font-medium text-slate-500">
-                                <div className="flex items-center gap-2"><Tag className="w-3 h-3" /><SelectValue /></div>
-                            </SelectTrigger>
-                            <SelectContent><SelectItem value="cat">Categoría</SelectItem></SelectContent>
+                            <SelectContent className="border border-primary/20">
+                                {CATEGORIAS.map(cat => (
+                                    <SelectItem
+                                    key={cat}
+                                    value={cat}
+                                    className="text-[11px] font-medium text-slate-700 focus:bg-primary/10 focus:text-primary"
+                                    >
+                                    {cat}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Select disabled defaultValue="sub">
-                            <SelectTrigger className="h-10 bg-slate-50 border-none text-[11px] font-medium text-slate-500">
-                                <div className="flex items-center gap-2"><Layers className="w-3 h-3" /><SelectValue /></div>
-                            </SelectTrigger>
-                            <SelectContent><SelectItem value="sub">Subcategoría</SelectItem></SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-1">
-                        <Select disabled defaultValue="prod">
-                            <SelectTrigger className="h-10 bg-slate-50 border-none text-[11px] font-medium text-slate-500">
-                                <div className="flex items-center gap-2"><Box className="w-3 h-3" /><SelectValue /></div>
-                            </SelectTrigger>
-                            <SelectContent><SelectItem value="prod">Producto</SelectItem></SelectContent>
-                        </Select>
+                    <Select
+                        value={subcategoria ?? ""}
+                        onValueChange={setSubcategoria}
+                        disabled={!categoria}
+                    >
+                        <SelectTrigger className={selectBase}>
+                            <div className="flex items-center gap-2 truncate">
+                                <Layers className="w-3 h-3 text-primary shrink-0" />
+                                <SelectValue
+                                placeholder="Subcategoría"
+                                className="text-primary/60"
+                                />
+                            </div>
+                        </SelectTrigger>
+
+                        <SelectContent className="border border-primary/20">
+                            {categoria &&
+                                SUBCATEGORIAS[categoria].map(sub => (
+                                <SelectItem
+                                    key={sub}
+                                    value={sub}
+                                    className="text-[11px] font-medium text-slate-700 focus:bg-primary/10 focus:text-primary"
+                                >
+                                    {sub}
+                                </SelectItem>
+                                ))}
+                        </SelectContent>
+                    </Select>
                     </div>
                 </div>
             </div>
-
-            {/* 3. TABLA DE PRODUCTOS */}
             <div className="rounded-xl border border-none bg-white overflow-hidden shadow-none">
                 <Table>
                     <TableHeader className="">
                         <TableRow className="hover:bg-transparent border-b border-slate-100">
-                            <TableHead className="w-30 text-[11px] uppercase font-bold text-slate-400">ID PRODUCTO</TableHead>
-                            <TableHead className="text-[11px] uppercase font-bold text-slate-400">Producto</TableHead>
-                            <TableHead className="w-32 text-center text-[11px] uppercase font-bold text-slate-400">Cantidad</TableHead>
-                            <TableHead className="text-[11px] uppercase font-bold text-slate-400">P. Unitario</TableHead>
-                            <TableHead className="text-[11px] uppercase font-bold text-slate-400">Total</TableHead>
-                            <TableHead className="w-16 text-center text-[11px] uppercase font-bold text-slate-400">Acción</TableHead>
+                            <TableHead className="w-30 text-[11px] uppercase font-bold text-primary">ID PRODUCTO</TableHead>
+                            <TableHead className="text-[11px] uppercase font-bold text-primary">Producto</TableHead>
+                            <TableHead className="w-32 text-center text-[11px] uppercase font-bold text-primary">Cantidad</TableHead>
+                            <TableHead className="text-[11px] uppercase font-bold text-primary">P. Unitario</TableHead>
+                            <TableHead className="text-[11px] uppercase font-bold text-primary">Total</TableHead>
+                            <TableHead className="w-16 text-center text-[11px] uppercase font-bold text-primary">Acción</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -178,11 +254,11 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
                         ) : (
                             productosSeleccionados.map((item) => (
                                 <TableRow key={item.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                    <TableCell className="text-[10px] font-mono font-bold text-slate-400">
+                                    <TableCell className="text-[10px] font-mono font-bold text-primary">
                                         #{item.id.toString().substring(0, 6)}
                                     </TableCell>
                                     <TableCell>
-                                        <div className="font-semibold text-slate-700 text-sm">{item.nombre}</div>
+                                        <div className="font-semibold text-black text-sm">{item.nombre}</div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex justify-center">
@@ -194,10 +270,10 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
                                             />
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-sm font-medium text-slate-600">
+                                    <TableCell className="text-sm font-medium text-black">
                                         {item.moneda} {item.precio.toFixed(2)}
                                     </TableCell>
-                                    <TableCell className="text-sm font-black text-blue-600">
+                                    <TableCell className="text-sm font-bold text-primary">
                                         {item.moneda} {(item.cantidad * item.precio).toFixed(2)}
                                     </TableCell>
                                     <TableCell>
@@ -206,7 +282,7 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => removeProducto(item.id)}
-                                                className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                                                className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-all cursor-pointer"
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

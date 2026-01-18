@@ -76,11 +76,12 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
 
     return (
         <div className="space-y-6 w-full bg-transparent p-0">
-            {/* FILA 1: BUSCADOR (50%) Y BOTÓN NUEVO */}
             <div className="flex flex-col md:flex-row items-end gap-4">
                 {!modoRegistro ? (
                     <div className="w-full md:w-1/2 relative">
-                        <Label className="text-[10px] uppercase font-bold text-slate-400 mb-1.5 block">Buscar Cliente</Label>
+                        <Label className="text-[10px] uppercase font-bold text-primary mb-1.5 block">
+                            Buscar Cliente
+                        </Label>
                         <div className="relative">
                             {loading ? (
                                 <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -99,8 +100,6 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
                             />
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         </div>
-
-                        {/* Dropdown flotante */}
                         {menuAbierto && (
                             <>
                                 <div className="fixed inset-0 z-40" onClick={() => setMenuAbierto(false)} />
@@ -116,7 +115,7 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
                                                     <span className="text-sm font-bold text-slate-700">{c.nombre}</span>
                                                     <span className="text-[10px] text-slate-400 uppercase">{c.tipo_documento}: {c.numero_documento}</span>
                                                 </div>
-                                                {seleccionado?.id === c.id && <Check className="w-4 h-4 text-blue-600" />}
+                                                {seleccionado?.id === c.id && <Check className="w-4 h-4 text-primary" />}
                                             </div>
                                         ))
                                     ) : (
@@ -128,8 +127,8 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
                     </div>
                 ) : (
                     <div className="w-full md:w-1/2">
-                        <Label className="text-[10px] uppercase font-bold text-blue-600 mb-1.5 block">Nuevo Registro</Label>
-                        <div className="h-10 flex items-center px-3 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-100">
+                        <Label className="text-[10px] uppercase font-bold text-primary mb-1.5 block">Nuevo Registro</Label>
+                        <div className="h-10 flex items-center px-3 bg-blue-50 text-primary rounded-md text-xs font-medium border border-blue-100">
                             Completando datos de cliente...
                         </div>
                     </div>
@@ -137,27 +136,44 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
 
                 <div className="pb-0.5">
                     <Button
-                        variant={modoRegistro ? "ghost" : "outline"}
                         size="sm"
                         onClick={() => {
                             setModoRegistro(!modoRegistro);
                             setSeleccionado(null);
                             onClienteSeleccionado(null);
                         }}
-                        className="h-10 px-4"
+                        className={
+                            modoRegistro
+                                ? "h-10 px-4 text-primary opacity-100 hover:bg-primary/10 hover:text-primary cursor-pointer"
+                                : "h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                        }
+                        variant={modoRegistro ? "ghost" : "default"}
                     >
-                        {modoRegistro ? "Volver a buscar" : <><UserPlus className="w-4 h-4 mr-2" /> Nuevo Cliente</>}
+                        {modoRegistro ? (
+                            "Volver a buscar"
+                        ) : (
+                            <>
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Nuevo Cliente
+                            </>
+                        )}
                     </Button>
                 </div>
             </div>
-
-            {/* FILA 2: DATOS DEL CLIENTE (INPUTS SEPARADOS) */}
             {!modoRegistro ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-500">
                     <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase font-bold text-slate-400 italic">Nombre / Razón Social</Label>
+                        <Label className="text-[10px] uppercase font-bold text-primary">
+                            Nombre / Razón Social
+                        </Label>
                         <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                            <User
+                                className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors
+                                    ${seleccionado
+                                    ? "text-primary"
+                                    : "text-slate-300"
+                                    }`}
+                                />
                             <Input
                                 readOnly
                                 value={seleccionado?.nombre || ""}
@@ -167,19 +183,29 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase font-bold text-slate-400 italic">Documento de Identidad</Label>
+                        <Label className="text-[10px] uppercase font-bold text-primary">
+                            Documento de Identidad
+                        </Label>
                         <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                value={seleccionado ? `${seleccionado.tipo_documento}: ${seleccionado.numero_documento}` : ""}
-                                placeholder="---"
-                                className="bg-white border-0 focus-visible:ring-0 font-mono shadow-sm"
-                            />
+                            <div className="h-10 flex items-center gap-2 px-3 bg-white rounded-md shadow-sm font-mono">
+                                {seleccionado ? (
+                                    <>
+                                    <span className="font-bold text-primary uppercase">
+                                        {seleccionado.tipo_documento}:
+                                    </span>
+                                    <span className="text-slate-700">
+                                        {seleccionado.numero_documento}
+                                    </span>
+                                    </>
+                                ) : (
+                                    <span className="text-slate-400">---</span>
+                                )}
+                                </div>
+
                         </div>
                     </div>
                 </div>
             ) : (
-                /* FORMULARIO DE REGISTRO REORGANIZADO */
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 rounded-xl bg-white shadow-sm">
 
                     <div className="md:col-span-6 space-y-1.5">
