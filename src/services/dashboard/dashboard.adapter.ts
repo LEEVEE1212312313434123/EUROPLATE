@@ -82,3 +82,59 @@ export const prepareChartData = (ventas: any[]) => {
         new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 };
+
+
+
+// @/services/dashboard/dashboard.adapter.ts
+
+// ... (mantén tus funciones de ventas anteriores)
+
+export const processComprasStats = (importaciones: any[]) => {
+    // 1. Costo total de compras (asumiendo que tienes un campo total_costo o sumando productos)
+    const totalCosto = importaciones.reduce((acc, imp) => {
+        const sumaProductos = imp.importacion_productos?.reduce((sum: number, p: any) =>
+            sum + (Number(p.cantidad) * Number(p.precio_unitario || 0)), 0);
+        return acc + (Number(imp.costo_total || sumaProductos || 0));
+    }, 0);
+
+    const totalImportaciones = importaciones.length;
+
+    return [
+        {
+            id: "total-purchases",
+            title: "Gasto en Compras",
+            value: `USD ${totalCosto.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+            trendValue: "-5.2%",
+            trendType: "down",
+            highlight: "Inversión total",
+            description: "Suma de todas las importaciones"
+        },
+        {
+            id: "import-count",
+            title: "Importaciones",
+            value: totalImportaciones.toString(),
+            trendValue: "+2",
+            trendType: "up",
+            highlight: "Lotes recibidos",
+            description: "Cantidad de órdenes de compra"
+        },
+        // Puedes agregar métricas de stock crítico aquí también
+    ];
+};
+
+export const prepareComprasChartData = (importaciones: any[]) => {
+    const groups = importaciones.reduce((acc: any, imp) => {
+        const date = imp.fecha_llegada ? new Date(imp.fecha_llegada).toISOString().split('T')[0] : 'Sin fecha';
+        if (!acc[date]) acc[date] = { date, desktop: 0 };
+
+        const costoImp = imp.importacion_productos?.reduce((sum: number, p: any) =>
+            sum + (Number(p.cantidad) * Number(p.precio_unitario || 0)), 0) || 0;
+
+        acc[date].desktop += costoImp;
+        return acc;
+    }, {});
+
+    return Object.values(groups).sort((a: any, b: any) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+};

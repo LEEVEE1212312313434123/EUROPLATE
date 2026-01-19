@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, MoreHorizontal, RefreshCw } from "lucide-react";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { Eye, Trash, RefreshCw } from "lucide-react"; // Cambié Edit por Eye para "Ver"
 import { VentasService } from "@/services/ventas/venta.service";
 import { Badge } from "@/components/ui/badge";
 
@@ -42,11 +37,11 @@ export function VentasTable({ onEdit, onDelete }: VentasTableProps) {
   );
 
   return (
-    <div className="rounded-md border bg-white">
+    <div className="rounded-md border bg-white overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50">
-            <TableHead className="font-bold">ID</TableHead>
+            <TableHead className="font-bold w-[80px]">ID</TableHead>
             <TableHead className="font-bold">Fecha</TableHead>
             <TableHead className="font-bold">Cliente</TableHead>
             <TableHead className="font-bold">Método Pago</TableHead>
@@ -64,12 +59,12 @@ export function VentasTable({ onEdit, onDelete }: VentasTableProps) {
             </TableRow>
           ) : (
             ventas.map((venta) => (
-              <TableRow key={venta.id} className="hover:bg-slate-50 transition-colors">
+              <TableRow key={venta.id} className="hover:bg-slate-50/50 transition-colors">
                 <TableCell className="font-medium text-primary">#{venta.id}</TableCell>
-                <TableCell>{venta.fecha}</TableCell>
+                <TableCell className="whitespace-nowrap">{venta.fecha}</TableCell>
                 <TableCell className="font-semibold">{venta.cliente}</TableCell>
                 <TableCell>
-                  <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                     {venta.tipoPago}
                   </span>
                 </TableCell>
@@ -80,25 +75,26 @@ export function VentasTable({ onEdit, onDelete }: VentasTableProps) {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="cursor-pointer">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => onEdit(venta)} className="cursor-pointer">
-                        <Edit className="mr-2 h-4 w-4" /> Ver/Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600 cursor-pointer"
-                        onClick={() => onDelete(venta)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 p-0"
+                      onClick={() => onEdit(venta)}
+                      title="Ver detalle"
+                    >
+                      <Eye />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 p-0"
+                      onClick={() => onDelete(venta)}
+                      title="Eliminar"
+                    >
+                      <Trash />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

@@ -1,4 +1,4 @@
-import { List, PackageX, BarChart, ShoppingCart, Package, Users } from "lucide-react";
+import { List, PackageX, BarChart3, ShoppingCart, Package, Users, TrendingUp } from "lucide-react";
 
 export const TABS_CONFIG = {
   productos: [
@@ -6,8 +6,8 @@ export const TABS_CONFIG = {
     { value: "descuentos", label: "Descontinuados", icon: <PackageX size={16} /> },
   ],
   dashboard: [
-    { value: "lista", label: "Lista", icon: <List size={16} /> },
-    { value: "analisis", label: "Análisis", icon: <BarChart size={16} /> },
+    { value: "Ventas", label: "Venta", icon: <TrendingUp size={16} /> },
+    { value: "Compras", label: "Compras", icon: <BarChart3 size={16} /> }, ,
   ],
   logistica: [
     { value: "compras", label: "Compras", icon: <ShoppingCart size={16} /> },

@@ -3,9 +3,10 @@ import { useState } from "react";
 import { ResourcePage } from "@/components/common/ResourcePage";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VentasTable } from "@/components/common/Ventas/VentaTable"; // 👈 ajusta la ruta si es necesario
 import { VentasService } from "@/services/ventas/venta.service";
+import { VentaDetalleModal } from "@/components/common/Ventas/VentaDetalleModal"; // Importaremos este nuevo componente
 
 type VentaUI = {
   id: number;
@@ -18,14 +19,21 @@ type VentaUI = {
 
 export function VentasForm() {
   const navigate = useNavigate();
-  const [editOpen, setEditOpen] = useState(false);
+  // const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedVenta, setSelectedVenta] = useState<VentaUI | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedVentaId, setSelectedVentaId] = useState<number | null>(null);
 
-  const handleEdit = (venta: any) => {
-    setSelectedVenta(venta);
-    setEditOpen(true);
+  const handleView = (venta: any) => {
+    setSelectedVentaId(venta.id);
+    setViewOpen(true);
   };
+
+  // const handleEdit = (venta: any) => {
+  //   setSelectedVenta(venta);
+  //   setEditOpen(true);
+  // };
 
   const handleDelete = (venta: any) => {
     setSelectedVenta(venta);
@@ -77,20 +85,29 @@ export function VentasForm() {
         />
       }
     >
-      <VentasTable onEdit={handleEdit} onDelete={handleDelete} />
+      <VentasTable onEdit={handleView} onDelete={handleDelete} />
+
+      <VentaDetalleModal
+        ventaId={selectedVentaId}
+        open={viewOpen}
+        onOpenChange={setViewOpen}
+      />
 
       {/* Dialogos de Shadcn UI */}
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+      {/* <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Editar Venta #{selectedVenta?.id}</DialogTitle></DialogHeader>
-          {/* Aquí iría tu formulario de edición */}
-          <p>Funcionalidad de edición para {selectedVenta?.cliente}</p>
+          <DialogHeader><DialogTitle>Editar Venta #{selectedVenta?.id}</DialogTitle></DialogHeader> */}
+      {/* Aquí iría tu formulario de edición */}
+      {/* <p>Funcionalidad de edición para {selectedVenta?.cliente}</p>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>¿Eliminar Venta?</DialogTitle></DialogHeader>
+          <DialogDescription>
+            Información detallada de la transacción y productos asociados.
+          </DialogDescription>
           <p>¿Estás seguro de eliminar la venta de {selectedVenta?.cliente} por {selectedVenta?.total}?</p>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancelar</Button>

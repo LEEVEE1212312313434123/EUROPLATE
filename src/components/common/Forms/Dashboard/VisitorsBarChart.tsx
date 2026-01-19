@@ -5,15 +5,13 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { TimeRangeSelector } from "@/components/common/Forms/Dashboard/TimeRangeSelector"
 import { useTimeRangeFilter } from "@/components/common/Forms/Dashboard/useTimeRangeFilter"
 import type { TimeRange } from "@/components/common/Forms/Dashboard/timeRange"
-import { generateChartData } from "@/utils/generateChartData"
+// import { generateChartData } from "@/utils/generateChartData"
 // Modificar la definición de la función:
 export function VisitorsBarChart({ externalData }: { externalData?: any[] }) {
   const [range, setRange] = useState<TimeRange>("7d");
 
   // Si no hay datos externos, usamos los generados (opcional)
-  const baseData = externalData && externalData.length > 0
-    ? externalData
-    : generateChartData(365);
+  const baseData = externalData || [];
 
   const filteredData = useTimeRangeFilter(baseData, range);
 
@@ -49,11 +47,11 @@ export function VisitorsBarChart({ externalData }: { externalData?: any[] }) {
             />
             {/* 'desktop' ahora representa el monto de dinero vendido */}
             <Bar
-  dataKey="desktop"
-  name="Total Vendido"
-  fill="var(--primary)"
-  radius={[4, 4, 0, 0]}
-/>
+              dataKey="desktop"
+              name="Total Vendido"
+              fill="var(--primary)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>

@@ -21,39 +21,51 @@ interface SelectConfig {
 }
 
 interface ToolbarProps {
+  // Estado de los filtros
   filterType: string;
-  tabs: TabConfig[];
+  filterStatus?: string; // 👈 Agregado para corregir el error
 
+  // Configuración de opciones
+  tabs: TabConfig[];
+  selectOptions?: SelectConfig[]; // 👈 Agregado para las opciones del estado
+
+  // Búsqueda
   searchTerm: string;
   searchPlaceholder?: string;
 
+  // Funciones de cambio
   onFilterTypeChange: (value: string) => void;
+  onFilterStatusChange?: (value: string) => void; // 👈 Agregado
   onSearchChange: (value: string) => void;
+
+  // Categorías (opcionales para otros formularios)
   categoria?: string;
   subCategoria?: string;
-
   categorias?: SelectConfig[];
   subCategorias?: SelectConfig[];
-
   onCategoriaChange?: (value: string) => void;
   onSubCategoriaChange?: (value: string) => void;
 
+  // Exportación
   onExport?: () => void;
 }
 
 export function Toolbar({
   filterType,
+  filterStatus,
+  tabs,
+  selectOptions,
+  searchTerm,
+  searchPlaceholder = "Buscar...",
+  onFilterTypeChange,
+  onFilterStatusChange,
+  onSearchChange,
   categoria,
   subCategoria,
   categorias,
   subCategorias,
-  tabs,
-  searchTerm,
-  searchPlaceholder = "Buscar...",
-  onFilterTypeChange,
   onCategoriaChange,
   onSubCategoriaChange,
-  onSearchChange,
   onExport,
 }: ToolbarProps) {
   return (
@@ -67,6 +79,23 @@ export function Toolbar({
           className="w-60"
         />
 
+        {/* 🔹 SELECT DE ESTADOS (SelectOptions) */}
+        {selectOptions && filterStatus !== undefined && onFilterStatusChange && (
+          <Select value={filterStatus} onValueChange={onFilterStatusChange}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              {selectOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        {/* 🔹 CATEGORÍA (Mantenido para compatibilidad) */}
         {categorias && categoria !== undefined && onCategoriaChange && (
           <Select value={categoria} onValueChange={onCategoriaChange}>
             <SelectTrigger className="w-56">
@@ -82,7 +111,7 @@ export function Toolbar({
           </Select>
         )}
 
-        {/* 🔹 SUBCATEGORÍA */}
+        {/* 🔹 SUBCATEGORÍA (Mantenido para compatibilidad) */}
         {subCategorias && subCategoria !== undefined && onSubCategoriaChange && (
           <Select value={subCategoria} onValueChange={onSubCategoriaChange}>
             <SelectTrigger className="w-56">
@@ -122,6 +151,7 @@ export function Toolbar({
               ))}
           </TabsList>
         </Tabs>
+
         {onExport && (
           <Button
             variant="outline"

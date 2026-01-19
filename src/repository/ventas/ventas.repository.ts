@@ -69,7 +69,7 @@ export class VentasRepository {
             .from("ventas")
             .select(`
         *,
-        cliente:clientes (*), -- Trae los datos del cliente unido por la FK
+        cliente:clientes (*),
         venta_productos (
           *,
           producto:productos (nombre_producto, categoria)
