@@ -61,10 +61,6 @@ export function InventarioTable({ items }: InventarioTableProps) {
             <TableHead className="w-[100px]">Stock Actual</TableHead>
             <TableHead className="w-[100px]">Unidad</TableHead>
             <TableHead className="w-[100px]">Estado</TableHead> {/* ✅ Nueva columna */}
-            <TableHead className="w-[80px]">Gramaje</TableHead>
-            <TableHead className="w-[80px]">Ancho</TableHead>
-            <TableHead className="w-[80px]">Largo MM</TableHead>
-            <TableHead className="w-[100px]">Peso (Kg)</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -101,10 +97,6 @@ export function InventarioTable({ items }: InventarioTableProps) {
                     {item.estado}
                   </span>
                 </TableCell>
-                <TableCell>{item.gsm}</TableCell>
-                <TableCell>{item.width}</TableCell>
-                <TableCell>{item.lmetre}</TableCell>
-                <TableCell>{item.grossNetWt?.toLocaleString()}</TableCell>
               </TableRow>
             ))
           )}

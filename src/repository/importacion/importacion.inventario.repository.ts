@@ -74,7 +74,7 @@ export class ImportacionInventarioRepository {
         precio_min: prod?.precio_min ?? 0,
         precio_max: prod?.precio_max ?? 0,
         moneda: prod?.moneda ?? 0,
-        stock_actual: prod?.stock_actual ?? 0,
+        stock_actual: imp.cantidad ?? 0,
         ubicacion: prod?.ubicacion ?? "-",
       };
     });

@@ -8,11 +8,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { Edit, Trash, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { ProductWithRelations } from "@/types/products/product.relations";
 import { formatProductName } from "@/utils/formatProductName";
-import { toast } from "sonner";
 
 const categoriaDisplayMap: Record<string, string> = {
   Papel: "Papel",
@@ -47,12 +46,11 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Categoria</TableHead>
+            <TableHead>SubCategoría</TableHead>
             <TableHead>Producto</TableHead>
             <TableHead className="text-center w-[100px]">Precio Min</TableHead>
             <TableHead className="text-center w-[100px]">Precio Max</TableHead>
-            <TableHead className="text-center w-[80px]">Stock Actual</TableHead>
             <TableHead className="text-center w-[80px]">Unidad</TableHead>
-            <TableHead className="text-center w-[120px]">Disponibilidad</TableHead>
             <TableHead className="text-center w-[90px]">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -60,7 +58,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
         <TableBody>
           {currentProducts.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-6">
+              <TableCell colSpan={6} className="text-center py-6">
                 No se encontraron productos.
               </TableCell>
             </TableRow>
@@ -68,7 +66,6 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
             currentProducts.map((product) => {
               const material = product.materiales?.[0] ?? null;
               const precio = product.precios?.[0] ?? null;
-              const almacen = product.almacenes?.[0] ?? null;
 
               const categoriaLegible =
                 categoriaDisplayMap[product.categoria] ?? product.categoria;
@@ -80,40 +77,33 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                   key={product.id}
                   className="h-14 border-b hover:bg-muted/50 transition-colors"
                 >
-                  <TableCell>{categoriaLegible}</TableCell>
-                  <TableCell>{nombreProducto}</TableCell>
+                  <TableCell>
+                    {product.tipo_producto ?? "-"}
+                  </TableCell>
+
+                  <TableCell>
+                    {categoriaLegible}
+                  </TableCell>
+
+                  <TableCell>
+                    {nombreProducto}
+                  </TableCell>
                   <TableCell className="text-center">
                     {precio?.precio_min != null
                       ? `$${precio.precio_min.toFixed(2)}`
                       : "-"}
                   </TableCell>
+
                   <TableCell className="text-center">
                     {precio?.precio_max != null
                       ? `$${precio.precio_max.toFixed(2)}`
                       : "-"}
                   </TableCell>
-                  <TableCell className="text-center">
-                    {almacen?.stock_actual ?? 0}
-                  </TableCell>
+
                   <TableCell className="text-center">
                     {material?.unidad_medida ?? "-"}
                   </TableCell>
-                  <TableCell className="text-center">
-                    {!almacen || almacen.stock_actual === 0 ? (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                        No disponible
-                      </span>
-                    ) : almacen.stock_actual <= 5 ? (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 flex items-center">
-                        <AlertTriangle className="w-4 h-4 mr-1" />
-                        Pocas
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                        Disponible
-                      </span>
-                    )}
-                  </TableCell>
+
                   <TableCell className="text-center">
                     <div className="flex justify-center gap-1">
                       <Button
@@ -128,14 +118,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => {
-                          if (almacen && almacen.stock_actual > 0) {
-                            return toast.error(
-                              "No puedes eliminar un producto con stock disponible"
-                            );
-                          }
-                          onDelete(product);
-                        }}
+                        onClick={() => onDelete(product)}
                         className="text-primary hover:bg-primary/10"
                       >
                         <Trash className="w-4 h-4" />
@@ -148,6 +131,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
           )}
         </TableBody>
       </Table>
+
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-2">
           <Button
@@ -155,7 +139,6 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
             size="icon"
             disabled={page === 0}
             onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
-            className="rounded-full shadow-sm hover:bg-primary hover:text-white"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
@@ -168,8 +151,9 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
             variant="outline"
             size="icon"
             disabled={page >= totalPages - 1}
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
-            className="rounded-full shadow-sm hover:bg-primary hover:text-white"
+            onClick={() =>
+              setPage((prev) => Math.min(prev + 1, totalPages - 1))
+            }
           >
             <ChevronRight className="w-5 h-5" />
           </Button>

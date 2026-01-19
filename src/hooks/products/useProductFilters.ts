@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { formatProductName } from "@/utils/formatProductName";
 import type { ProductWithRelations } from "@/types/products/product.relations";
+import { TipoProductoEnum } from "@/types/products/product-type.enum";
 
 const FILTER_TYPE_MAP = {
   all: null,
@@ -20,30 +21,44 @@ export function useProductFilters(
   options?: UseProductFiltersOptions
 ) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "product" | "service">("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "Available" | "Few" | "Unavailable">("all");
+
+  const [filterType, setFilterType] =
+    useState<"all" | "product" | "service">("all");
+
+  const [filterCategoria, setFilterCategoria] =
+    useState<TipoProductoEnum | "all">("all");
+
+  const [filterSubCategoria, setFilterSubCategoria] =
+    useState<string | "all">("all");
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       if (!options?.includeInactive && !p.activo) return false;
+
       if (searchTerm) {
         const name = normalize(formatProductName(p));
         if (!name.includes(normalize(searchTerm))) return false;
       }
+
       const mappedType = FILTER_TYPE_MAP[filterType];
       if (mappedType && p.tipo !== mappedType) return false;
-      const stock = p.almacenes[0]?.stock_actual ?? 0;
-      const stockMatches =
-        (filterStatus === "Available" && stock > 5) ||
-        (filterStatus === "Few" && stock > 0 && stock <= 5) ||
-        (filterStatus === "Unavailable" && stock === 0) ||
-        filterStatus === "all";
 
-      if (!stockMatches) return false;
+      if (filterCategoria !== "all" && p.tipo_producto !== filterCategoria)
+        return false;
+
+      if (filterSubCategoria !== "all" && p.categoria !== filterSubCategoria)
+        return false;
 
       return true;
     });
-  }, [products, searchTerm, filterType, filterStatus, options?.includeInactive]);
+  }, [
+    products,
+    searchTerm,
+    filterType,
+    filterCategoria,
+    filterSubCategoria,
+    options?.includeInactive,
+  ]);
 
   const countProducts = useMemo(
     () => products.filter((p) => p.tipo === "producto").length,
@@ -56,23 +71,39 @@ export function useProductFilters(
   );
 
   const handleTypeChange = (value: string) => {
-    if (value in FILTER_TYPE_MAP) setFilterType(value as keyof typeof FILTER_TYPE_MAP);
+    if (value in FILTER_TYPE_MAP) {
+      setFilterType(value as keyof typeof FILTER_TYPE_MAP);
+    }
   };
 
-  const handleStatusChange = (value: string) => {
-    if (["all", "Available", "Few", "Unavailable"].includes(value))
-      setFilterStatus(value as typeof filterStatus);
+  const handleCategoriaChange = (value: string) => {
+    if (value === "all") {
+      setFilterCategoria("all");
+      setFilterSubCategoria("all");
+    } else {
+      setFilterCategoria(value as TipoProductoEnum);
+      setFilterSubCategoria("all");
+    }
+  };
+
+  const handleSubCategoriaChange = (value: string) => {
+    setFilterSubCategoria(value);
   };
 
   return {
     filteredProducts,
+
     searchTerm,
     filterType,
-    filterStatus,
+    filterCategoria,
+    filterSubCategoria,
+
     countProducts,
     countServices,
+
     setSearchTerm,
     handleTypeChange,
-    handleStatusChange,
+    handleCategoriaChange,
+    handleSubCategoriaChange,
   };
 }

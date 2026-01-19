@@ -27,6 +27,11 @@ export interface Product {
   id: number;
   nombre_producto: string;
   categoria: string;
+  tipo_producto:
+    | "Materia Prima"
+    | "Producto Terminado"
+    | "Insumo de Producción"
+    | "Suministro Técnico";
   material: ProductMaterial;
   precio: ProductPricing;
   almacen: ProductStock;

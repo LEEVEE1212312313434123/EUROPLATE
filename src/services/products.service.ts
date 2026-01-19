@@ -9,6 +9,7 @@ export const ProductService = {
         id,
         nombre_producto,
         categoria,
+        tipo_producto,
         estado,
         accion,
         fecha_registro,
@@ -28,6 +29,7 @@ export const ProductService = {
       id: p.id,
       nombre_producto: p.nombre_producto,
       categoria: p.categoria,
+      tipo_producto: p.tipo_producto, // ✅ ENUM
       estado: p.estado,
       accion: p.accion,
       fecha_registro: p.fecha_registro,
@@ -66,6 +68,7 @@ export const ProductService = {
         {
           nombre_producto: producto.nombre_producto,
           categoria: producto.categoria,
+          tipo_producto: producto.tipo_producto,
           estado: producto.estado,
           accion: producto.accion,
           imagen: producto.imagen,
@@ -121,6 +124,7 @@ export const ProductService = {
       .update({
         nombre_producto: producto.nombre_producto,
         categoria: producto.categoria,
+        tipo_producto: producto.tipo_producto,
         estado: producto.estado,
         accion: producto.accion,
         imagen: producto.imagen,

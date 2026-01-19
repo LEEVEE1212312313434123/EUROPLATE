@@ -27,19 +27,34 @@ interface ProductoBase {
   grade?: string;
 }
 
+type TipoProducto =
+  | "Materia Prima"
+  | "Producto Terminado"
+  | "Insumo de Producción"
+  | "Suministro Técnico";
+
 interface Props {
   navigate: any;
-  categoria: string;
-  onNext: (productos: ProductoBase[]) => void;
+  categoria: string; // 👈 producto real
+  tipo_producto:
+    | "Materia Prima"
+    | "Producto Terminado"
+    | "Insumo de Producción"
+    | "Suministro Técnico";
+  onNext: (productos: any[]) => void;
+  disabled?: boolean;
 }
 
 export default function ProductosAgregarForm({
   navigate,
   categoria,
+  tipo_producto,
   onNext,
+  disabled = false,
 }: Props) {
   const { products } = useProducts();
   const [productos, setProductos] = useState<ProductoBase[]>([]);
+  const habilitado = Boolean(tipo_producto) && !disabled;
 
   const columnasPorCategoria: Record<string, { key: string; label: string }[]> =
   {
@@ -151,7 +166,7 @@ export default function ProductosAgregarForm({
                     <Select
                       value={p.unidad as string}
                       onValueChange={(v) => handleChange(p.tempId, c.key, v)}
-                      disabled={!p.isNew}
+                      disabled={!p.isNew || !habilitado}
                     >
                       <SelectTrigger className="h-7 text-sm">
                         <SelectValue placeholder="Unidad" />
@@ -166,7 +181,7 @@ export default function ProductosAgregarForm({
                     <Input
                       value={String(p[c.key] ?? "")}
                       onChange={(e) => handleChange(p.tempId, c.key, e.target.value)}
-                      disabled={!p.isNew}
+                      disabled={!p.isNew || !habilitado}
                       className="h-7 text-sm"
                     />
                   )}
@@ -179,8 +194,8 @@ export default function ProductosAgregarForm({
               <Button
                 variant="ghost"
                 onClick={agregarFila}
-                disabled={!categoria || categoria.trim() === ""}
-                className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20 cursor-pointer"
+                disabled={!habilitado}
+                className="inline-flex items-center gap-1 rounded-full p-1 text-primary hover:bg-primary/20"
               >
                 <PlusCircle size={24} />
                 <span>Agregar Tipo</span>
@@ -200,10 +215,9 @@ export default function ProductosAgregarForm({
           Cancelar
         </Button>
         <Button
-          className="cursor-pointer"
           size="sm"
           onClick={continuar}
-          disabled={!categoria}
+          disabled={!habilitado}
         >
           Continuar
         </Button>

@@ -49,11 +49,11 @@ export function VisitorsBarChart({ externalData }: { externalData?: any[] }) {
             />
             {/* 'desktop' ahora representa el monto de dinero vendido */}
             <Bar
-              dataKey="desktop"
-              name="Total Vendido"
-              fill="var(--color-desktop)"
-              radius={[4, 4, 0, 0]}
-            />
+  dataKey="desktop"
+  name="Total Vendido"
+  fill="var(--primary)"
+  radius={[4, 4, 0, 0]}
+/>
           </BarChart>
         </ChartContainer>
       </CardContent>

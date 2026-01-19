@@ -10,8 +10,6 @@ import { ResourcePage } from "@/components/common/ResourcePage";
 export default function ProveedoresPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-
   const proveedores: ProveedorItem[] = [
     { id: "1", nombre: "Cartonera Andina S.A.", pais: "Perú", telefono: "+51 987 654 321", correo: "contacto@cartoneraandina.pe", categoria: "Cartón Corrugado", estado: "Activo" },
     { id: "2", nombre: "Papeles del Norte SAC", pais: "Chile", telefono: "+56 9 5678 4321", correo: "ventas@papelesnorte.cl", categoria: "Papel Bond", estado: "Activo" },
@@ -41,22 +39,15 @@ export default function ProveedoresPage() {
       toolbar={
         <Toolbar
           filterType={filterType}
-          filterStatus={filterStatus}
-          searchTerm={searchTerm}
-          onFilterTypeChange={setFilterType}
-          onFilterStatusChange={setFilterStatus}
-          onSearchChange={setSearchTerm}
           tabs={[
             { value: "all", label: `Todos (${proveedores.length})` },
             { value: "activos", label: "Activos" },
             { value: "inactivos", label: "Inactivos" },
           ]}
-          selectOptions={[
-            { value: "all", label: "Todos" },
-            { value: "activo", label: "Activo" },
-            { value: "inactivo", label: "Inactivo" },
-          ]}
+          searchTerm={searchTerm}
           searchPlaceholder="Buscar proveedor..."
+          onFilterTypeChange={setFilterType}
+          onSearchChange={setSearchTerm}
         />
       }
     >

@@ -16,16 +16,19 @@ import type { Product } from "@/types/product.types";
 interface Props {
   navigate: any;
   productosPrevios: any[];
-  categoria: string;
+  categoria: string;       // 👈 producto real (Bobinas, Tintas, etc.)
+  tipo_producto: Product["tipo_producto"]; // 👈 macro tipo
 }
 
 export default function ProductosAgregarPreciosForm({
   navigate,
   productosPrevios,
   categoria,
+  tipo_producto,
 }: Props) {
   const [productos, setProductos] = useState<any[]>(productosPrevios);
   const [maxId, setMaxId] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     ProductService.getMaxId()
@@ -39,34 +42,31 @@ export default function ProductosAgregarPreciosForm({
     );
   };
 
-  const [isSaving, setIsSaving] = useState(false);
   const guardar = async () => {
-  if (isSaving) return; // evita doble clic
-  setIsSaving(true);
+    if (isSaving) return;
+    setIsSaving(true);
 
-  const invalidos = productos.some(
-    (p) => !p.precioMin || !p.precioMax || isNaN(p.precioMin) || isNaN(p.precioMax)
-  );
-  if (invalidos) {
-    toast.error("Completa todos los precios válidamente.");
-    setIsSaving(false);
-    return;
-  }
+    const invalidos = productos.some(
+      (p) =>
+        !p.precioMin ||
+        !p.precioMax ||
+        isNaN(p.precioMin) ||
+        isNaN(p.precioMax)
+    );
 
-  const nuevos: Product[] = productos.map((p, i) => {
-    // 🔹 Lógica para stock según unidad
-    let stockActual = 10; // valor por defecto
-    const unidad = (p.unidad ?? "").toLowerCase();
+    if (invalidos) {
+      toast.error("Completa todos los precios válidamente.");
+      setIsSaving(false);
+      return;
+    }
 
-    if (unidad === "unidad") stockActual = 1;
-    else if (unidad === "docena") stockActual = 12;
-
-    return {
+    const nuevos: Product[] = productos.map((p, i) => ({
       id: maxId + i + 1,
-      nombre_producto: p.productName ?? `${categoria} ${p.tipo ?? ""}`,
-      categoria,
+      nombre_producto: `${categoria} ${p.tipo ?? ""}`,
+      categoria,              // ✅ producto real
+      tipo_producto,           // ✅ macro tipo
       material: {
-        tipo: p.tipo ?? "",
+        tipo: categoria,
         dimensiones: {
           ancho_cm: Number(p.ancho || 0),
           largo_cm: Number(p.largo || 0),
@@ -83,7 +83,7 @@ export default function ProductosAgregarPreciosForm({
         moneda: "USD",
       },
       almacen: {
-        stock_actual: stockActual,
+        stock_actual: 10,
         stock_minimo: 3,
         ubicacion: "A1",
       },
@@ -91,60 +91,46 @@ export default function ProductosAgregarPreciosForm({
       accion: "Ver",
       tipo: "producto",
       fecha_registro: new Date().toISOString(),
-      imagen: p.imagen || "https://dummyimage.com/400x400/4c65bf/db398a",
+      imagen: "https://dummyimage.com/400x400/4c65bf/db398a",
       grade: p.grade ?? "",
       activo: true,
-    };
-  });
+    }));
 
-  try {
-    await ProductService.addMany(nuevos);
-    toast.success("Productos guardados correctamente.");
-    navigate("/products?tab=lista");
-  } catch (err) {
-    console.error(err);
-    toast.error("Error al guardar los productos.");
-  } finally {
-    setIsSaving(false);
-  }
-};
-  const renderDescripcion = (p: any) => {
-  const tipoVisual =
-    categoria === "BobinasCarton"
-      ? "Bobinas de Carton"
-      : categoria ?? "";
-
-  return `${tipoVisual} ${p.tipo ?? ""} ${p.ancho ?? ""}x${p.largo ?? ""} ${
-    p.gramaje ?? ""
-  }g calibre ${p.calibre ?? ""} ${p.unidad?.toLowerCase() ?? ""} ${
-    p.pliegos ?? ""
-  } pliegos`;
-};
+    try {
+      await ProductService.addMany(nuevos);
+      toast.success("Productos guardados correctamente.");
+      navigate("/products?tab=lista");
+    } catch {
+      toast.error("Error al guardar los productos.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <>
       <Table className="text-sm">
         <TableHeader>
           <TableRow>
-            {["Producto", "Peso (kg)", "Precio Min", "Precio Max"].map((t) => (
-              <TableHead key={t}>{t}</TableHead>
-            ))}
+            <TableHead>Producto</TableHead>
+            <TableHead>Peso (kg)</TableHead>
+            <TableHead>Precio Min</TableHead>
+            <TableHead>Precio Max</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {productos.map((p) => (
             <TableRow key={p.tempId}>
-              <TableCell className="font-medium">
-                {renderDescripcion(p)}
-              </TableCell>
+              <TableCell>{categoria}</TableCell>
               {["peso", "precioMin", "precioMax"].map((f) => (
                 <TableCell key={f}>
                   <Input
                     type="number"
                     value={p[f] ?? ""}
-                    onChange={(e) => handleChange(p.tempId, f, e.target.value)}
+                    onChange={(e) =>
+                      handleChange(p.tempId, f, e.target.value)
+                    }
                     className="h-7 text-sm"
-                    min="0"
                   />
                 </TableCell>
               ))}
@@ -154,11 +140,11 @@ export default function ProductosAgregarPreciosForm({
       </Table>
 
       <div className="fixed bottom-6 right-6 flex gap-2">
-        <Button className="cursor-pointer" variant="outline" onClick={() => navigate(-1)}>
+        <Button variant="outline" onClick={() => navigate(-1)}>
           Atrás
         </Button>
-        <Button className="cursor-pointer" onClick={guardar} disabled={isSaving}>
-          {isSaving ? "Guardando..." : "Finalizar"}
+        <Button onClick={guardar} disabled={isSaving}>
+          Finalizar
         </Button>
       </div>
     </>

@@ -18,6 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useProducts } from "@/hooks/useProducts";
 
 interface ProductoRow {
   tempId: number;
@@ -180,6 +181,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
                     <SelectContent>
                       {categorias.map((cat, i) => (
                         <SelectItem key={i} value={cat}>
+                          {cat}
                         </SelectItem>
                       ))}
                     </SelectContent>

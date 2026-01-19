@@ -16,7 +16,7 @@ export default function InventarioLogistica() {
   const { data, isLoading, error } = useInventarioCompleto();
 
   const [filterType, setFilterType] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const items: InventarioItem[] = useMemo(() => {
     if (!data) return [];
@@ -92,21 +92,13 @@ export default function InventarioLogistica() {
 
       <Toolbar
         filterType={filterType}
-        filterStatus={filterStatus}
         tabs={[
           { value: "all", label: `Todos (${items.length})` },
           { value: "import", label: "Importación" },
         ]}
-        selectOptions={[
-          { value: "all", label: "Todos" },
-          { value: "transito", label: "En Tránsito" },
-          { value: "stock", label: "En Stock" },
-          { value: "vendido", label: "Vendido" },
-        ]}
         searchTerm={searchTerm}
         searchPlaceholder="Buscar producto o DUA..."
         onFilterTypeChange={setFilterType}
-        onFilterStatusChange={setFilterStatus}
         onSearchChange={setSearchTerm}
       />
 

@@ -46,7 +46,7 @@ class VentasServiceClass {
 
         // 3. Descontar el stock de los productos vendidos
         const promesasDescuento = productos.map(p =>
-            VentasInventarioRepository.descontarStock(p.producto_id, p.cantidad)
+            VentasInventarioRepository.descontarStockFIFO(p.producto_id, p.cantidad)
         );
         await Promise.all(promesasDescuento);
 

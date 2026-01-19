@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ResourcePage } from "@/components/common/ResourcePage";
 import { Button } from "@/components/ui/button";
 import type { ProductWithRelations } from "@/types/products/product.relations";
+import { PRODUCT_CATEGORIES } from "@/hooks/products/constants/product-categories";
+import { TipoProductoEnum } from "@/types/products/product-type.enum";
+
 import {
   useProducts,
   useProductFilters,
@@ -10,8 +13,8 @@ import {
   ProductEditDialog,
   ProductDeleteDialog,
   ProductTable,
-  Toolbar
-} from "@/hooks/products/index";
+  Toolbar,
+} from "@/hooks/products";
 
 export function ProductsForm() {
   const navigate = useNavigate();
@@ -21,16 +24,40 @@ export function ProductsForm() {
     filteredProducts,
     searchTerm,
     filterType,
-    filterStatus,
+    filterCategoria,
+    filterSubCategoria,
     countProducts,
     countServices,
     setSearchTerm,
     handleTypeChange,
-    handleStatusChange,
+    handleCategoriaChange,
+    handleSubCategoriaChange,
   } = useProductFilters(products);
 
   const { handleDelete, handleSave, handleExportCSV } =
     useProductActions(filteredProducts);
+
+  const categorias = [
+    { value: "all", label: "Todas las categorías" },
+    { value: TipoProductoEnum.MATERIA_PRIMA, label: "Materia Prima" },
+    { value: TipoProductoEnum.PRODUCTO_TERMINADO, label: "Productos Terminados" },
+    { value: TipoProductoEnum.INSUMO_PRODUCCION, label: "Insumos de Producción" },
+    { value: TipoProductoEnum.SUMINISTRO_TECNICO, label: "Suministros Técnicos" },
+  ];
+
+  const subCategorias = useMemo(() => {
+    if (filterCategoria === "all") {
+      return [{ value: "all", label: "Todas las subcategorías" }];
+    }
+
+    return [
+      { value: "all", label: "Todas las subcategorías" },
+      ...PRODUCT_CATEGORIES[filterCategoria].map((c) => ({
+        value: c,
+        label: c,
+      })),
+    ];
+  }, [filterCategoria]);
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -51,21 +78,19 @@ export function ProductsForm() {
       toolbar={
         <Toolbar
           filterType={filterType}
-          filterStatus={filterStatus}
+          categoria={filterCategoria}
+          subCategoria={filterSubCategoria}
+          categorias={categorias}
+          subCategorias={subCategorias}
           searchTerm={searchTerm}
-          onFilterTypeChange={handleTypeChange}
-          onFilterStatusChange={handleStatusChange}
           onSearchChange={setSearchTerm}
+          onFilterTypeChange={handleTypeChange}
+          onCategoriaChange={handleCategoriaChange}
+          onSubCategoriaChange={handleSubCategoriaChange}
           tabs={[
             { value: "all", label: `Todos (${products.length})` },
             { value: "product", label: `Productos (${countProducts})` },
             { value: "service", label: `Servicios (${countServices})` },
-          ]}
-          selectOptions={[
-            { value: "all", label: "Todos" },
-            { value: "Available", label: "Disponible" },
-            { value: "Few", label: "Pocos" },
-            { value: "Unavailable", label: "No disponible" },
           ]}
           onExport={handleExportCSV}
         />
@@ -82,6 +107,7 @@ export function ProductsForm() {
           setDeleteOpen(true);
         }}
       />
+
       {selectedProduct && (
         <ProductEditDialog
           open={editOpen}
@@ -93,6 +119,7 @@ export function ProductsForm() {
           onSave={handleSave}
         />
       )}
+
       {selectedProduct && (
         <ProductDeleteDialog
           open={deleteOpen}
