@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { ProductoBase } from "@/components/common/Producto/productos.EditarAgregar.form";
-import { ProductService } from "@/services/products.service";
-import type { Product } from "@/types/product.types";
+// import { ProductService } from "@/services/products.service";
+// import type { Product } from "@/types/product.types";
 
 interface ProductosEditarPreciosFormProps {
     categoria: string;
@@ -78,50 +78,50 @@ export default function ProductosEditarPreciosForm({
             }
 
             // 2. Mapear los campos planos de ProductoBase a la estructura anidada de Product
-            const productoMapeado: Product = {
-                id: productoId,
-                nombre_producto: String(productoActualizado.nombre_producto ?? ""),
-                categoria: String(productoActualizado.categoria ?? categoria),
-                estado: String(productoActualizado.estado ?? "Activo"),
-                accion: String(productoActualizado.accion ?? "Editar"),
-                fecha_registro: String(productoActualizado.fecha_registro ?? new Date().toISOString()),
-                imagen: String(productoActualizado.imagen ?? ""),
-                tipo: String(productoActualizado.tipo ?? ""),
-                grade: String(productoActualizado.grade ?? ""),
+            // const productoMapeado: Product = {
+            //     id: productoId,
+            //     nombre_producto: String(productoActualizado.nombre_producto ?? ""),
+            //     categoria: String(productoActualizado.categoria ?? categoria),
+            //     estado: String(productoActualizado.estado ?? "Activo"),
+            //     accion: String(productoActualizado.accion ?? "Editar"),
+            //     fecha_registro: String(productoActualizado.fecha_registro ?? new Date().toISOString()),
+            //     imagen: String(productoActualizado.imagen ?? ""),
+            //     tipo: String(productoActualizado.tipo ?? ""),
+            //     grade: String(productoActualizado.grade ?? ""),
 
-                // ⚠️ PROPIEDAD FALTANTE
-                activo: productoActualizado.activo
-                    ? String(productoActualizado.activo).toLowerCase() === "true"
-                    : true,
+            //     // ⚠️ PROPIEDAD FALTANTE
+            //     activo: productoActualizado.activo
+            //         ? String(productoActualizado.activo).toLowerCase() === "true"
+            //         : true,
 
-                material: {
-                    tipo: String(productoActualizado.tipo ?? ""),
-                    dimensiones: {
-                        ancho_cm: Number(productoActualizado.ancho) || 0,
-                        largo_cm: Number(productoActualizado.largo) || 0,
-                    },
-                    gramaje_g: Number(productoActualizado.gramaje) || 0,
-                    calibre: Number(productoActualizado.calibre) || 0,
-                    pliegos_por_paquete: Number(productoActualizado.pliegos) || 0,
-                    unidad_medida: String(productoActualizado.unidad ?? "Unidad"),
-                    peso_kg: Number(productoActualizado.peso),
-                },
+            //     material: {
+            //         tipo: String(productoActualizado.tipo ?? ""),
+            //         dimensiones: {
+            //             ancho_cm: Number(productoActualizado.ancho) || 0,
+            //             largo_cm: Number(productoActualizado.largo) || 0,
+            //         },
+            //         gramaje_g: Number(productoActualizado.gramaje) || 0,
+            //         calibre: Number(productoActualizado.calibre) || 0,
+            //         pliegos_por_paquete: Number(productoActualizado.pliegos) || 0,
+            //         unidad_medida: String(productoActualizado.unidad ?? "Unidad"),
+            //         peso_kg: Number(productoActualizado.peso),
+            //     },
 
-                precio: {
-                    precio_min: Number(productoActualizado.precioMin),
-                    precio_max: Number(productoActualizado.precioMax),
-                    moneda: String(productoActualizado.moneda ?? "PEN"),
-                },
+            //     precio: {
+            //         precio_min: Number(productoActualizado.precioMin),
+            //         precio_max: Number(productoActualizado.precioMax),
+            //         moneda: String(productoActualizado.moneda ?? "PEN"),
+            //     },
 
-                almacen: {
-                    stock_actual: Number(productoActualizado.stock_actual) || 0,
-                    stock_minimo: Number(productoActualizado.stock_minimo) || 0,
-                    ubicacion: String(productoActualizado.ubicacion ?? ""),
-                },
-            };
+            //     almacen: {
+            //         stock_actual: Number(productoActualizado.stock_actual) || 0,
+            //         stock_minimo: Number(productoActualizado.stock_minimo) || 0,
+            //         ubicacion: String(productoActualizado.ubicacion ?? ""),
+            //     },
+            // };
 
-            // 3. Llamar al servicio de actualización
-            await ProductService.update(productoId, productoMapeado);
+            // // 3. Llamar al servicio de actualización
+            // await ProductService.update(productoId, productoMapeado);
 
             toast.success("Producto actualizado correctamente.");
             // Navegar a la lista de productos después de guardar

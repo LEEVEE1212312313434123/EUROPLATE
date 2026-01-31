@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Trash2, Search, Loader2, PackageSearch, Tag, Layers, Box } from "lucide-react";
+import { Trash2, Search, Loader2, PackageSearch, Tag, Layers } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,9 +24,9 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
         "Productos Terminados",
         "Insumos de Producción",
         "Suministros Técnicos",
-        ];
+    ];
 
-        const SUBCATEGORIAS: Record<string, string[]> = {
+    const SUBCATEGORIAS: Record<string, string[]> = {
         "Materia Prima": [
             "Bobinas de cartón",
             "Bobinas de papel",
@@ -80,8 +80,8 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
             if (categoria && p.categoria !== categoria) return false;
             if (subcategoria && p.subcategoria !== subcategoria) return false;
             if (
-            searchTerm.trim() &&
-            !p.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+                searchTerm.trim() &&
+                !p.nombre.toLowerCase().includes(searchTerm.toLowerCase())
             ) return false;
             return true;
         })
@@ -173,13 +173,13 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
                                 setCategoria(value);
                                 setSubcategoria(null);
                             }}
-                            >
+                        >
                             <SelectTrigger className={selectBase}>
                                 <div className="flex items-center gap-2 truncate">
                                     <Tag className="w-3 h-3 text-primary shrink-0" />
                                     <SelectValue
-                                    placeholder="Categoría"
-                                    className="text-primary/60"
+                                        placeholder="Categoría"
+                                        className="text-primary/60"
                                     />
                                 </div>
                             </SelectTrigger>
@@ -187,45 +187,45 @@ export function SeleccionProductos({ productosSeleccionados, setProductosSelecci
                             <SelectContent className="border border-primary/20">
                                 {CATEGORIAS.map(cat => (
                                     <SelectItem
-                                    key={cat}
-                                    value={cat}
-                                    className="text-[11px] font-medium text-slate-700 focus:bg-primary/10 focus:text-primary"
+                                        key={cat}
+                                        value={cat}
+                                        className="text-[11px] font-medium text-slate-700 focus:bg-primary/10 focus:text-primary"
                                     >
-                                    {cat}
+                                        {cat}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1">
-                    <Select
-                        value={subcategoria ?? ""}
-                        onValueChange={setSubcategoria}
-                        disabled={!categoria}
-                    >
-                        <SelectTrigger className={selectBase}>
-                            <div className="flex items-center gap-2 truncate">
-                                <Layers className="w-3 h-3 text-primary shrink-0" />
-                                <SelectValue
-                                placeholder="Subcategoría"
-                                className="text-primary/60"
-                                />
-                            </div>
-                        </SelectTrigger>
+                        <Select
+                            value={subcategoria ?? ""}
+                            onValueChange={setSubcategoria}
+                            disabled={!categoria}
+                        >
+                            <SelectTrigger className={selectBase}>
+                                <div className="flex items-center gap-2 truncate">
+                                    <Layers className="w-3 h-3 text-primary shrink-0" />
+                                    <SelectValue
+                                        placeholder="Subcategoría"
+                                        className="text-primary/60"
+                                    />
+                                </div>
+                            </SelectTrigger>
 
-                        <SelectContent className="border border-primary/20">
-                            {categoria &&
-                                SUBCATEGORIAS[categoria].map(sub => (
-                                <SelectItem
-                                    key={sub}
-                                    value={sub}
-                                    className="text-[11px] font-medium text-slate-700 focus:bg-primary/10 focus:text-primary"
-                                >
-                                    {sub}
-                                </SelectItem>
-                                ))}
-                        </SelectContent>
-                    </Select>
+                            <SelectContent className="border border-primary/20">
+                                {categoria &&
+                                    SUBCATEGORIAS[categoria].map(sub => (
+                                        <SelectItem
+                                            key={sub}
+                                            value={sub}
+                                            className="text-[11px] font-medium text-slate-700 focus:bg-primary/10 focus:text-primary"
+                                        >
+                                            {sub}
+                                        </SelectItem>
+                                    ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </div>

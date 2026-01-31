@@ -27,20 +27,20 @@ interface ProductoBase {
   grade?: string;
 }
 
-type TipoProducto =
-  | "Materia Prima"
-  | "Producto Terminado"
-  | "Insumo de Producción"
-  | "Suministro Técnico";
+// type TipoProducto =
+//   | "Materia Prima"
+//   | "Producto Terminado"
+//   | "Insumo de Producción"
+//   | "Suministro Técnico";
 
 interface Props {
   navigate: any;
   categoria: string; // 👈 producto real
   tipo_producto:
-    | "Materia Prima"
-    | "Producto Terminado"
-    | "Insumo de Producción"
-    | "Suministro Técnico";
+  | "Materia Prima"
+  | "Producto Terminado"
+  | "Insumo de Producción"
+  | "Suministro Técnico";
   onNext: (productos: any[]) => void;
   disabled?: boolean;
 }

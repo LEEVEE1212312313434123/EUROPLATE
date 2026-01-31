@@ -68,17 +68,108 @@ export class VentasRepository {
         const { data, error } = await supabase
             .from("ventas")
             .select(`
-        *,
-        cliente:clientes (*),
-        venta_productos (
-          *,
-          producto:productos (nombre_producto, categoria)
-        )
-      `)
+            *,
+            cliente:clientes (*),
+            venta_productos (
+                *,
+                producto:productos (nombre_producto, categoria)
+            ),
+            documentos_ajuste (
+                id,
+                tipo,
+                serie_correlativo,
+                motivo,
+                monto_ajuste,
+                fecha_emision,
+                documento_ajuste_detalles (
+                    producto_id,
+                    cantidad
+                )
+            )
+        `)
             .eq("id", id)
             .single();
 
         if (error) throw new Error(error.message);
-        return data;
+
+        // ===============================
+        // CALCULO DE AJUSTES
+        // ===============================
+        const devolucionesPrevias: Record<number, number> = {};
+        let totalNotasCredito = 0;
+        let totalNotasDebito = 0;
+
+        data.documentos_ajuste?.forEach((doc: any) => {
+            if (doc.tipo === 'Nota de Crédito') {
+                totalNotasCredito += Number(doc.monto_ajuste || 0);
+
+                doc.documento_ajuste_detalles?.forEach((det: any) => {
+                    devolucionesPrevias[det.producto_id] =
+                        (devolucionesPrevias[det.producto_id] || 0) + det.cantidad;
+                });
+            }
+
+            if (doc.tipo === 'Nota de Débito') {
+                totalNotasDebito += Number(doc.monto_ajuste || 0);
+            }
+        });
+
+        const productosConDisponibilidad = data.venta_productos.map((vp: any) => {
+            const yaDevuelto = devolucionesPrevias[vp.producto_id] || 0;
+
+            return {
+                ...vp,
+                cantidadOriginal: vp.cantidad,
+                cantidadYaDevuelta: yaDevuelto,
+                cantidadDisponible: Math.max(0, vp.cantidad - yaDevuelto)
+            };
+        });
+
+        const totalOriginal = Number(data.total_monto);
+        const totalAjustado = totalOriginal - totalNotasCredito + totalNotasDebito;
+
+        const notasCredito = data.documentos_ajuste
+            ?.filter((d: any) => d.tipo === 'Nota de Crédito')
+            .map((d: any) => ({
+                id: d.id,
+                serie_correlativo: d.serie_correlativo,
+                motivo: d.motivo,
+                monto: Number(d.monto_ajuste),
+                fecha_emision: d.fecha_emision,
+                detalles: d.documento_ajuste_detalles || []
+            })) ?? [];
+
+        const notasDebito = data.documentos_ajuste
+            ?.filter((d: any) => d.tipo === 'Nota de Débito')
+            .map((d: any) => ({
+                id: d.id,
+                serie_correlativo: d.serie_correlativo,
+                motivo: d.motivo,
+                monto: Number(d.monto_ajuste),
+                fecha_emision: d.fecha_emision
+            })) ?? [];
+
+
+        const result = {
+            ...data,
+            venta_productos: productosConDisponibilidad,
+            totalOriginal,
+            totalNotasCredito,
+            totalNotasDebito,
+            totalAjustado,
+
+            // 🔥 LO QUE FALTABA
+            notasCredito,
+            notasDebito
+        };
+
+        console.log("Resultado getById:", result);
+
+        return result;
+
+
+
     }
+
+
 }
