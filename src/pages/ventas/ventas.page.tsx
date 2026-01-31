@@ -8,20 +8,20 @@ import { NotasCreditoForm } from "@/components/common/Forms/Ventas/notascredito-
 export function VentasPage() {
   const { activeTab, setActiveTab } = useQueryTabs("venta");
   return (
-      <div>
-        <div className="inline-flex">
-          <DashboardTabs
-            activeTab={activeTab}
-            onChange={setActiveTab}
-            tabs={TABS_CONFIG.ventas}
-          />
-        </div>
-  
-        <div className="mt-4">
-          {activeTab === "venta" && <VentasForm />}
-          {activeTab === "notacredito" && <NotasCreditoForm />}
-          {activeTab === "notadebito" && <NotasDebitoForm />}
-        </div>
+    <div>
+      <div className="inline-flex">
+        <DashboardTabs
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          tabs={TABS_CONFIG.ventas}
+        />
       </div>
-    );
+
+      <div className="mt-4">
+        {activeTab === "venta" && <VentasForm />}
+        {activeTab === "notacredito" && <NotasCreditoForm />}
+        {activeTab === "notadebito" && <NotasDebitoForm />}
+      </div>
+    </div>
+  );
 }

@@ -1,34 +1,71 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ResourcePage } from "@/components/common/ResourcePage";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-type VentaUI = {
-  id: number;
-  cliente: string;
-  total: string;
-  tipoPago: string;
-  estado: string;
-  fecha: string;
-};
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { NotasDebitoTable } from "./NotasDebitoTable";
+import { NotasDebitoService } from "@/services/ventas/notas_debito.service";
+import { toast } from "sonner";
+import { NotaDetalleModal } from "@/components/common/Forms/Ventas/NotaDetalleModal";
 
 export function NotasDebitoForm() {
   const navigate = useNavigate();
-  const [editOpen, setEditOpen] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [notas, setNotas] = useState<any[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedVenta,] = useState<VentaUI | null>(null);
+  const [selectedNota, setSelectedNota] = useState<any | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+
+  const fetchNotas = async () => {
+    try {
+      setLoading(true);
+      const data = await NotasDebitoService.getNotasDebito();
+      setNotas(data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al cargar las notas de débito");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotas();
+  }, []);
+
+  const handleView = (nota: any) => {
+    setSelectedNota(nota);
+    setViewOpen(true);
+  };
+
+  const handleDeleteClick = (nota: any) => {
+    setSelectedNota(nota);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedNota) return;
+    try {
+      await NotasDebitoService.eliminarNota(selectedNota.id);
+      toast.success("Nota de débito eliminada");
+      setDeleteOpen(false);
+      fetchNotas();
+    } catch (error) {
+      toast.error("No se pudo eliminar el documento");
+    }
+  };
 
   return (
     <ResourcePage
       title="Notas de Débito"
-      subtitle="Administra todas las notas de débito"
-      isLoading={false}
+      subtitle="Gestión de cargos adicionales y penalidades"
+      isLoading={loading}
       error={null}
       headerActions={
-        <Button onClick={() => navigate("/ventas/add")}>
-          + Registrar venta
+        <Button onClick={() => navigate("/ventas")} className="bg-blue-600 hover:bg-blue-700">
+          + Registrar Cargo
         </Button>
       }
       toolbar={
@@ -36,47 +73,52 @@ export function NotasDebitoForm() {
           filterType="all"
           filterStatus="all"
           searchTerm=""
-          onFilterTypeChange={() => {}}
-          onFilterStatusChange={() => {}}
-          onSearchChange={() => {}}
+          onFilterTypeChange={() => { }}
+          onFilterStatusChange={() => { }}
+          onSearchChange={() => { }}
           tabs={[
-            { value: "all", label: "Todas" },
-            { value: "contado", label: "Contado" },
-            { value: "credito", label: "Crédito" },
+            { value: "all", label: "Todos los cargos" },
+            { value: "ND01", label: "Serie ND01" },
           ]}
-          selectOptions={[
-            { value: "all", label: "Todos los estados" },
-            { value: "Paid", label: "Pagadas" },
-            { value: "Pending", label: "Pendientes" },
-            { value: "Canceled", label: "Anuladas" },
-          ]}
-          onExport={() => {}}
+          onExport={() => console.log("Exportando...")}
         />
       }
     >
-    <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Venta</DialogTitle>
-          </DialogHeader>
-          {selectedVenta && (
-            <div className="space-y-2 text-sm">
-              <p><strong>Cliente:</strong> {selectedVenta.cliente}</p>
-              <p><strong>Total:</strong> {selectedVenta.total}</p>
-              <p><strong>Tipo de pago:</strong> {selectedVenta.tipoPago}</p>
-              <p><strong>Estado:</strong> {selectedVenta.estado}</p>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <div className="mt-4">
+        <NotasDebitoTable
+          data={notas}
+          onDelete={handleDeleteClick}
+          onView={handleView}
+        />
+      </div>
+
+      <NotaDetalleModal
+        isOpen={viewOpen}
+        onClose={() => setViewOpen(false)}
+        nota={selectedNota}
+      />
+
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Eliminar Venta</DialogTitle>
+            <DialogTitle>Eliminar Nota de Débito</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            ¿Estás seguro de que deseas eliminar esta venta? Esta acción no se puede deshacer.
-          </p>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              ¿Estás seguro de eliminar el cargo <span className="font-bold text-slate-900">{selectedNota?.serie_correlativo}</span>?
+            </p>
+            <p className="text-xs text-amber-600 mt-2">
+              * El monto total de la venta original se recalculará automáticamente.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Confirmar Eliminación
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </ResourcePage>

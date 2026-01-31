@@ -11,10 +11,15 @@ import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
 import EditarProductosStep1 from "@/pages/productos/productos.edit.page";
 import LogisticaPage from "@/pages/logistica/logistica.page";
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
+import LogisticaAddNacional from "@/pages/logistica/LogisticaAddNational";
+
 import ClientesPage from "@/pages/clientes/clientes.page";
 import EditarLogistica from "@/pages/logistica/logistica.edit";
 import BuildForm from "@/components/common/Forms/Build-form";
 import { VentasPage } from "@/pages/ventas/ventas.page";
+import { NotasCreditoForm } from "@/pages/ventas/NotasCreditoForm";
+import { NotasDebitoForm } from "@/pages/ventas/NotasDebitoForm";
+
 import VentasView from "@/components/common/Ventas/VentasView";
 import { DashboardPage } from "@/pages/dashboard/dashboard.page";
 
@@ -75,6 +80,14 @@ export const dashboardRoutes = [
     parent: "/logistica",
   },
   {
+    title: "Compra Nacional",
+    path: "/logistica/addnational",
+    icon: IconPackage,
+    element: <LogisticaAddNacional />,
+    showInSidebar: false,
+    parent: "/logistica",
+  },
+  {
     title: "Editar Importación",
     path: "/logistica/editimport",
     icon: IconPackage,
@@ -94,6 +107,22 @@ export const dashboardRoutes = [
     path: "/ventas/add",
     icon: IconShoppingCart,
     element: <VentasView />,
+    showInSidebar: false,
+    parent: "/ventas",
+  },
+  {
+    title: "Emitir Nota de Crédito",
+    path: "/ventas/nota-credito/:ventaId", // :ventaId es el parámetro dinámico
+    icon: IconShoppingCart,
+    element: <NotasCreditoForm />,
+    showInSidebar: false,
+    parent: "/ventas",
+  },
+  {
+    title: "Emitir Nota de Débito",
+    path: "/ventas/nota-debito/:ventaId",
+    icon: IconShoppingCart,
+    element: <NotasDebitoForm />,
     showInSidebar: false,
     parent: "/ventas",
   },

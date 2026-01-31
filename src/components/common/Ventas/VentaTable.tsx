@@ -1,16 +1,18 @@
+// @/components/common/Ventas/VentasTable.tsx
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Trash, RefreshCw } from "lucide-react"; // Cambié Edit por Eye para "Ver"
+import { Eye, Trash, RefreshCw, FileText, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { VentasService } from "@/services/ventas/venta.service";
 import { Badge } from "@/components/ui/badge";
 
 interface VentasTableProps {
-  onEdit: (venta: any) => void;
+  onView: (venta: any) => void;
   onDelete: (venta: any) => void;
+  onEmitNote: (venta: any) => void;
 }
 
-export function VentasTable({ onEdit, onDelete }: VentasTableProps) {
+export function VentasTable({ onView, onDelete, onEmitNote }: VentasTableProps) {
   const [ventas, setVentas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +22,7 @@ export function VentasTable({ onEdit, onDelete }: VentasTableProps) {
       const data = await VentasService.getVentasParaTabla();
       setVentas(data);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error cargando ventas:", error);
     } finally {
       setLoading(false);
     }
@@ -44,61 +46,85 @@ export function VentasTable({ onEdit, onDelete }: VentasTableProps) {
             <TableHead className="font-bold w-[80px]">ID</TableHead>
             <TableHead className="font-bold">Fecha</TableHead>
             <TableHead className="font-bold">Cliente</TableHead>
-            <TableHead className="font-bold">Método Pago</TableHead>
+            <TableHead className="font-bold text-center">N. Crédito</TableHead>
+            <TableHead className="font-bold text-center">N. Débito</TableHead>
             <TableHead className="font-bold">Total</TableHead>
             <TableHead className="font-bold">Estado</TableHead>
             <TableHead className="text-right font-bold">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ventas.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                No se encontraron ventas.
+          {ventas.map((venta) => (
+            <TableRow key={venta.id} className="hover:bg-slate-50/50 transition-colors">
+              <TableCell className="font-medium text-primary">#{venta.id}</TableCell>
+              <TableCell className="whitespace-nowrap">{venta.fecha}</TableCell>
+              <TableCell className="font-semibold">{venta.cliente}</TableCell>
+
+              {/* Columna Notas de Crédito */}
+              <TableCell className="text-center">
+                {venta.conteoNotasCredito > 0 ? (
+                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 gap-1">
+                    <ArrowDownCircle className="w-3 h-3" />
+                    {venta.conteoNotasCredito}
+                  </Badge>
+                ) : (
+                  <span className="text-slate-300">-</span>
+                )}
+              </TableCell>
+
+              {/* Columna Notas de Débito */}
+              <TableCell className="text-center">
+                {venta.conteoNotasDebito > 0 ? (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 gap-1">
+                    <ArrowUpCircle className="w-3 h-3" />
+                    {venta.conteoNotasDebito}
+                  </Badge>
+                ) : (
+                  <span className="text-slate-300">-</span>
+                )}
+              </TableCell>
+
+              <TableCell className="font-bold whitespace-nowrap">{venta.total}</TableCell>
+
+              <TableCell>
+                <Badge variant={venta.estado === "Completado" ? "default" : "secondary"}>
+                  {venta.estado}
+                </Badge>
+              </TableCell>
+
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0 text-orange-600 hover:bg-orange-50"
+                    onClick={() => onEmitNote(venta)}
+                    title="Emitir Nota"
+                  >
+                    <FileText className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0"
+                    onClick={() => onView(venta)}
+                    title="Ver detalle"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 p-0 hover:text-red-600"
+                    onClick={() => onDelete(venta)}
+                    title="Eliminar"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
-          ) : (
-            ventas.map((venta) => (
-              <TableRow key={venta.id} className="hover:bg-slate-50/50 transition-colors">
-                <TableCell className="font-medium text-primary">#{venta.id}</TableCell>
-                <TableCell className="whitespace-nowrap">{venta.fecha}</TableCell>
-                <TableCell className="font-semibold">{venta.cliente}</TableCell>
-                <TableCell>
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                    {venta.tipoPago}
-                  </span>
-                </TableCell>
-                <TableCell className="font-bold">{venta.total}</TableCell>
-                <TableCell>
-                  <Badge variant={venta.estado === "Completado" ? "default" : "secondary"}>
-                    {venta.estado}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onEdit(venta)}
-                      title="Ver detalle"
-                    >
-                      <Eye />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onDelete(venta)}
-                      title="Eliminar"
-                    >
-                      <Trash />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>

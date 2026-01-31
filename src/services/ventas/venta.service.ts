@@ -1,6 +1,6 @@
 import { VentasRepository } from "@/repository/ventas/ventas.repository";
 import { VentasInventarioRepository } from "@/repository/ventas/ventas.inventario.repository";
-
+import { AjustesService } from "@/services/ventas/ajustes.service";
 class VentasServiceClass {
     // Obtener el listado histórico de ventas
     async getAll() {
@@ -9,21 +9,31 @@ class VentasServiceClass {
 
     // @/services/ventas/venta.service.ts
     async getVentasParaTabla() {
+        // Obtenemos las ventas
         const ventas = await VentasRepository.getAll();
 
-        return ventas.map(v => ({
-            id: v.id,
-            // v.cliente es el objeto que viene del join anterior
-            cliente: v.cliente?.nombre || "Consumidor Final",
-            total: `${v.moneda} ${Number(v.total_monto).toFixed(2)}`,
-            tipoPago: Array.isArray(v.metodos_pago)
-                ? v.metodos_pago.map((p: any) => p.metodo).join(", ")
-                : "Efectivo",
-            estado: v.estado || "Completado",
-            // Cambiado de fecha_registro a fecha_venta para coincidir con tu SQL
-            fecha: v.fecha_venta
-                ? new Date(v.fecha_venta).toLocaleDateString()
-                : "Sin fecha"
+        // Obtenemos los ajustes para identificar cuáles tienen notas
+        // Nota: En una app de alto tráfico, lo ideal sería hacer un JOIN en el repo, 
+        // pero para este flujo, mapear los ajustes es más sencillo.
+
+        return Promise.all(ventas.map(async (v) => {
+            const ajustes = await AjustesService.obtenerAjustesPorVenta(v.id);
+
+            return {
+                id: v.id,
+                cliente: v.cliente?.nombre || "Consumidor Final",
+                total: `${v.moneda} ${Number(v.total_monto).toFixed(2)}`,
+                tipoPago: Array.isArray(v.metodos_pago)
+                    ? v.metodos_pago.map((p: any) => p.metodo).join(", ")
+                    : "Efectivo",
+                estado: v.estado || "Completado",
+                fecha: v.fecha_venta
+                    ? new Date(v.fecha_venta).toLocaleDateString()
+                    : "Sin fecha",
+                // Flags para la UI
+                conteoNotasCredito: ajustes.filter((a: any) => a.tipo === 'Nota de Crédito').length,
+                conteoNotasDebito: ajustes.filter((a: any) => a.tipo === 'Nota de Débito').length
+            };
         }));
     }
 

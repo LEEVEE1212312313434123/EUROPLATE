@@ -1,4 +1,6 @@
 export * from "@/hooks/Compras/useComprasBase";
+export * from "@/hooks/Compras/useComprasNacionales";
+
 export * from "@/hooks/Compras/useCompraDetail";
 export * from "@/hooks/Compras/useComprasDialogs";
 export * from "@/hooks/Compras/useComprasFilters";

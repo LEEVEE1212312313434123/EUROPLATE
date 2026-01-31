@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, UserPlus, Check, Loader2, ChevronDown, User, Fingerprint } from "lucide-react";
+import { Search, UserPlus, Check, Loader2, ChevronDown, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -57,22 +57,22 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
         onClienteSeleccionado(c);
     };
 
-    const handleCrearCliente = async () => {
-        if (!nuevoCliente.nombre || !nuevoCliente.numero_documento) {
-            return alert("Por favor complete todos los campos");
-        }
-        setLoading(true);
-        try {
-            const clienteCreado = await ClienteService.registrarCliente(nuevoCliente);
-            handleSeleccionar(clienteCreado);
-            setModoRegistro(false);
-            setNuevoCliente({ nombre: "", tipo_documento: "DNI", numero_documento: "" });
-        } catch (error: any) {
-            alert(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const handleCrearCliente = async () => {
+    //     if (!nuevoCliente.nombre || !nuevoCliente.numero_documento) {
+    //         return alert("Por favor complete todos los campos");
+    //     }
+    //     setLoading(true);
+    //     try {
+    //         const clienteCreado = await ClienteService.registrarCliente(nuevoCliente);
+    //         handleSeleccionar(clienteCreado);
+    //         setModoRegistro(false);
+    //         setNuevoCliente({ nombre: "", tipo_documento: "DNI", numero_documento: "" });
+    //     } catch (error: any) {
+    //         alert(error.message);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="space-y-6 w-full bg-transparent p-0">
@@ -170,10 +170,10 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
                             <User
                                 className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors
                                     ${seleccionado
-                                    ? "text-primary"
-                                    : "text-slate-300"
+                                        ? "text-primary"
+                                        : "text-slate-300"
                                     }`}
-                                />
+                            />
                             <Input
                                 readOnly
                                 value={seleccionado?.nombre || ""}
@@ -190,17 +190,17 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
                             <div className="h-10 flex items-center gap-2 px-3 bg-white rounded-md shadow-sm font-mono">
                                 {seleccionado ? (
                                     <>
-                                    <span className="font-bold text-primary uppercase">
-                                        {seleccionado.tipo_documento}:
-                                    </span>
-                                    <span className="text-slate-700">
-                                        {seleccionado.numero_documento}
-                                    </span>
+                                        <span className="font-bold text-primary uppercase">
+                                            {seleccionado.tipo_documento}:
+                                        </span>
+                                        <span className="text-slate-700">
+                                            {seleccionado.numero_documento}
+                                        </span>
                                     </>
                                 ) : (
                                     <span className="text-slate-400">---</span>
                                 )}
-                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -251,10 +251,10 @@ export function ClienteSelector({ onClienteSeleccionado }: Props) {
     );
 }
 
-function Badge({ children, variant, className }: any) {
-    return (
-        <span className={`px-2 py-0.5 rounded-full font-medium ${className} ${variant === 'secondary' ? 'bg-secondary text-secondary-foreground' : ''}`}>
-            {children}
-        </span>
-    );
-}
+// function Badge({ children, variant, className }: any) {
+//     return (
+//         <span className={`px-2 py-0.5 rounded-full font-medium ${className} ${variant === 'secondary' ? 'bg-secondary text-secondary-foreground' : ''}`}>
+//             {children}
+//         </span>
+//     );
+// }

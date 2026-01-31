@@ -1,43 +1,47 @@
+// @/components/common/Forms/Ventas/ventas-form.tsx
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ResourcePage } from "@/components/common/ResourcePage";
 import { Button } from "@/components/ui/button";
 import { Toolbar } from "@/components/common/Toolbar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { VentasTable } from "@/components/common/Ventas/VentaTable"; // 👈 ajusta la ruta si es necesario
+import { VentasTable } from "@/components/common/Ventas/VentaTable";
 import { VentasService } from "@/services/ventas/venta.service";
-import { VentaDetalleModal } from "@/components/common/Ventas/VentaDetalleModal"; // Importaremos este nuevo componente
-
-type VentaUI = {
-  id: number;
-  cliente: string;
-  total: string;
-  tipoPago: string;
-  estado: string;
-  fecha: string;
-};
-
+import { VentaDetalleModal } from "@/components/common/Ventas/VentaDetalleModal";
+import { DebugRepository } from "@/repository/debug/debug.repository";
 export function VentasForm() {
   const navigate = useNavigate();
-  // const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedVenta, setSelectedVenta] = useState<VentaUI | null>(null);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [selectedVentaId, setSelectedVentaId] = useState<number | null>(null);
 
+  // Estados para modales
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [noteSelectorOpen, setNoteSelectorOpen] = useState(false);
+
+  // Estados para datos seleccionados
+  const [selectedVenta, setSelectedVenta] = useState<any>(null);
+
+  const handleDebug = () => {
+    DebugRepository.inspeccionarBaseDeDatos();
+  };
+  // Handlers
   const handleView = (venta: any) => {
-    setSelectedVentaId(venta.id);
+    setSelectedVenta(venta);
     setViewOpen(true);
   };
 
-  // const handleEdit = (venta: any) => {
-  //   setSelectedVenta(venta);
-  //   setEditOpen(true);
-  // };
-
-  const handleDelete = (venta: any) => {
+  const handleDeleteClick = (venta: any) => {
     setSelectedVenta(venta);
     setDeleteOpen(true);
+  };
+
+  const handleNoteClick = (venta: any) => {
+    setSelectedVenta(venta);
+    setNoteSelectorOpen(true);
+  };
+
+  const irANota = (tipo: 'credito' | 'debito') => {
+    setNoteSelectorOpen(false);
+    navigate(`/ventas/nota-${tipo}/${selectedVenta.id}`);
   };
 
   const confirmarEliminacion = async () => {
@@ -45,16 +49,16 @@ export function VentasForm() {
     try {
       await VentasService.eliminarVenta(selectedVenta.id);
       setDeleteOpen(false);
-      window.location.reload(); // Recarga simple para actualizar la lista
+      window.location.reload();
     } catch (error) {
-      alert("Error al eliminar");
+      alert("Error al eliminar la venta");
     }
   };
 
   return (
     <ResourcePage
       title="Ventas"
-      subtitle="Administra todas las ventas"
+      subtitle="Administra todas las ventas y documentos de ajuste"
       isLoading={false}
       error={null}
       headerActions={
@@ -77,38 +81,78 @@ export function VentasForm() {
           ]}
           selectOptions={[
             { value: "all", label: "Todos los estados" },
-            { value: "Paid", label: "Pagadas" },
-            { value: "Pending", label: "Pendientes" },
-            { value: "Canceled", label: "Anuladas" },
+            { value: "Completado", label: "Completadas" },
+            { value: "Pendiente", label: "Pendientes" },
+            { value: "Cancelado", label: "Canceladas" },
           ]}
           onExport={() => { }}
         />
       }
     >
-      <VentasTable onEdit={handleView} onDelete={handleDelete} />
+      {/* Tabla con sus acciones conectadas a los estados del padre */}
+      <VentasTable
+        onView={handleView}
+        onDelete={handleDeleteClick}
+        onEmitNote={handleNoteClick}
+      />
 
+      <Button onClick={handleDebug}>Inspeccionar DB</Button>
+
+      {/* 1. Modal Detalle */}
       <VentaDetalleModal
-        ventaId={selectedVentaId}
+        ventaId={selectedVenta?.id}
         open={viewOpen}
         onOpenChange={setViewOpen}
       />
 
-      {/* Dialogos de Shadcn UI */}
-      {/* <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Editar Venta #{selectedVenta?.id}</DialogTitle></DialogHeader> */}
-      {/* Aquí iría tu formulario de edición */}
-      {/* <p>Funcionalidad de edición para {selectedVenta?.cliente}</p>
-        </DialogContent>
-      </Dialog> */}
 
+      {/* 2. Modal Selector de Notas (Traspasado desde la tabla) */}
+      <Dialog open={noteSelectorOpen} onOpenChange={setNoteSelectorOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Emitir Documento de Ajuste</DialogTitle>
+            <DialogDescription>
+              Seleccione el tipo de nota para la venta <strong>#{selectedVenta?.id}</strong> de {selectedVenta?.cliente}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Button
+              variant="outline"
+              className="h-20 flex flex-col gap-1 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-all"
+              onClick={() => irANota('credito')}
+            >
+              <span className="font-bold text-blue-700">Nota de Crédito</span>
+              <span className="text-xs text-muted-foreground font-normal text-center">
+                Para devoluciones totales/parciales o descuentos.
+              </span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-20 flex flex-col gap-1 border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all"
+              onClick={() => irANota('debito')}
+            >
+              <span className="font-bold text-orange-700">Nota de Débito</span>
+              <span className="text-xs text-muted-foreground font-normal text-center">
+                Para cobros adicionales, intereses o errores de precio.
+              </span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 3. Modal de Eliminación */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>¿Eliminar Venta?</DialogTitle></DialogHeader>
-          <DialogDescription>
-            Información detallada de la transacción y productos asociados.
-          </DialogDescription>
-          <p>¿Estás seguro de eliminar la venta de {selectedVenta?.cliente} por {selectedVenta?.total}?</p>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">¿Eliminar Venta?</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>¿Estás seguro de eliminar la venta <strong>#{selectedVenta?.id}</strong>?</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Esta acción no se puede deshacer y afectará los reportes financieros.
+            </p>
+          </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancelar</Button>
             <Button variant="destructive" onClick={confirmarEliminacion}>Confirmar Eliminar</Button>
