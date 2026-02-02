@@ -34,11 +34,6 @@ export function VentasForm() {
     setDeleteOpen(true);
   };
 
-  const handleNoteClick = (venta: any) => {
-    setSelectedVenta(venta);
-    setNoteSelectorOpen(true);
-  };
-
   const irANota = (tipo: 'credito' | 'debito') => {
     setNoteSelectorOpen(false);
     navigate(`/ventas/nota-${tipo}/${selectedVenta.id}`);
@@ -91,9 +86,10 @@ export function VentasForm() {
     >
       {/* Tabla con sus acciones conectadas a los estados del padre */}
       <VentasTable
+        showView={true}
+        showDelete={true}
         onView={handleView}
         onDelete={handleDeleteClick}
-        onEmitNote={handleNoteClick}
       />
 
       <Button onClick={handleDebug}>Inspeccionar DB</Button>

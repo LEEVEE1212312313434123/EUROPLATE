@@ -65,7 +65,7 @@ export function NotasCreditoForm() {
       isLoading={loading} // CORREGIDO: Ahora usa el estado real
       error={null}
       headerActions={
-        <Button onClick={() => navigate("/ventas")} className="bg-rose-600 hover:bg-rose-700">
+        <Button onClick={() => navigate("/ventas/Seleccionar-tipo-de-nota")} className="bg-rose-600 hover:bg-rose-700">
           + Nueva Nota
         </Button>
       }

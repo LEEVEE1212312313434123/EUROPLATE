@@ -64,7 +64,7 @@ export function NotasDebitoForm() {
       isLoading={loading}
       error={null}
       headerActions={
-        <Button onClick={() => navigate("/ventas")} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={() => navigate("/ventas/Seleccionar-tipo-de-nota")} className="bg-blue-600 hover:bg-blue-700">
           + Registrar Cargo
         </Button>
       }
