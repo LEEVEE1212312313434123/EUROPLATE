@@ -19,7 +19,7 @@ import BuildForm from "@/components/common/Forms/Build-form";
 import { VentasPage } from "@/pages/ventas/ventas.page";
 import { NotasCreditoForm } from "@/pages/ventas/NotasCreditoForm";
 import { NotasDebitoForm } from "@/pages/ventas/NotasDebitoForm";
-
+import { VentasSelectorNota } from "@/components/common/Forms/Ventas/VentasSelectorNota";
 import VentasView from "@/components/common/Ventas/VentasView";
 import { DashboardPage } from "@/pages/dashboard/dashboard.page";
 
@@ -101,6 +101,14 @@ export const dashboardRoutes = [
     icon: IconShoppingCart,
     element: <VentasPage />,
     showInSidebar: true,
+  },
+  {
+    title: "Seleccionar tipo de nota",
+    path: "/ventas/Seleccionar-tipo-de-nota",
+    icon: IconShoppingCart,
+    element: <VentasSelectorNota />,
+    showInSidebar: false,
+    parent: "/ventas",
   },
   {
     title: "Registrar Venta",

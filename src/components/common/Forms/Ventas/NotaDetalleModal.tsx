@@ -1,13 +1,14 @@
+// @/components/common/Forms/Ventas/NotaDetalleModal.tsx
+import { useEffect, useState } from "react";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calendar, FileText, User, Receipt } from "lucide-react";
+import { User, Receipt, Package, Info, Loader2 } from "lucide-react";
+import { VentasService } from "@/services/ventas/venta.service";
 
 interface Props {
     isOpen: boolean;
@@ -16,100 +17,126 @@ interface Props {
 }
 
 export function NotaDetalleModal({ isOpen, onClose, nota }: Props) {
+    const [ventaOriginal, setVentaOriginal] = useState<any>(null);
+    const [loadingVenta, setLoadingVenta] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && nota?.venta_id) {
+            setLoadingVenta(true);
+            VentasService.getVentaById(nota.venta_id)
+                .then(setVentaOriginal)
+                .catch(console.error)
+                .finally(() => setLoadingVenta(false));
+        } else {
+            setVentaOriginal(null);
+        }
+    }, [isOpen, nota?.venta_id]);
+
     if (!nota) return null;
 
-    const isNC = nota.tipo === "Nota de Crédito";
+    const isNC = nota.tipo === "Nota de Crédito" || nota.serie_correlativo?.startsWith('NC');
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-xl">
-                        <Receipt className="w-5 h-5 text-slate-400" />
-                        Detalle de {nota.tipo}
+                    <DialogTitle className="flex items-center gap-2 text-xl border-b pb-2">
+                        <Receipt className={`w-5 h-5 ${isNC ? "text-rose-500" : "text-blue-500"}`} />
+                        Detalle de {nota.tipo || 'Documento'}: {nota.serie_correlativo}
                     </DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-6 py-4">
-                    {/* Cabecera Principal */}
-                    <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border">
-                        <div className="space-y-1">
-                            <p className="text-xs text-slate-500 uppercase font-bold">Serie / Correlativo</p>
-                            <p className="text-lg font-mono font-bold text-slate-900">{nota.serie_correlativo}</p>
+                    {/* SECCIÓN: CABECERA Y CLIENTE */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className={`p-4 rounded-xl border ${isNC ? "bg-rose-50/50 border-rose-100" : "bg-blue-50/50 border-blue-100"}`}>
+                            <p className="text-[10px] uppercase font-black text-slate-500 mb-2">Información del Comprobante</p>
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-600">Fecha Emisión:</span>
+                                    <span className="font-bold">{new Date(nota.fecha_emision).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-600">Monto Ajuste:</span>
+                                    <span className={`font-black ${isNC ? "text-rose-600" : "text-blue-600"}`}>
+                                        {nota.moneda} {nota.monto?.toFixed(2)}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-right space-y-1">
-                            <p className="text-xs text-slate-500 uppercase font-bold">Estado</p>
-                            <Badge className={isNC ? "bg-rose-500" : "bg-blue-500"}>
-                                {nota.tipo}
-                            </Badge>
-                        </div>
-                    </div>
 
-                    {/* Información de la Venta y Cliente */}
-                    <div className="grid grid-cols-2 gap-6 px-1">
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-sm">
-                                <User className="w-4 h-4 text-slate-400" />
-                                <span className="text-slate-600">Cliente:</span>
-                                <span className="font-semibold">{nota.cliente_nombre || "Consumidor Final"}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <Calendar className="w-4 h-4 text-slate-400" />
-                                <span className="text-slate-600">Fecha Emisión:</span>
-                                <span>{new Date(nota.fecha_emision).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-sm">
-                                <FileText className="w-4 h-4 text-slate-400" />
-                                <span className="text-slate-600">Venta Origen:</span>
-                                <span className="font-semibold underline decoration-slate-300">#{nota.venta_id}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm font-bold">
-                                <span className="text-slate-600 uppercase text-xs">Monto Ajustado:</span>
-                                <span className={isNC ? "text-rose-600" : "text-blue-600"}>
-                                    {nota.moneda} {nota.monto.toFixed(2)}
-                                </span>
+                        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
+                            <p className="text-[10px] uppercase font-black text-slate-500 mb-2">Datos del Cliente</p>
+                            <div className="flex items-center gap-3">
+                                <User className="w-8 h-8 text-slate-400 bg-white p-1.5 rounded-full border" />
+                                <div>
+                                    <p className="text-sm font-bold text-slate-900">{nota.cliente_nombre || "Cliente General"}</p>
+                                    <p className="text-[10px] text-slate-500 uppercase">Referencia Venta: #{nota.venta_id}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <Separator />
+                    {/* SECCIÓN: VENTA ORIGINAL (PRODUCTOS) */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between px-1">
+                            <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase">
+                                <Package className="w-4 h-4 text-primary" />
+                                Detalle de Venta Original
+                            </h3>
+                            {loadingVenta && <Loader2 className="w-4 h-4 animate-spin text-slate-400" />}
+                        </div>
 
-                    {/* Motivo */}
-                    <div className="px-1">
-                        <p className="text-xs text-slate-500 uppercase font-bold mb-1">Motivo / Sustento</p>
-                        <p className="text-sm text-slate-700 italic bg-slate-50 p-3 rounded border-l-4 border-slate-300">
-                            "{nota.motivo}"
+                        <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                            <Table>
+                                <TableHeader className="bg-slate-50">
+                                    <TableRow>
+                                        <TableHead className="font-bold text-xs">Producto</TableHead>
+                                        <TableHead className="text-center font-bold text-xs">Cant.</TableHead>
+                                        <TableHead className="text-right font-bold text-xs">Precio Unit.</TableHead>
+                                        <TableHead className="text-right font-bold text-xs">Total</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {ventaOriginal?.venta_productos?.map((item: any) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="text-sm font-medium">{item.producto?.nombre_producto}</TableCell>
+                                            <TableCell className="text-center text-sm">{item.cantidadOriginal}</TableCell>
+                                            <TableCell className="text-right text-sm">
+                                                {nota.moneda} {(item.subtotal / item.cantidadOriginal).toFixed(2)}
+                                            </TableCell>
+                                            <TableCell className="text-right font-bold text-sm">
+                                                {nota.moneda} {item.subtotal.toFixed(2)}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    {/* SECCIÓN DE AJUSTE (EL "AGREGADO ABAJO") */}
+                                    <TableRow className={isNC ? "bg-rose-50/50" : "bg-blue-50/50"}>
+                                        <TableCell colSpan={3} className="text-right font-bold py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs uppercase text-slate-500">Ajuste Aplicado:</span>
+                                                <span className="text-sm">{nota.motivo}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className={`text-right font-black text-lg ${isNC ? "text-rose-600" : "text-blue-600"}`}>
+                                            {isNC ? "-" : "+"}{nota.moneda} {nota.monto?.toFixed(2)}
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
+
+                    {/* MOTIVO DETALLADO */}
+                    <div className="bg-slate-50 p-4 rounded-lg border border-dashed border-slate-300">
+                        <p className="text-[10px] font-black text-slate-400 uppercase mb-1 flex items-center gap-2">
+                            <Info className="w-3 h-3" /> Sustento del Documento
+                        </p>
+                        <p className="text-sm text-slate-700 italic">
+                            "{nota.motivo || 'No se especificó un motivo detallado'}"
                         </p>
                     </div>
-
-                    {/* Detalles de Productos (Solo si hay detalles) */}
-                    {nota.detalles && nota.detalles.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-xs text-slate-500 uppercase font-bold px-1">Items Afectados</p>
-                            <div className="border rounded-md overflow-hidden">
-                                <Table>
-                                    <TableHeader className="bg-slate-50">
-                                        <TableRow>
-                                            <TableHead className="text-xs">Producto</TableHead>
-                                            <TableHead className="text-xs text-center">Cant.</TableHead>
-                                            <TableHead className="text-xs text-right">Precio</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {nota.detalles.map((det: any, i: number) => (
-                                            <TableRow key={i}>
-                                                <TableCell className="text-xs font-medium">Prod. ID: {det.producto_id}</TableCell>
-                                                <TableCell className="text-xs text-center">{det.cantidad}</TableCell>
-                                                <TableCell className="text-xs text-right">{nota.moneda} {det.precio_unitario?.toFixed(2)}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </DialogContent>
         </Dialog>

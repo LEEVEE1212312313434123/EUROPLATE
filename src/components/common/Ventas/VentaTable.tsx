@@ -2,19 +2,33 @@
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Trash, RefreshCw, FileText, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+import { Eye, Trash, RefreshCw, FilePlus2 } from "lucide-react";
 import { VentasService } from "@/services/ventas/venta.service";
 import { Badge } from "@/components/ui/badge";
 
 interface VentasTableProps {
-  onView: (venta: any) => void;
-  onDelete: (venta: any) => void;
-  onEmitNote: (venta: any) => void;
+  onView?: (venta: any) => void;
+  onDelete?: (venta: any) => void;
+  onEmitirNota?: (venta: any) => void;
+  // Nuevos controladores booleanos
+  showView?: boolean;
+  showDelete?: boolean;
+  showEmitirNota?: boolean;
 }
 
-export function VentasTable({ onView, onDelete, onEmitNote }: VentasTableProps) {
+export function VentasTable({
+  onView,
+  onDelete,
+  onEmitirNota,
+  showView = false,      // Por defecto ocultos si no se pasan
+  showDelete = false,
+  showEmitirNota = false
+}: VentasTableProps) {
   const [ventas, setVentas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Determinar si debemos mostrar la columna de acciones basada en los booleanos
+  const mostrarAcciones = showView || showDelete || showEmitirNota;
 
   const cargarDatos = async () => {
     try {
@@ -34,97 +48,91 @@ export function VentasTable({ onView, onDelete, onEmitNote }: VentasTableProps) 
 
   if (loading) return (
     <div className="flex justify-center items-center h-32">
-      <RefreshCw className="animate-spin mr-2" /> Cargando ventas...
+      <RefreshCw className="animate-spin mr-2 text-primary" />
+      <span className="text-sm font-medium text-slate-500">Cargando ventas...</span>
     </div>
   );
 
   return (
-    <div className="rounded-md border bg-white overflow-hidden">
+    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow className="bg-slate-50">
-            <TableHead className="font-bold w-[80px]">ID</TableHead>
-            <TableHead className="font-bold">Fecha</TableHead>
-            <TableHead className="font-bold">Cliente</TableHead>
-            <TableHead className="font-bold text-center">N. Crédito</TableHead>
-            <TableHead className="font-bold text-center">N. Débito</TableHead>
-            <TableHead className="font-bold">Total</TableHead>
-            <TableHead className="font-bold">Estado</TableHead>
-            <TableHead className="text-right font-bold">Acciones</TableHead>
+          <TableRow className="bg-slate-50/50">
+            <TableHead className="font-bold w-[100px] text-slate-600">ID</TableHead>
+            <TableHead className="font-bold text-slate-600">Fecha</TableHead>
+            <TableHead className="font-bold text-slate-600">Cliente</TableHead>
+            <TableHead className="font-bold text-slate-600">Total Bruto</TableHead>
+            <TableHead className="font-bold text-slate-600">Estado</TableHead>
+            {mostrarAcciones && <TableHead className="text-right font-bold text-slate-600">Acciones</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ventas.map((venta) => (
-            <TableRow key={venta.id} className="hover:bg-slate-50/50 transition-colors">
-              <TableCell className="font-medium text-primary">#{venta.id}</TableCell>
-              <TableCell className="whitespace-nowrap">{venta.fecha}</TableCell>
-              <TableCell className="font-semibold">{venta.cliente}</TableCell>
-
-              {/* Columna Notas de Crédito */}
-              <TableCell className="text-center">
-                {venta.conteoNotasCredito > 0 ? (
-                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 gap-1">
-                    <ArrowDownCircle className="w-3 h-3" />
-                    {venta.conteoNotasCredito}
+          {ventas.length > 0 ? (
+            ventas.map((venta) => (
+              <TableRow key={venta.id} className="hover:bg-slate-50/30 transition-colors">
+                <TableCell className="font-bold text-primary">#{venta.id}</TableCell>
+                <TableCell className="whitespace-nowrap text-slate-600">{venta.fecha}</TableCell>
+                <TableCell className="font-semibold text-slate-700">{venta.cliente}</TableCell>
+                <TableCell className="font-black text-slate-900">{venta.total}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={venta.estado === "Completado" ? "default" : "secondary"}
+                    className={venta.estado === "Completado" ? "bg-emerald-500 hover:bg-emerald-600" : ""}
+                  >
+                    {venta.estado}
                   </Badge>
-                ) : (
-                  <span className="text-slate-300">-</span>
+                </TableCell>
+
+                {mostrarAcciones && (
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      {showEmitirNota && onEmitirNota && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                          onClick={() => onEmitirNota(venta)}
+                          title="Emitir Nota"
+                        >
+                          <FilePlus2 className="h-4 w-4" />
+                        </Button>
+                      )}
+
+                      {showView && onView && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => onView(venta)}
+                          title="Ver detalle"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+
+                      {showDelete && onDelete && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-rose-500 hover:bg-rose-50"
+                          onClick={() => onDelete(venta)}
+                          title="Eliminar"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
                 )}
-              </TableCell>
-
-              {/* Columna Notas de Débito */}
-              <TableCell className="text-center">
-                {venta.conteoNotasDebito > 0 ? (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 gap-1">
-                    <ArrowUpCircle className="w-3 h-3" />
-                    {venta.conteoNotasDebito}
-                  </Badge>
-                ) : (
-                  <span className="text-slate-300">-</span>
-                )}
-              </TableCell>
-
-              <TableCell className="font-bold whitespace-nowrap">{venta.total}</TableCell>
-
-              <TableCell>
-                <Badge variant={venta.estado === "Completado" ? "default" : "secondary"}>
-                  {venta.estado}
-                </Badge>
-              </TableCell>
-
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 p-0 text-orange-600 hover:bg-orange-50"
-                    onClick={() => onEmitNote(venta)}
-                    title="Emitir Nota"
-                  >
-                    <FileText className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 p-0"
-                    onClick={() => onView(venta)}
-                    title="Ver detalle"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 p-0 hover:text-red-600"
-                    onClick={() => onDelete(venta)}
-                    title="Eliminar"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={mostrarAcciones ? 6 : 5} className="h-24 text-center text-slate-400 italic">
+                No hay ventas registradas.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
