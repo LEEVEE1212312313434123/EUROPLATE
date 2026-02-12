@@ -24,6 +24,8 @@ import VentasView from "@/components/common/Ventas/VentasView";
 import { DashboardPage } from "@/pages/dashboard/dashboard.page";
 import SettingsPage from "@/pages/settings/settings.page";
 import MonedasPage from "@/pages/settings/monedas.page";
+import TipoCambioPage from "@/pages/settings/tipo-cambio.page";
+
 export const dashboardRoutes = [
   {
     key: "dashboard",
@@ -150,10 +152,19 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
-    title: "Configuración/monedas",
-    path: "/settings/monedas",
+    title: "monedas",
+    path: "/configuracion/monedas",
     icon: IconSettings,
     element: <MonedasPage />,
     showInSidebar: false,
+    parent: "/configuracion",
+  },
+  {
+    title: "tipo cambio",
+    path: "/configuracion/tipo-cambio",
+    icon: IconSettings,
+    element: <TipoCambioPage />,
+    showInSidebar: false,
+    parent: "/configuracion",
   },
 ];

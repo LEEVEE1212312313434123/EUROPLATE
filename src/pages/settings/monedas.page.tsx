@@ -2,78 +2,72 @@
 
 import { useEffect, useState } from "react";
 import { MonedaService } from "@/services/monedas/moneda.service";
-import { TipoCambioService } from "@/services/monedas/tipo-cambio.service";
 import type { MonedaEntity } from "@/types/moneda/entity/moneda.entity";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
 export default function MonedasPage() {
     const [monedas, setMonedas] = useState<MonedaEntity[]>([]);
     const [codigo, setCodigo] = useState("");
     const [nombre, setNombre] = useState("");
     const [simbolo, setSimbolo] = useState("");
-
-    const [fecha, setFecha] = useState("");
-    const [compra, setCompra] = useState("");
-    const [venta, setVenta] = useState("");
-
-    const [origen, setOrigen] = useState("");
-    const [destino, setDestino] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         cargarMonedas();
     }, []);
 
     const cargarMonedas = async () => {
-        const data = await MonedaService.listarMonedas();
-        setMonedas(data);
+        try {
+            const data = await MonedaService.listarMonedas();
+            setMonedas(data);
+        } catch (error: any) {
+            alert(error.message);
+        }
     };
 
     const crearMoneda = async () => {
-        if (!codigo || !nombre) return;
+        if (!codigo || !nombre) {
+            alert("Código y nombre son obligatorios");
+            return;
+        }
 
-        await MonedaService.obtenerPorCodigo(codigo)
-            .then((m) => {
-                if (m) throw new Error("La moneda ya existe");
+        try {
+            setLoading(true);
+
+            await MonedaService.registrarMoneda({
+                codigo: codigo.toUpperCase(),
+                nombre,
+                simbolo,
             });
 
-        await MonedaService["constructor"].prototype.registrarMoneda?.();
+            setCodigo("");
+            setNombre("");
+            setSimbolo("");
 
-        await MonedaService["listarMonedas"]();
-
-        setCodigo("");
-        setNombre("");
-        setSimbolo("");
-
-        cargarMonedas();
-    };
-
-    const registrarTipoCambio = async () => {
-        await TipoCambioService.registrarTipoCambio({
-            codigoOrigen: origen,
-            codigoDestino: destino,
-            fecha,
-            compra: Number(compra),
-            venta: Number(venta),
-        });
-
-        alert("Tipo de cambio registrado correctamente");
-
-        setFecha("");
-        setCompra("");
-        setVenta("");
+            await cargarMonedas();
+        } catch (error: any) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="space-y-6">
+            <h1 className="text-2xl font-bold">Gestión de Monedas</h1>
 
-            <h1 className="text-2xl font-bold">Monedas y Tipo de Cambio</h1>
-
-            {/* CREAR MONEDA */}
+            {/* Crear Moneda */}
             <Card className="p-4 space-y-4">
                 <h2 className="font-semibold">Nueva Moneda</h2>
 
@@ -81,7 +75,7 @@ export default function MonedasPage() {
                     <Input
                         placeholder="Código (USD)"
                         value={codigo}
-                        onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+                        onChange={(e) => setCodigo(e.target.value)}
                     />
                     <Input
                         placeholder="Nombre"
@@ -95,14 +89,12 @@ export default function MonedasPage() {
                     />
                 </div>
 
-                <Button onClick={crearMoneda}>
-                    Crear Moneda
+                <Button onClick={crearMoneda} disabled={loading}>
+                    {loading ? "Guardando..." : "Crear Moneda"}
                 </Button>
             </Card>
 
-            <Separator />
-
-            {/* LISTADO MONEDAS */}
+            {/* Listado */}
             <Card className="p-4">
                 <h2 className="font-semibold mb-4">Monedas Registradas</h2>
 
@@ -124,45 +116,6 @@ export default function MonedasPage() {
                         ))}
                     </TableBody>
                 </Table>
-            </Card>
-
-            <Separator />
-
-            {/* REGISTRAR TIPO CAMBIO */}
-            <Card className="p-4 space-y-4">
-                <h2 className="font-semibold">Registrar Tipo de Cambio</h2>
-
-                <div className="grid grid-cols-5 gap-4">
-                    <Input
-                        placeholder="Origen (USD)"
-                        value={origen}
-                        onChange={(e) => setOrigen(e.target.value.toUpperCase())}
-                    />
-                    <Input
-                        placeholder="Destino (PEN)"
-                        value={destino}
-                        onChange={(e) => setDestino(e.target.value.toUpperCase())}
-                    />
-                    <Input
-                        type="date"
-                        value={fecha}
-                        onChange={(e) => setFecha(e.target.value)}
-                    />
-                    <Input
-                        placeholder="Compra"
-                        value={compra}
-                        onChange={(e) => setCompra(e.target.value)}
-                    />
-                    <Input
-                        placeholder="Venta"
-                        value={venta}
-                        onChange={(e) => setVenta(e.target.value)}
-                    />
-                </div>
-
-                <Button onClick={registrarTipoCambio}>
-                    Guardar Tipo de Cambio
-                </Button>
             </Card>
         </div>
     );
