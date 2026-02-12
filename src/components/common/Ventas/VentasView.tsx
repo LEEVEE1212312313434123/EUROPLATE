@@ -12,7 +12,14 @@ import type { CreateVentaDTO, MetodoPagoDTO } from "@/types/ventas/venta.dto";
 import type { ClienteEntity } from "@/types/clientes/entity/cliente.entity";
 import { toast } from "sonner";
 
+import { useTipoCambio } from "@/hooks/monedas/useTipoCambio";
+
 export default function VentasView() {
+    const { tipoCambio, convertir, loading: loadingTC, error: errorTC } = useTipoCambio({
+        codigoOrigen: "USD",
+        codigoDestino: "PEN",
+    });
+
     const [cliente, setCliente] = useState<ClienteEntity | null>(null);
     const [carrito, setCarrito] = useState<any[]>([]);
     const [tipoComprobante, setTipoComprobante] = useState("Boleta");
@@ -20,19 +27,27 @@ export default function VentasView() {
         { metodo: "Efectivo", nro_operacion: "", monto: 0 },
     ]);
     const [loading, setLoading] = useState(false);
-    const subtotal = carrito.reduce(
-        (acc, item) => acc + item.cantidad * item.precio,
-        0
-    );
+
+    // Subtotal convertido a PEN si el producto es USD
+    const subtotal = carrito.reduce((acc, item) => {
+        let precioFinal = item.precio;
+        if (item.moneda === "USD" && tipoCambio) {
+            precioFinal = convertir(item.precio);
+        }
+        return acc + item.cantidad * precioFinal;
+    }, 0);
+
     const igv = subtotal * 0.18;
     const total = subtotal + igv;
 
-    const montoPagado = pagos.reduce(
-        (acc, p) => acc + (Number(p.monto) || 0),
-        0
-    );
+    const montoPagado = pagos.reduce((acc, p) => acc + (Number(p.monto) || 0), 0);
     const pagoCompleto = Math.abs(total - montoPagado) < 0.1;
+
     const handleConfirmarVenta = async () => {
+        if (!tipoCambio) {
+            toast.error("No existe tipo de cambio para hoy");
+            return;
+        }
         if (!cliente) {
             toast.error("Seleccione un cliente");
             return;
@@ -50,21 +65,29 @@ export default function VentasView() {
             const ventaDTO: CreateVentaDTO = {
                 cliente_id: cliente.id,
                 tipo_comprobante: tipoComprobante as any,
-                moneda: carrito[0]?.moneda || "USD",
+                moneda: "PEN", // La venta siempre será en PEN
                 subtotal,
                 igv,
                 total_monto: total,
                 observaciones: "",
-                productos: carrito.map((p) => ({
-                    producto_id: p.id,
-                    cantidad: p.cantidad,
-                    precio_unitario: p.precio,
-                    subtotal: p.cantidad * p.precio,
-                })),
+                productos: carrito.map((p) => {
+                    let precioFinal = p.precio;
+                    if (p.moneda === "USD" && tipoCambio) {
+                        precioFinal = convertir(p.precio);
+                    }
+                    return {
+                        producto_id: p.id,
+                        cantidad: p.cantidad,
+                        precio_unitario: precioFinal,
+                        subtotal: p.cantidad * precioFinal,
+                    };
+                }),
                 pagos,
             };
+
             await VentasService.registrarVenta(ventaDTO, ventaDTO.productos);
             toast.success("Venta registrada con éxito");
+
             setCliente(null);
             setCarrito([]);
             setPagos([{ metodo: "Efectivo", nro_operacion: "", monto: 0 }]);
@@ -87,7 +110,7 @@ export default function VentasView() {
                         <p className="text-sm text-muted-foreground">
                             Gestiona una venta
                         </p>
-                </div>
+                    </div>
                 </div>
                 <div className="flex gap-3">
                     <Button
@@ -107,7 +130,7 @@ export default function VentasView() {
                     </Button>
                     <Button
                         onClick={handleConfirmarVenta}
-                        disabled={loading || carrito.length === 0 || !pagoCompleto}
+                        disabled={loading || carrito.length === 0 || !pagoCompleto || loadingTC}
                         className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
                     >
                         <Save className="w-4 h-4 mr-2" />
@@ -115,6 +138,13 @@ export default function VentasView() {
                     </Button>
                 </div>
             </header>
+
+            {errorTC && (
+                <div className="text-red-500 text-sm italic">
+                    {errorTC}
+                </div>
+            )}
+
             <Card className="border-none shadow-none">
                 <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2 uppercase text-primary font-bold">
@@ -125,7 +155,9 @@ export default function VentasView() {
                     <ClienteSelector onClienteSeleccionado={setCliente} />
                 </CardContent>
             </Card>
+
             <Separator className="my-3" />
+
             <Card className="border-none shadow-none">
                 <CardContent>
                     <SeleccionProductos
@@ -134,7 +166,9 @@ export default function VentasView() {
                     />
                 </CardContent>
             </Card>
+
             <Separator className="my-3" />
+
             <div className="grid grid-cols-1 lg:grid-cols-13 gap-6">
                 <div className="lg:col-span-6">
                     <Card className="border-none shadow-none">
@@ -186,11 +220,11 @@ export default function VentasView() {
                         <CardContent className="pt-0 space-y-4">
                             <div className="flex justify-between text-primary text-sm">
                                 <span>Subtotal</span>
-                                <span>{subtotal.toFixed(2)}</span>
+                                <span>PEN {subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-primary text-sm">
                                 <span>IGV</span>
-                                <span>{igv.toFixed(2)}</span>
+                                <span>PEN {igv.toFixed(2)}</span>
                             </div>
                             <Separator />
                             <div className="flex justify-between items-end">
@@ -198,7 +232,7 @@ export default function VentasView() {
                                     TOTAL:
                                 </span>
                                 <span className="text-2xl font-black text-primary">
-                                    {total.toFixed(2)}
+                                    PEN {total.toFixed(2)}
                                 </span>
                             </div>
                         </CardContent>

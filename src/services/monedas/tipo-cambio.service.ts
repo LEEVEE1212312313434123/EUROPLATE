@@ -2,6 +2,9 @@ import { TipoCambioRepository } from "@/repository/monedas/tipo-cambio.repositor
 import { MonedaRepository } from "@/repository/monedas/moneda.repository";
 
 class TipoCambioServiceClass {
+
+
+
     async obtenerTipoCambioDelDia(
         codigoOrigen: string,
         codigoDestino: string,
@@ -33,37 +36,28 @@ class TipoCambioServiceClass {
     }
 
     async registrarTipoCambio(data: {
-        codigoOrigen: string;
-        codigoDestino: string;
+        moneda_origen_id: number;
+        moneda_destino_id: number;
         fecha: string;
         compra: number;
         venta: number;
     }) {
-        const monedaOrigen = await MonedaRepository.getByCodigo(data.codigoOrigen);
-        const monedaDestino = await MonedaRepository.getByCodigo(data.codigoDestino);
-
-        if (!monedaOrigen || !monedaDestino) {
-            throw new Error("Moneda inválida");
+        if (data.moneda_origen_id === data.moneda_destino_id) {
+            throw new Error("La moneda origen y destino no pueden ser iguales.");
         }
 
-        const existente = await TipoCambioRepository.getByFecha(
-            monedaOrigen.id,
-            monedaDestino.id,
-            data.fecha
-        );
-
-        if (existente) {
-            throw new Error("Ya existe tipo de cambio para esa fecha");
+        if (data.compra <= 0 || data.venta <= 0) {
+            throw new Error("Compra y venta deben ser mayores a 0.");
         }
 
-        return await TipoCambioRepository.create({
-            moneda_origen_id: monedaOrigen.id,
-            moneda_destino_id: monedaDestino.id,
-            fecha: data.fecha,
-            compra: data.compra,
-            venta: data.venta,
-        });
+        return await TipoCambioRepository.create(data);
     }
+
+    async listarTiposCambio() {
+        return await TipoCambioRepository.getAll();
+    }
+
 }
+
 
 export const TipoCambioService = new TipoCambioServiceClass();

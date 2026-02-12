@@ -20,13 +20,13 @@ export default function SettingsPage() {
             title: "Monedas",
             description: "Configura las divisas permitidas (USD, PEN, etc.)",
             icon: <Coins className="h-8 w-8 text-blue-500" />,
-            path: "/settings/monedas",
+            path: "/configuracion/monedas",
         },
         {
             title: "Tipo de Cambio",
             description: "Actualiza las tasas de conversión diarias",
             icon: <RefreshCcw className="h-8 w-8 text-green-500" />,
-            path: "/settings/tipo-cambio",
+            path: "/configuracion/tipo-cambio",
         },
         {
             title: "Categorías de Productos",
