@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Save, XCircle, Wallet, UserCircle, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,21 +13,8 @@ import type { ClienteEntity } from "@/types/clientes/entity/cliente.entity";
 import { toast } from "sonner";
 
 import { useTipoCambio } from "@/hooks/monedas/useTipoCambio";
-import { MonedaService } from "@/services/monedas/moneda.service";
 
 export default function VentasView() {
-    const [monedaUSD, setMonedaUSD] = useState<string | null>(null);
-    const [monedaPEN, setMonedaPEN] = useState<string>("PEN");
-
-    useEffect(() => {
-        async function cargarMonedas() {
-            const monedas = await MonedaService.listarMonedas();
-            const usd = monedas.find((m) => m.codigo === "USD");
-            setMonedaUSD(usd?.codigo || null);
-        }
-        cargarMonedas();
-    }, []);
-
     const { tipoCambio, convertir, loading: loadingTC, error: errorTC } = useTipoCambio({
         codigoOrigen: "USD",
         codigoDestino: "PEN",

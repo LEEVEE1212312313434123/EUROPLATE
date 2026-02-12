@@ -12,9 +12,14 @@ class MonedaServiceClass {
     async registrarMoneda(data: {
         codigo: string;
         nombre: string;
-        simbolo?: string;
+        simbolo: string;
     }) {
-        return await MonedaRepository.create(data);
+        const payload = {
+            codigo: data.codigo,
+            nombre: data.nombre,
+            simbolo: data.simbolo || "", // valor por defecto si no viene
+        };
+        return await MonedaRepository.create(payload);
     }
 
 }
