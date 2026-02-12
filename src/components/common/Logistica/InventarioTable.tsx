@@ -60,9 +60,10 @@ export function InventarioTable({ items }: InventarioTableProps) {
             <TableHead className="w-[200px]">Descripción del Producto</TableHead>
             <TableHead className="w-[100px]">Stock Actual</TableHead>
             <TableHead className="w-[100px]">Unidad</TableHead>
-            <TableHead className="w-[100px]">Estado</TableHead> {/* ✅ Nueva columna */}
+            <TableHead className="w-[100px]">Estado</TableHead>
           </TableRow>
         </TableHeader>
+
 
         <TableBody>
           {currentItems.length === 0 ? (
@@ -86,13 +87,12 @@ export function InventarioTable({ items }: InventarioTableProps) {
                 <TableCell>{item.unidad}</TableCell>
                 <TableCell>
                   <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      item.estado === "En stock"
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${item.estado === "En stock"
                         ? "bg-green-100 text-green-700"
                         : item.estado === "En tránsito"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
                   >
                     {item.estado}
                   </span>

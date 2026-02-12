@@ -238,6 +238,23 @@ export const ImportacionService = {
             // -------------------------------------------------------------------
             const { productos: _prod, adjuntos: _adj, estados: _est, id, created_at, ...camposValidos } = datos;
 
+            // Normalizar fechas opcionales
+            camposValidos.fecha_llegada =
+                camposValidos.fecha_llegada || null;
+
+            camposValidos.fecha_entrega =
+                camposValidos.fecha_entrega || null;
+
+            camposValidos.fecha_vencimiento =
+                camposValidos.fecha_vencimiento || null;
+
+            for (const p of productos) {
+                if (!p.sucursal_id) {
+                    console.error("Producto sin sucursal asignada");
+                    return false;
+                }
+            }
+
             // -------------------------------------------------------------------
             // 1️⃣ INSERTAR TABLA importaciones
             // -------------------------------------------------------------------

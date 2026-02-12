@@ -39,12 +39,10 @@ export function ProductsForm() {
 
   const categorias = [
     { value: "all", label: "Todas las categorías" },
-    { value: TipoProductoEnum.MATERIA_PRIMA, label: "Materia Prima" },
+    { value: TipoProductoEnum.MERCADERIA, label: "Mercaderia" },
     { value: TipoProductoEnum.PRODUCTO_TERMINADO, label: "Productos Terminados" },
-    { value: TipoProductoEnum.INSUMO_PRODUCCION, label: "Insumos de Producción" },
-    { value: TipoProductoEnum.SUMINISTRO_TECNICO, label: "Suministros Técnicos" },
-  ];
-
+    { value: TipoProductoEnum.INSUMO, label: "Insumo" },
+  ]
   const subCategorias = useMemo(() => {
     if (filterCategoria === "all") {
       return [{ value: "all", label: "Todas las subcategorías" }];

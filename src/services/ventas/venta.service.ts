@@ -21,6 +21,7 @@ class VentasServiceClass {
 
             return {
                 id: v.id,
+                tipo_comprobante: v.tipo_comprobante,
                 cliente: v.cliente?.nombre || "Consumidor Final",
                 total: `${v.moneda} ${Number(v.total_monto).toFixed(2)}`,
                 tipoPago: Array.isArray(v.metodos_pago)

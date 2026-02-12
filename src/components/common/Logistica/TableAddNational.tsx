@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 
 import { useProducts } from "@/hooks/useProducts";
+import SearchableSelect from "@/components/common/Select/SearchableSelect";
 
 /* =======================
    TIPOS
@@ -221,24 +222,21 @@ export default function TableAddNational({
                                 <TableRow key={row.tempId}>
                                     {/* Categoría */}
                                     <TableCell>
-                                        <Select
-                                            value={row.categoria}
-                                            onValueChange={(v) =>
-                                                handleChange(row.tempId, "categoria", v)
+                                        <SearchableSelect
+                                            value={row.categoria || null}
+                                            onChange={(v) =>
+                                                handleChange(row.tempId, "categoria", String(v))
                                             }
-                                        >
-                                            <SelectTrigger className="h-7">
-                                                <SelectValue placeholder="Selecciona..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categorias.map((cat) => (
-                                                    <SelectItem key={cat} value={cat}>
-                                                        {cat}
-                                                    </SelectItem>
-                                                ))}
-                                                <SelectItem value="SERVICIO">Servicio</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                            placeholder="Selecciona categoría..."
+                                            options={[
+                                                ...categorias.map((cat) => ({
+                                                    value: cat,
+                                                    label: cat,
+                                                })),
+                                                { value: "SERVICIO", label: "Servicio" },
+                                            ]}
+                                        />
+
                                     </TableCell>
 
                                     {/* Descripción */}
@@ -247,37 +245,24 @@ export default function TableAddNational({
                                             <Input
                                                 value={row.descripcion}
                                                 onChange={(e) =>
-                                                    handleChange(
-                                                        row.tempId,
-                                                        "descripcion",
-                                                        e.target.value
-                                                    )
+                                                    handleChange(row.tempId, "descripcion", e.target.value)
                                                 }
                                                 className="h-7"
                                                 placeholder="Descripción del servicio"
                                             />
                                         ) : (
-                                            <Select
-                                                value={row.descripcion}
-                                                onValueChange={(v) =>
-                                                    handleChange(row.tempId, "descripcion", v)
+                                            <SearchableSelect
+                                                value={row.descripcion || null}
+                                                onChange={(v) =>
+                                                    handleChange(row.tempId, "descripcion", String(v))
                                                 }
+                                                placeholder="Selecciona producto..."
                                                 disabled={!row.categoria}
-                                            >
-                                                <SelectTrigger className="h-7">
-                                                    <SelectValue placeholder="Selecciona..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {productosCategoria.map((p) => (
-                                                        <SelectItem
-                                                            key={p.id}
-                                                            value={buildProductName(p)}
-                                                        >
-                                                            {buildProductName(p)}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                                options={productosCategoria.map((p) => ({
+                                                    value: buildProductName(p),
+                                                    label: buildProductName(p),
+                                                }))}
+                                            />
                                         )}
                                     </TableCell>
 

@@ -13,68 +13,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-/* =========================
-   TIPOS (se mantiene nombre)
-========================= */
-
-const mapCategoriaToTipoProducto = (categoria: string) => {
-  if (
-    ["Bobinas de cartón", "Bobinas de papel", "Papel en hojas", "Cartón kraft"].includes(categoria)
-  )
-    return "Materia Prima";
-
-  if (
-    ["Cajas para paquetes", "Empaques personalizados", "Cajas corrugadas"].includes(categoria)
-  )
-    return "Producto Terminado";
-
-  if (["Placas de impresión", "Tintas", "Barnices"].includes(categoria))
-    return "Insumo de Producción";
-
-  return "Suministro Técnico";
-};
-
-type TipoProducto =
-  | "Bobinas de cartón"
-  | "Bobinas de papel"
-  | "Papel en hojas"
-  | "Cartón kraft"
-  | "Cajas para paquetes"
-  | "Empaques personalizados"
-  | "Cajas corrugadas"
-  | "Placas de impresión"
-  | "Tintas"
-  | "Barnices"
-  | "Repuestos de máquina"
-  | "Rodillos"
-  | "Lubricantes";
+import { TipoProductoEnum } from "@/types/products/product-type.enum";
+import { PRODUCT_CATEGORIES } from "@/hooks/products/constants/product-categories";
 
 /* =========================
-   PRODUCTOS POR CATEGORÍA
+   ADAPTADOR LEGACY
 ========================= */
 
-const TIPOS_PRODUCTO_POR_CATEGORIA: Record<string, TipoProducto[]> = {
-  MateriaPrima: [
-    "Bobinas de cartón",
-    "Bobinas de papel",
-    "Papel en hojas",
-    "Cartón kraft",
-  ],
-  ProductosTerminados: [
-    "Cajas para paquetes",
-    "Empaques personalizados",
-    "Cajas corrugadas",
-  ],
-  InsumosProduccion: [
-    "Placas de impresión",
-    "Tintas",
-    "Barnices",
-  ],
-  SuministrosTecnicos: [
-    "Repuestos de máquina",
-    "Rodillos",
-    "Lubricantes",
-  ],
+const mapTipoProductoToLegacy = (
+  tipo: TipoProductoEnum
+):
+  | "Materia Prima"
+  | "Producto Terminado"
+  | "Insumo de Producción"
+  | "Suministro Técnico" => {
+  switch (tipo) {
+    case TipoProductoEnum.MERCADERIA:
+      return "Materia Prima";
+    case TipoProductoEnum.PRODUCTO_TERMINADO:
+      return "Producto Terminado";
+    case TipoProductoEnum.INSUMO:
+      return "Insumo de Producción";
+    default:
+      return "Materia Prima";
+  }
 };
 
 /* =========================
@@ -84,17 +46,17 @@ const TIPOS_PRODUCTO_POR_CATEGORIA: Record<string, TipoProducto[]> = {
 export default function AgregarProductosPage() {
   const navigate = useNavigate();
 
-  const [categoria, setCategoria] = useState("");
-  const [tipoProducto, setTipoProducto] = useState<TipoProducto | "">("");
+  // Enum moderno
+  const [tipoProducto, setTipoProducto] =
+    useState<TipoProductoEnum | null>(null);
+
+  // Subcategoría real
+  const [categoria, setCategoria] = useState<string>("");
+
   const [step, setStep] = useState(1);
   const [productos, setProductos] = useState<any[]>([]);
 
-  const habilitado = Boolean(tipoProducto);
-
-  const handleCategoriaChange = (value: string) => {
-    setCategoria(value);
-    setTipoProducto("");
-  };
+  const habilitado = Boolean(tipoProducto && categoria);
 
   const avanzarPaso = (productos: any[]) => {
     setProductos(productos);
@@ -114,56 +76,59 @@ export default function AgregarProductosPage() {
 
           {step === 1 && (
             <div className="mt-6 ml-[36px] flex gap-6">
-              {/* CATEGORÍA */}
+              {/* TIPO DE PRODUCTO */}
               <div>
                 <label className="block text-base font-semibold mb-1">
-                  Categoría
+                  Tipo de producto
                 </label>
+
                 <Select
-                  value={categoria}
-                  onValueChange={handleCategoriaChange}
+                  value={tipoProducto ?? ""}
+                  onValueChange={(v) => {
+                    setTipoProducto(v as TipoProductoEnum);
+                    setCategoria("");
+                  }}
                 >
                   <SelectTrigger className="w-64">
-                    <SelectValue placeholder="Selecciona categoría" />
+                    <SelectValue placeholder="Selecciona tipo" />
                   </SelectTrigger>
+
                   <SelectContent>
-                    <SelectItem value="MateriaPrima">
-                      Materia Prima
+                    <SelectItem value={TipoProductoEnum.MERCADERIA}>
+                      Mercadería
                     </SelectItem>
-                    <SelectItem value="ProductosTerminados">
-                      Productos Terminados
+                    <SelectItem value={TipoProductoEnum.PRODUCTO_TERMINADO}>
+                      Producto terminado
                     </SelectItem>
-                    <SelectItem value="InsumosProduccion">
-                      Insumos de Producción
-                    </SelectItem>
-                    <SelectItem value="SuministrosTecnicos">
-                      Suministros Técnicos
+                    <SelectItem value={TipoProductoEnum.INSUMO}>
+                      Insumo
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* TIPO DE PRODUCTO (producto real) */}
+              {/* CATEGORÍA */}
               <div>
                 <label className="block text-base font-semibold mb-1">
-                  Tipo de Producto
+                  Categoría
                 </label>
+
                 <Select
-                  value={tipoProducto}
-                  onValueChange={(v) =>
-                    setTipoProducto(v as TipoProducto)
-                  }
-                  disabled={!categoria}
+                  value={categoria}
+                  onValueChange={setCategoria}
+                  disabled={!tipoProducto}
                 >
                   <SelectTrigger className="w-64">
-                    <SelectValue placeholder="Selecciona producto" />
+                    <SelectValue placeholder="Selecciona categoría" />
                   </SelectTrigger>
+
                   <SelectContent>
-                    {TIPOS_PRODUCTO_POR_CATEGORIA[categoria]?.map((tipo) => (
-                      <SelectItem key={tipo} value={tipo}>
-                        {tipo}
-                      </SelectItem>
-                    ))}
+                    {tipoProducto &&
+                      PRODUCT_CATEGORIES[tipoProducto].map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -173,10 +138,10 @@ export default function AgregarProductosPage() {
       </div>
 
       <div className="mt-10 ml-[100px] max-w-6xl">
-        {step === 1 && (
+        {step === 1 && tipoProducto && (
           <ProductosAgregarForm
-            categoria={tipoProducto} // 👈 producto real
-            tipo_producto={mapCategoriaToTipoProducto(tipoProducto)}
+            categoria={categoria}
+            tipo_producto={mapTipoProductoToLegacy(tipoProducto)}
             navigate={navigate}
             onNext={avanzarPaso}
             disabled={!habilitado}
@@ -185,8 +150,8 @@ export default function AgregarProductosPage() {
 
         {step === 2 && tipoProducto && (
           <ProductosAgregarPreciosForm
-            categoria={tipoProducto} // 👈 producto real
-           tipo_producto={mapCategoriaToTipoProducto(tipoProducto)}
+            categoria={categoria}
+            tipo_producto={mapTipoProductoToLegacy(tipoProducto)}
             productosPrevios={productos}
             navigate={navigate}
           />

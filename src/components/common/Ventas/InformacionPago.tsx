@@ -67,6 +67,7 @@ export function InformacionPago({
                     <SelectContent>
                         <SelectItem value="Boleta">Boleta</SelectItem>
                         <SelectItem value="Factura">Factura</SelectItem>
+                        <SelectItem value="NotaVenta">Nota de Venta</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

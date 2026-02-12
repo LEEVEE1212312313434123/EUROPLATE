@@ -17,7 +17,7 @@ import {
 import { ResourcePage } from "@/components/common/ResourcePage";
 import { ComprasToggle } from "@/components/common/Logistica/ComprasToggle";
 import { ComprasNacionalesTable } from "@/components/common/Logistica/ComprasNacionalesTable";
-
+import { FinalizarCompraNacionalModal } from "@/components/common//Dialog/FinalizarLogisticaModal";
 import {
   useComprasBase,
   useComprasNacionales,
@@ -34,6 +34,10 @@ type CompraView = "importacion" | "nacional";
 
 export default function ComprasLogistica() {
   const navigate = useNavigate();
+
+  const [entregarId, setEntregarId] = useState<number | null>(null);
+  const [entregarOpen, setEntregarOpen] = useState(false);
+
 
   /* ===============================
      TOGGLE VIEW
@@ -152,8 +156,11 @@ export default function ComprasLogistica() {
                 compras={comprasNacionales}
                 onView={(id) => openDetail(id)}
                 onDelete={openDelete}
-                onEntregar={(id) =>
+                onEntregar={(id) => {
                   console.log("Entregar compra nacional:", id)
+                  setEntregarId(id);
+                  setEntregarOpen(true);
+                }
                 }
               />
 
@@ -176,6 +183,19 @@ export default function ComprasLogistica() {
           </AnimatePresence>
         </div>
 
+
+        <FinalizarCompraNacionalModal
+          open={entregarOpen}
+          compraId={entregarId}
+          onClose={() => {
+            setEntregarOpen(false);
+            setEntregarId(null);
+          }}
+          onSuccess={() => {
+            // 🔄 REFRESCAR DATA
+            window.location.reload(); // (o refetch si tienes hook)
+          }}
+        />
         {/* ===============================
          DELETE / CANCEL DIALOG
       =============================== */}
