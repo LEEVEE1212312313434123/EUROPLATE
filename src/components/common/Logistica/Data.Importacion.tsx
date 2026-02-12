@@ -16,9 +16,9 @@ import type { Importacion } from "@/types/editimportacion.type";
 export interface DataImportacionProps {
   importacion?: Importacion;
   onChange: (data: Partial<Importacion>) => void;
+  errors?: Record<string, string>; // 🔥 NUEVO
 }
 
-// 🔹 Permitir valor libre si no está en la lista
 const ensureOptionExists = (options: string[], value?: string) => {
   if (!value) return options;
   if (!options.includes(value)) return [value, ...options];
@@ -28,6 +28,7 @@ const ensureOptionExists = (options: string[], value?: string) => {
 export default function DataImportacion({
   importacion,
   onChange,
+  errors = {}, // 🔥 NUEVO
 }: DataImportacionProps) {
   const [localData, setLocalData] = useState<Partial<Importacion>>({
     proveedor: "",
@@ -47,14 +48,11 @@ export default function DataImportacion({
     liquidacion_monto: 0,
   });
 
-  // 🔥 CORRECCIÓN: solo se ejecuta cuando el ID cambia (o al cargar por primera vez)
   useEffect(() => {
     if (!importacion) return;
 
     setLocalData((prev) => {
-      // Si ya cargamos esta misma importación → no volver a cargarla
       if (prev.id === importacion.id) return prev;
-
       return {
         ...prev,
         ...importacion,
@@ -65,10 +63,12 @@ export default function DataImportacion({
   const handleChange = (field: keyof Importacion, value: any) => {
     const updatedData = { ...localData, [field]: value };
     setLocalData(updatedData);
-    onChange(updatedData); // 🔥 seguro: ya no re-ejecuta el useEffect
+    onChange(updatedData);
   };
 
-  // 🔹 Opciones estáticas
+  const inputClass = (field: string) =>
+    errors[field] ? "border-red-500" : "";
+
   const proveedorOpts = ["CartoneraXYZ", "Proveedor2"];
   const agenteOpts = ["ebl"];
   const paisesOpts = ["Brazil", "China"];
@@ -79,18 +79,24 @@ export default function DataImportacion({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 mt-6">
+      {/* ===================== IZQUIERDA ===================== */}
       <div>
-        <h3 className="text-base font-semibold mb-4">Datos de la Importación</h3>
+        <h3 className="text-base font-semibold mb-4">
+          Datos de la Importación
+        </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
           {/* Proveedor */}
           <div className="flex flex-col space-y-1">
             <Label className="text-xs">Proveedor</Label>
             <Select
               value={localData.proveedor}
-              onValueChange={(value) => handleChange("proveedor", value)}
+              onValueChange={(value) =>
+                handleChange("proveedor", value)
+              }
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className={`h-8 text-xs ${inputClass("proveedor")}`}>
                 <SelectValue placeholder="Seleccionar proveedor" />
               </SelectTrigger>
               <SelectContent>
@@ -103,6 +109,9 @@ export default function DataImportacion({
                 )}
               </SelectContent>
             </Select>
+            {errors.proveedor && (
+              <p className="text-red-500 text-xs">{errors.proveedor}</p>
+            )}
           </div>
 
           {/* Agente */}
@@ -110,9 +119,11 @@ export default function DataImportacion({
             <Label className="text-xs">Agente de Aduanas</Label>
             <Select
               value={localData.agente_aduanas}
-              onValueChange={(value) => handleChange("agente_aduanas", value)}
+              onValueChange={(value) =>
+                handleChange("agente_aduanas", value)
+              }
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className={`h-8 text-xs ${inputClass("agente_aduanas")}`}>
                 <SelectValue placeholder="Seleccionar agente" />
               </SelectTrigger>
               <SelectContent>
@@ -125,6 +136,9 @@ export default function DataImportacion({
                 )}
               </SelectContent>
             </Select>
+            {errors.agente_aduanas && (
+              <p className="text-red-500 text-xs">{errors.agente_aduanas}</p>
+            )}
           </div>
 
           {/* País origen */}
@@ -132,9 +146,11 @@ export default function DataImportacion({
             <Label className="text-xs">País de Origen</Label>
             <Select
               value={localData.pais_origen}
-              onValueChange={(value) => handleChange("pais_origen", value)}
+              onValueChange={(value) =>
+                handleChange("pais_origen", value)
+              }
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className={`h-8 text-xs ${inputClass("pais_origen")}`}>
                 <SelectValue placeholder="Seleccionar país" />
               </SelectTrigger>
               <SelectContent>
@@ -147,6 +163,9 @@ export default function DataImportacion({
                 )}
               </SelectContent>
             </Select>
+            {errors.pais_origen && (
+              <p className="text-red-500 text-xs">{errors.pais_origen}</p>
+            )}
           </div>
 
           {/* Puerto origen */}
@@ -154,9 +173,11 @@ export default function DataImportacion({
             <Label className="text-xs">Puerto Origen</Label>
             <Select
               value={localData.puerto_origen}
-              onValueChange={(value) => handleChange("puerto_origen", value)}
+              onValueChange={(value) =>
+                handleChange("puerto_origen", value)
+              }
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className={`h-8 text-xs ${inputClass("puerto_origen")}`}>
                 <SelectValue placeholder="Seleccionar puerto" />
               </SelectTrigger>
               <SelectContent>
@@ -170,6 +191,9 @@ export default function DataImportacion({
                 ))}
               </SelectContent>
             </Select>
+            {errors.puerto_origen && (
+              <p className="text-red-500 text-xs">{errors.puerto_origen}</p>
+            )}
           </div>
 
           {/* Puerto destino */}
@@ -177,9 +201,11 @@ export default function DataImportacion({
             <Label className="text-xs">Puerto Destino</Label>
             <Select
               value={localData.puerto_destino}
-              onValueChange={(value) => handleChange("puerto_destino", value)}
+              onValueChange={(value) =>
+                handleChange("puerto_destino", value)
+              }
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className={`h-8 text-xs ${inputClass("puerto_destino")}`}>
                 <SelectValue placeholder="Seleccionar puerto" />
               </SelectTrigger>
               <SelectContent>
@@ -193,6 +219,9 @@ export default function DataImportacion({
                 ))}
               </SelectContent>
             </Select>
+            {errors.puerto_destino && (
+              <p className="text-red-500 text-xs">{errors.puerto_destino}</p>
+            )}
           </div>
 
           {/* Container */}
@@ -201,30 +230,41 @@ export default function DataImportacion({
             <Input
               className="h-8 text-xs"
               value={localData.container}
-              onChange={(e) => handleChange("container", e.target.value)}
+              onChange={(e) =>
+                handleChange("container", e.target.value)
+              }
             />
           </div>
+
         </div>
       </div>
 
       <div className="hidden md:block border-l border-gray-300" />
 
-      {/* Datos económicos */}
+      {/* ===================== DERECHA ===================== */}
       <div>
-        <h3 className="text-base font-semibold mb-4">Datos Económicos</h3>
+        <h3 className="text-base font-semibold mb-4">
+          Datos Económicos
+        </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
           {/* Factura */}
           <div className="flex flex-col space-y-1">
             <Label className="text-xs">Factura</Label>
             <Input
-              className="h-8 text-xs"
+              className={`h-8 text-xs ${inputClass("factura")}`}
               value={localData.factura}
-              onChange={(e) => handleChange("factura", e.target.value)}
+              onChange={(e) =>
+                handleChange("factura", e.target.value)
+              }
             />
+            {errors.factura && (
+              <p className="text-red-500 text-xs">{errors.factura}</p>
+            )}
           </div>
 
-          {/* Fecha */}
+          {/* Fecha vencimiento */}
           <div className="flex flex-col space-y-1">
             <Label className="text-xs">Fecha de Vencimiento</Label>
             <Input
@@ -241,10 +281,15 @@ export default function DataImportacion({
           <div className="flex flex-col space-y-1">
             <Label className="text-xs">Cantidad</Label>
             <Input
-              className="h-8 text-xs"
+              className={`h-8 text-xs ${inputClass("cantidad")}`}
               value={localData.cantidad}
-              onChange={(e) => handleChange("cantidad", Number(e.target.value))}
+              onChange={(e) =>
+                handleChange("cantidad", Number(e.target.value))
+              }
             />
+            {errors.cantidad && (
+              <p className="text-red-500 text-xs">{errors.cantidad}</p>
+            )}
           </div>
 
           {/* Unidad */}
@@ -252,9 +297,11 @@ export default function DataImportacion({
             <Label className="text-xs">Unidad</Label>
             <Select
               value={localData.unidad}
-              onValueChange={(value) => handleChange("unidad", value)}
+              onValueChange={(value) =>
+                handleChange("unidad", value)
+              }
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className={`h-8 text-xs ${inputClass("unidad")}`}>
                 <SelectValue placeholder="Seleccionar unidad" />
               </SelectTrigger>
               <SelectContent>
@@ -267,42 +314,63 @@ export default function DataImportacion({
                 )}
               </SelectContent>
             </Select>
+            {errors.unidad && (
+              <p className="text-red-500 text-xs">{errors.unidad}</p>
+            )}
           </div>
 
           {/* FOB */}
           <div className="flex flex-col space-y-1">
             <Label className="text-xs">Valor FOB (USD)</Label>
             <Input
-              className="h-8 text-xs"
+              className={`h-8 text-xs ${inputClass("valor_fob_usd")}`}
               value={localData.valor_fob_usd}
               onChange={(e) =>
                 handleChange("valor_fob_usd", Number(e.target.value))
               }
             />
+            {errors.valor_fob_usd && (
+              <p className="text-red-500 text-xs">{errors.valor_fob_usd}</p>
+            )}
           </div>
 
-          {/* Marítimo */}
+          {/* Transporte */}
           <div className="flex flex-col space-y-1">
-            <Label className="text-xs">Transporte Marítimo (USD)</Label>
+            <Label className="text-xs">
+              Transporte Marítimo (USD)
+            </Label>
             <Input
-              className="h-8 text-xs"
+              className={`h-8 text-xs ${inputClass("transporte_maritimo_usd")}`}
               value={localData.transporte_maritimo_usd}
               onChange={(e) =>
-                handleChange("transporte_maritimo_usd", Number(e.target.value))
+                handleChange(
+                  "transporte_maritimo_usd",
+                  Number(e.target.value)
+                )
               }
             />
+            {errors.transporte_maritimo_usd && (
+              <p className="text-red-500 text-xs">
+                {errors.transporte_maritimo_usd}
+              </p>
+            )}
           </div>
 
           {/* CFR */}
           <div className="flex flex-col space-y-1">
             <Label className="text-xs">Valor CFR (USD)</Label>
             <Input
-              className="h-8 text-xs"
+              className={`h-8 text-xs ${inputClass("valor_cfr_usd")}`}
               value={localData.valor_cfr_usd}
               onChange={(e) =>
                 handleChange("valor_cfr_usd", Number(e.target.value))
               }
             />
+            {errors.valor_cfr_usd && (
+              <p className="text-red-500 text-xs">
+                {errors.valor_cfr_usd}
+              </p>
+            )}
           </div>
 
           {/* Liquidación */}
@@ -331,14 +399,23 @@ export default function DataImportacion({
               </Select>
 
               <Input
-                className="h-8 text-xs flex-1"
+                className={`h-8 text-xs flex-1 ${inputClass("liquidacion_monto")}`}
                 value={localData.liquidacion_monto}
                 onChange={(e) =>
-                  handleChange("liquidacion_monto", Number(e.target.value))
+                  handleChange(
+                    "liquidacion_monto",
+                    Number(e.target.value)
+                  )
                 }
               />
             </div>
+            {errors.liquidacion_monto && (
+              <p className="text-red-500 text-xs">
+                {errors.liquidacion_monto}
+              </p>
+            )}
           </div>
+
         </div>
       </div>
     </div>

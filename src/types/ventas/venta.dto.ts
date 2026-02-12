@@ -6,7 +6,7 @@ export interface MetodoPagoDTO {
 
 export interface CreateVentaDTO {
     cliente_id: number; // Ahora es ID, no string
-    tipo_comprobante: 'Boleta' | 'Factura' | 'Nota de Crédito' | 'Nota de Débito';
+    tipo_comprobante: 'Boleta' | 'Factura' | 'NotaVenta';
     moneda: string;
     observaciones?: string;
 

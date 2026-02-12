@@ -59,6 +59,7 @@ export function VentasTable({
         <TableHeader>
           <TableRow className="bg-slate-50/50">
             <TableHead className="font-bold w-[100px] text-slate-600">ID</TableHead>
+            <TableHead className="font-bold text-slate-600">Cod-Boleta</TableHead>
             <TableHead className="font-bold text-slate-600">Fecha</TableHead>
             <TableHead className="font-bold text-slate-600">Cliente</TableHead>
             <TableHead className="font-bold text-slate-600">Total Bruto</TableHead>
@@ -71,6 +72,7 @@ export function VentasTable({
             ventas.map((venta) => (
               <TableRow key={venta.id} className="hover:bg-slate-50/30 transition-colors">
                 <TableCell className="font-bold text-primary">#{venta.id}</TableCell>
+                <TableCell><Badge variant="outline">{venta.tipo_comprobante}</Badge></TableCell>
                 <TableCell className="whitespace-nowrap text-slate-600">{venta.fecha}</TableCell>
                 <TableCell className="font-semibold text-slate-700">{venta.cliente}</TableCell>
                 <TableCell className="font-black text-slate-900">{venta.total}</TableCell>
@@ -128,7 +130,7 @@ export function VentasTable({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={mostrarAcciones ? 6 : 5} className="h-24 text-center text-slate-400 italic">
+              <TableCell colSpan={mostrarAcciones ? 7 : 6} className="h-24 text-center text-slate-400 italic">
                 No hay ventas registradas.
               </TableCell>
             </TableRow>

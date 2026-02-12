@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
+import SucursalSelect from "@/components/common/Logistica/SucursalSelect";
+import SearchableSelect from "@/components/common/Select/SearchableSelect";
 
 import {
   Table,
@@ -12,19 +14,14 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 import { useProducts } from "@/hooks/useProducts";
 
 interface ProductoRow {
   tempId: number;
   producto_id?: number | null;
+  sucursal_id?: number | null;
   categoria: string;
   descripcion: string;
   cantidad: string;
@@ -37,11 +34,16 @@ interface ProductoRow {
 interface Props {
   initialData?: ProductoRow[];
   onChange: (rows: ProductoRow[]) => void;
+  triggerValidate?: boolean;
 }
 
 const UNIDADES = ["Paquete", "Pliego", "Unidad", "Docena"];
 
-export default function TableAddImport({ initialData = [], onChange }: Props) {
+export default function TableAddImport({
+  initialData = [],
+  onChange,
+  triggerValidate = false,
+}: Props) {
   const { products, loading } = useProducts();
 
   const [productos, setProductos] = useState<ProductoRow[]>(
@@ -51,6 +53,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
         {
           tempId: 1,
           producto_id: null,
+          sucursal_id: null,
           categoria: "",
           descripcion: "",
           cantidad: "",
@@ -62,27 +65,45 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
       ]
   );
 
-  /* ===============================
-     CATEGORÍAS ÚNICAS
-  =============================== */
-  const categorias = useMemo(() => {
-    return Array.from(new Set(products.map((p) => p.categoria)));
-  }, [products]);
+  const [errors, setErrors] = useState<Record<number, any>>({});
 
-  /* ===============================
-     EMITIR CAMBIOS AL PADRE
-  =============================== */
+  /* ================= VALIDACIÓN ================= */
+  useEffect(() => {
+    if (!triggerValidate) return;
+
+    const newErrors: any = {};
+
+    productos.forEach((row) => {
+      const rowErrors: any = {};
+
+      if (!row.sucursal_id) rowErrors.sucursal_id = "Requerido";
+      if (!row.categoria) rowErrors.categoria = "Requerido";
+      if (!row.descripcion) rowErrors.descripcion = "Requerido";
+      if (!row.cantidad || Number(row.cantidad) <= 0)
+        rowErrors.cantidad = "Mayor a 0";
+      if (!row.unidadMedida) rowErrors.unidadMedida = "Requerido";
+      if (!row.precioUnitario || Number(row.precioUnitario) <= 0)
+        rowErrors.precioUnitario = "Mayor a 0";
+
+      if (Object.keys(rowErrors).length > 0) {
+        newErrors[row.tempId] = rowErrors;
+      }
+    });
+
+    setErrors(newErrors);
+  }, [triggerValidate, productos]);
+
   useEffect(() => {
     onChange(productos);
   }, [productos, onChange]);
 
-  /* ===============================
-     HELPERS
-  =============================== */
+  const categorias = useMemo(() => {
+    return Array.from(new Set(products.map((p) => p.categoria)));
+  }, [products]);
+
   const buildProductName = (p: any) => {
     const parts = [
       p.nombre_producto,
-      p.material?.tipo,
       p.material?.dimensiones?.ancho_cm
         ? `${p.material.dimensiones.ancho_cm}cm`
         : "",
@@ -98,7 +119,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
   const handleChange = (
     tempId: number,
     field: keyof ProductoRow,
-    value: string
+    value: any
   ) => {
     setProductos((prev) =>
       prev.map((p) => {
@@ -119,7 +140,6 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
           const prodSel = products.find(
             (prod) => buildProductName(prod) === value
           );
-
           if (prodSel) {
             updated.producto_id = prodSel.id;
             updated.unidadMedida =
@@ -145,10 +165,9 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
     setProductos((prev) => [
       ...prev,
       {
-        tempId: prev.length
-          ? prev[prev.length - 1].tempId + 1
-          : 1,
+        tempId: prev.length ? prev[prev.length - 1].tempId + 1 : 1,
         producto_id: null,
+        sucursal_id: null,
         categoria: "",
         descripcion: "",
         cantidad: "",
@@ -164,15 +183,11 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
     (p) => p.categoria === "BobinasCarton"
   );
 
-  /* ===============================
-     RENDER
-  =============================== */
+  const inputError = (tempId: number, field: string) =>
+    errors[tempId]?.[field] ? "border-red-500" : "";
+
   if (loading) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Cargando productos...
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">Cargando productos...</p>;
   }
 
   return (
@@ -182,28 +197,17 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
       <Table className="text-sm">
         <TableHeader>
           <TableRow className="h-8">
-            <TableHead className="text-center w-[160px]">
-              Categoría
-            </TableHead>
-
+            <TableHead className="text-center w-[140px]">Sucursal</TableHead>
+            <TableHead className="text-center w-[160px]">Categoría</TableHead>
             {mostrarColumnaBobina && (
               <TableHead className="text-center w-[120px]">
                 ID Bobina
               </TableHead>
             )}
-
-            <TableHead className="text-center w-[250px]">
-              Producto
-            </TableHead>
-            <TableHead className="text-center w-[100px]">
-              Cantidad
-            </TableHead>
-            <TableHead className="text-center w-[100px]">
-              Unidad
-            </TableHead>
-            <TableHead className="text-center w-[120px]">
-              Costo
-            </TableHead>
+            <TableHead className="text-center w-[250px]">Producto</TableHead>
+            <TableHead className="text-center w-[100px]">Cantidad</TableHead>
+            <TableHead className="text-center w-[100px]">Unidad</TableHead>
+            <TableHead className="text-center w-[120px]">Costo</TableHead>
             <TableHead className="text-center w-[120px]">
               Importe (USD)
             </TableHead>
@@ -218,28 +222,31 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
 
             return (
               <TableRow key={producto.tempId} className="h-8">
-                {/* Categoría */}
                 <TableCell>
-                  <Select
-                    value={producto.categoria}
-                    onValueChange={(v) =>
-                      handleChange(producto.tempId, "categoria", v)
+                  <SucursalSelect
+                    value={producto.sucursal_id ?? null}
+                    onChange={(id) =>
+                      handleChange(producto.tempId, "sucursal_id", id)
                     }
-                  >
-                    <SelectTrigger className="h-7">
-                      <SelectValue placeholder="Selecciona..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categorias.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </TableCell>
 
-                {/* ID Bobina */}
+                {/* ✅ CATEGORIA SEARCHABLE */}
+                <TableCell>
+                  <SearchableSelect
+                    value={producto.categoria}
+                    placeholder="Buscar categoría..."
+                    options={categorias.map((cat) => ({
+                      label: cat,
+                      value: cat,
+                    }))}
+                    onChange={(v) =>
+                      handleChange(producto.tempId, "categoria", v)
+                    }
+                    className={inputError(producto.tempId, "categoria")}
+                  />
+                </TableCell>
+
                 {mostrarColumnaBobina && (
                   <TableCell>
                     {producto.categoria === "BobinasCarton" ? (
@@ -247,56 +254,38 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
                         className="h-7"
                         value={producto.idBobina}
                         onChange={(e) =>
-                          handleChange(
-                            producto.tempId,
-                            "idBobina",
-                            e.target.value
-                          )
+                          handleChange(producto.tempId, "idBobina", e.target.value)
                         }
                       />
                     ) : (
-                      <span className="text-muted-foreground text-xs">
-                        —
-                      </span>
+                      <span className="text-muted-foreground text-xs">—</span>
                     )}
                   </TableCell>
                 )}
 
-                {/* Descripción */}
+                {/* ✅ PRODUCTO SEARCHABLE */}
                 <TableCell>
-                  <Select
+                  <SearchableSelect
                     value={producto.descripcion}
-                    onValueChange={(v) =>
+                    placeholder="Buscar producto..."
+                    disabled={!producto.categoria}
+                    options={productosFiltrados.map((p) => ({
+                      label: buildProductName(p),
+                      value: buildProductName(p),
+                    }))}
+                    onChange={(v) =>
                       handleChange(producto.tempId, "descripcion", v)
                     }
-                    disabled={!producto.categoria}
-                  >
-                    <SelectTrigger className="h-7">
-                      <SelectValue placeholder="Selecciona..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {productosFiltrados.map((p) => {
-                        const name = buildProductName(p);
-                        return (
-                          <SelectItem key={p.id} value={name}>
-                            {name}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                    className={inputError(producto.tempId, "descripcion")}
+                  />
                 </TableCell>
 
                 <TableCell>
                   <Input
-                    className="h-7"
+                    className={`h-7 ${inputError(producto.tempId, "cantidad")}`}
                     value={producto.cantidad}
                     onChange={(e) =>
-                      handleChange(
-                        producto.tempId,
-                        "cantidad",
-                        e.target.value
-                      )
+                      handleChange(producto.tempId, "cantidad", e.target.value)
                     }
                   />
                 </TableCell>
@@ -305,14 +294,10 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
                   <Select
                     value={producto.unidadMedida}
                     onValueChange={(v) =>
-                      handleChange(
-                        producto.tempId,
-                        "unidadMedida",
-                        v
-                      )
+                      handleChange(producto.tempId, "unidadMedida", v)
                     }
                   >
-                    <SelectTrigger className="h-7">
+                    <SelectTrigger className={`h-7 ${inputError(producto.tempId, "unidadMedida")}`}>
                       <SelectValue placeholder="Unidad" />
                     </SelectTrigger>
                     <SelectContent>
@@ -327,14 +312,10 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
 
                 <TableCell>
                   <Input
-                    className="h-7"
+                    className={`h-7 ${inputError(producto.tempId, "precioUnitario")}`}
                     value={producto.precioUnitario}
                     onChange={(e) =>
-                      handleChange(
-                        producto.tempId,
-                        "precioUnitario",
-                        e.target.value
-                      )
+                      handleChange(producto.tempId, "precioUnitario", e.target.value)
                     }
                   />
                 </TableCell>
@@ -351,7 +332,7 @@ export default function TableAddImport({ initialData = [], onChange }: Props) {
           })}
 
           <TableRow>
-            <TableCell colSpan={7}>
+            <TableCell colSpan={8}>
               <Button
                 variant="ghost"
                 onClick={agregarFila}

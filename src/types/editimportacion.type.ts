@@ -16,6 +16,7 @@ export interface ImportacionProducto {
     id?: number;
     importacion_id?: number;
     producto_id?: number | null;
+    sucursal_id?: number | null;
     nombre_producto?: string;
 
     categoria: string;

@@ -22,7 +22,8 @@ import { NotasDebitoForm } from "@/pages/ventas/NotasDebitoForm";
 import { VentasSelectorNota } from "@/components/common/Forms/Ventas/VentasSelectorNota";
 import VentasView from "@/components/common/Ventas/VentasView";
 import { DashboardPage } from "@/pages/dashboard/dashboard.page";
-
+import SettingsPage from "@/pages/settings/settings.page";
+import MonedasPage from "@/pages/settings/monedas.page";
 export const dashboardRoutes = [
   {
     key: "dashboard",
@@ -135,10 +136,24 @@ export const dashboardRoutes = [
     parent: "/ventas",
   },
   {
+    title: "no_Configuración",
+    path: "/no_configuracion",
+    icon: IconSettings,
+    element: <BuildForm />,
+    showInSidebar: false,
+  },
+  {
     title: "Configuración",
     path: "/configuracion",
     icon: IconSettings,
-    element: <BuildForm />,
+    element: <SettingsPage />,
+    showInSidebar: true,
+  },
+  {
+    title: "Configuración/monedas",
+    path: "/settings/monedas",
+    icon: IconSettings,
+    element: <MonedasPage />,
     showInSidebar: false,
   },
 ];
