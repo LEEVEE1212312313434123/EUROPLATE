@@ -1,134 +1,46 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
-import { ResourcePage } from "@/components/common/ResourcePage";
-import { Button } from "@/components/ui/button";
-import type { ProductWithRelations } from "@/types/products/product.relations";
-import { PRODUCT_CATEGORIES } from "@/hooks/products/constants/product-categories";
-import { TipoProductoEnum } from "@/types/products/product-type.enum";
+"use client"
 
-import {
-  useProducts,
-  useProductFilters,
-  useProductActions,
-  ProductEditDialog,
-  ProductDeleteDialog,
-  ProductTable,
-  Toolbar,
-} from "@/hooks/products";
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { Package, PlusCircle } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+
+// Importación de tu tabla
+import TablaVariantesProductos from "@/pages/general/share/tablas/TablaVariantesProductos"
 
 export function ProductsForm() {
   const navigate = useNavigate();
-  const { data: products = [], isLoading, error } = useProducts();
-
-  const {
-    filteredProducts,
-    searchTerm,
-    filterType,
-    filterCategoria,
-    filterSubCategoria,
-    countProducts,
-    countServices,
-    setSearchTerm,
-    handleTypeChange,
-    handleCategoriaChange,
-    handleSubCategoriaChange,
-  } = useProductFilters(products);
-
-  const { handleDelete, handleSave, handleExportCSV } =
-    useProductActions(filteredProducts);
-
-  const categorias = [
-    { value: "all", label: "Todas las categorías" },
-    { value: TipoProductoEnum.MERCADERIA, label: "Mercaderia" },
-    { value: TipoProductoEnum.PRODUCTO_TERMINADO, label: "Productos Terminados" },
-    { value: TipoProductoEnum.INSUMO, label: "Insumo" },
-  ]
-  const subCategorias = useMemo(() => {
-    if (filterCategoria === "all") {
-      return [{ value: "all", label: "Todas las subcategorías" }];
-    }
-
-    return [
-      { value: "all", label: "Todas las subcategorías" },
-      ...PRODUCT_CATEGORIES[filterCategoria].map((c) => ({
-        value: c,
-        label: c,
-      })),
-    ];
-  }, [filterCategoria]);
-
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] =
-    useState<ProductWithRelations | null>(null);
 
   return (
-    <ResourcePage
-      title="Productos"
-      subtitle="Administra todos los productos"
-      isLoading={isLoading}
-      error={error ? String(error) : null}
-      headerActions={
-        <Button onClick={() => navigate("/products/addProducts")}>
-          + Agregar producto
+    <div className="space-y-6">
+      {/* ENCABEZADO */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <Package className="h-6 w-6 text-emerald-600" />
+            Catálogo de Productos
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Gestiona el inventario, variantes y control de stock de tus artículos.
+          </p>
+        </div>
+
+        {/* BOTÓN A LA DERECHA */}
+        <Button
+          onClick={() => navigate("/products/addProducts")}
+          className="bg-emerald-600 hover:bg-emerald-700 shadow-sm gap-2 w-full md:w-auto text-white"
+        >
+          <PlusCircle className="h-4 w-4" />
+          Nuevo Producto
         </Button>
-      }
-      toolbar={
-        <Toolbar
-          filterType={filterType}
-          categoria={filterCategoria}
-          subCategoria={filterSubCategoria}
-          categorias={categorias}
-          subCategorias={subCategorias}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onFilterTypeChange={handleTypeChange}
-          onCategoriaChange={handleCategoriaChange}
-          onSubCategoriaChange={handleSubCategoriaChange}
-          tabs={[
-            { value: "all", label: `Todos (${products.length})` },
-            { value: "product", label: `Productos (${countProducts})` },
-            { value: "service", label: `Servicios (${countServices})` },
-          ]}
-          onExport={handleExportCSV}
-        />
-      }
-    >
-      <ProductTable
-        products={filteredProducts}
-        onEdit={(product) => {
-          setSelectedProduct(product);
-          setEditOpen(true);
-        }}
-        onDelete={(product) => {
-          setSelectedProduct(product);
-          setDeleteOpen(true);
-        }}
-      />
+      </div>
 
-      {selectedProduct && (
-        <ProductEditDialog
-          open={editOpen}
-          product={selectedProduct}
-          onClose={() => {
-            setEditOpen(false);
-            setSelectedProduct(null);
-          }}
-          onSave={handleSave}
-        />
-      )}
+      <Separator />
 
-      {selectedProduct && (
-        <ProductDeleteDialog
-          open={deleteOpen}
-          product={selectedProduct}
-          onOpenChange={(open) => {
-            setDeleteOpen(open);
-            if (!open) setSelectedProduct(null);
-          }}
-          onDeleteConfirm={() => handleDelete(selectedProduct.id)}
-        />
-      )}
-    </ResourcePage>
+      {/* CONTENEDOR DE LA TABLA */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100">
+        <TablaVariantesProductos />
+      </div>
+    </div>
   );
 }

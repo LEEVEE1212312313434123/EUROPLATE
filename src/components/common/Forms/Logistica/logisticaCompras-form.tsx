@@ -1,239 +1,98 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+"use client"
 
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction
-} from "@/components/ui/alert-dialog";
+  Globe,
+  Package2,
+  PlusCircle,
+  ArrowLeft
+} from "lucide-react"
 
-import { ResourcePage } from "@/components/common/ResourcePage";
-import { ComprasToggle } from "@/components/common/Logistica/ComprasToggle";
-import { ComprasNacionalesTable } from "@/components/common/Logistica/ComprasNacionalesTable";
-import { FinalizarCompraNacionalModal } from "@/components/common//Dialog/FinalizarLogisticaModal";
-import {
-  useComprasBase,
-  useComprasNacionales,
-  useCompraDetail,
-  useComprasDialogs,
-  useComprasFilters,
-  useComprasActions,
-  ComprasTable,
-  CompraDetail,
-  Toolbar
-} from "@/hooks/Compras";
-
-type CompraView = "importacion" | "nacional";
+// Importación de tus tablas
+import TablaComprasImportacion from "@/pages/general/share/tablas/TablaComprasImportacion"
+import TablaComprasNacionales from "@/pages/general/share/tablas/TablaComprasNacionales"
 
 export default function ComprasLogistica() {
   const navigate = useNavigate();
 
-  const [entregarId, setEntregarId] = useState<number | null>(null);
-  const [entregarOpen, setEntregarOpen] = useState(false);
-
-
-  /* ===============================
-     TOGGLE VIEW
-  =============================== */
-  const [view, setView] = useState<CompraView>("importacion");
-
-  /* ===============================
-     DATA
-  =============================== */
-  const { data: comprasImport = [], isLoading, error } = useComprasBase();
-  const { data: comprasNacionales = [] } = useComprasNacionales();
-
-  /* ===============================
-     DIALOGS / DETAIL
-  =============================== */
-  const {
-    selectedId,
-    deleteTarget,
-    confirmOpen,
-    openDetail,
-    closeDetail,
-    openDelete,
-    closeDelete,
-    setConfirmOpen
-  } = useComprasDialogs();
-
-  const { data: compraDetail } = useCompraDetail(selectedId ?? undefined);
-
-  /* ===============================
-     FILTERS (solo importaciones)
-  =============================== */
-  const {
-    filteredCompras,
-    searchTerm,
-    filterType,
-    filterStatus,
-    setSearchTerm,
-    setFilterType,
-    setFilterStatus
-  } = useComprasFilters(comprasImport);
-
-  const { handleCancel } = useComprasActions();
-
   return (
-    <>
-      <ComprasToggle value={view} onChange={setView} />
-      <ResourcePage
-        title="Compras"
-        subtitle="Administra tus importaciones y compras nacionales"
-        isLoading={isLoading}
-        error={error ? String(error) : null}
+    <div className="p-6 space-y-6">
 
-        /* ===============================
-           HEADER
-        =============================== */
-        headerActions={
-          <div className="flex flex-col gap-3">
-            <Button onClick={() => navigate("/logistica/addimport")}>
-              + Registrar Importación
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => navigate("/logistica/addnational")}
-            >
-              + Compra Nacional
-            </Button>
-          </div>
-        }
-
-        /* ===============================
-           TOOLBAR (solo importaciones)
-        =============================== */
-        toolbar={
-          view === "importacion" ? (
-            <Toolbar
-              filterType={filterType}
-              filterStatus={filterStatus}
-              searchTerm={searchTerm}
-              onFilterTypeChange={(v) =>
-                setFilterType(v as "all" | "import" | "nacional")
-              }
-              onFilterStatusChange={setFilterStatus}
-              onSearchChange={setSearchTerm}
-              tabs={[
-                { value: "all", label: `Todos (${comprasImport.length})` },
-                { value: "import", label: "Importación" }
-              ]}
-              selectOptions={[
-                { value: "all", label: "Todos" },
-                { value: "Registrado", label: "Registrado" },
-                { value: "En Transito", label: "En Transito" },
-                { value: "Entregado", label: "Entregado" },
-                { value: "Cancelado", label: "Cancelado" }
-              ]}
-            />
-          ) : null
-        }
-      >
-        {/* ===============================
-         TABLE + DETAIL
-      =============================== */}
-        <div className="relative w-full h-full flex">
-          <div
-            className={`flex-1 transition-all duration-300 ${compraDetail ? "mr-[320px]" : ""
-              }`}
-          >
-            {view === "importacion" ? (
-              <ComprasTable
-                compras={filteredCompras}
-                onDelete={openDelete}
-                onView={(c) => openDetail(c.id)}
-              />
-            ) : (
-              <ComprasNacionalesTable
-                compras={comprasNacionales}
-                onView={(id) => openDetail(id)}
-                onDelete={openDelete}
-                onEntregar={(id) => {
-                  console.log("Entregar compra nacional:", id)
-                  setEntregarId(id);
-                  setEntregarOpen(true);
-                }
-                }
-              />
-
-            )}
-          </div>
-
-          <AnimatePresence>
-            {compraDetail && (
-              <motion.div
-                key="compra-detail"
-                initial={{ x: 320, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 320, opacity: 0 }}
-                transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="absolute top-0 right-0 h-full w-[320px] bg-white"
-              >
-                <CompraDetail compra={compraDetail} onClose={closeDetail} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+      {/* CABECERA CON BOTÓN A LA DERECHA */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Gestión de Logística
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Administra el ingreso de mercancía nacional e internacional.
+          </p>
         </div>
 
+        {/* BOTÓN DE ACCIÓN SUPERIOR DERECHA */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="default"
+            onClick={() => navigate("/logistica/addbuy")}
+            className="gap-2 shadow-sm bg-blue-600 hover:bg-blue-700"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Nueva Compra
+          </Button>
+        </div>
+      </div>
 
-        <FinalizarCompraNacionalModal
-          open={entregarOpen}
-          compraId={entregarId}
-          onClose={() => {
-            setEntregarOpen(false);
-            setEntregarId(null);
-          }}
-          onSuccess={() => {
-            // 🔄 REFRESCAR DATA
-            window.location.reload(); // (o refetch si tienes hook)
-          }}
-        />
-        {/* ===============================
-         DELETE / CANCEL DIALOG
-      =============================== */}
-        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-primary font-semibold">
-                ¿Eliminar compra?
-              </AlertDialogTitle>
+      <Tabs defaultValue="importacion" className="w-full">
+        {/* BOTONES DE INTERCAMBIO DE VISTA */}
+        <div className="flex items-center justify-between mb-6">
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="importacion" className="flex items-center gap-2">
+              <Globe className="h-4 w-4" />
+              Importación
+            </TabsTrigger>
+            <TabsTrigger value="nacional" className="flex items-center gap-2">
+              <Package2 className="h-4 w-4" />
+              Nacional
+            </TabsTrigger>
+          </TabsList>
 
-              <AlertDialogDescription className="text-muted-foreground font-normal">
-                {deleteTarget?.estado === "Entregado"
-                  ? "Esta compra ya fue ENTREGADA y no puede eliminarse."
-                  : "Esta acción marcará la compra como CANCELADA. ¿Deseas continuar?"}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
+          {/* Opcional: Podrías poner contadores o filtros rápidos aquí */}
+        </div>
 
-            <AlertDialogFooter>
-              {deleteTarget?.estado === "Entregado" ? (
-                <AlertDialogAction onClick={closeDelete}>
-                  Aceptar
-                </AlertDialogAction>
-              ) : (
-                <>
-                  <AlertDialogCancel onClick={closeDelete}>
-                    Cancelar
-                  </AlertDialogCancel>
+        {/* CONTENIDO DE TABLA IMPORTACIÓN */}
+        <TabsContent value="importacion" className="mt-0 outline-none">
+          <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="p-0">
+              <TablaComprasImportacion />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                  <AlertDialogAction
-                    onClick={() => handleCancel(deleteTarget!, closeDelete)}
-                  >
-                    Eliminar
-                  </AlertDialogAction>
-                </>
-              )}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </ResourcePage>
-    </>);
+        {/* CONTENIDO DE TABLA NACIONAL */}
+        <TabsContent value="nacional" className="mt-0 outline-none">
+          <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="p-0">
+              <TablaComprasNacionales />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* FOOTER DE RETORNO (Opcional) */}
+      <div className="pt-4 border-t border-slate-100">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="text-slate-500 hover:text-slate-800 gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver atrás
+        </Button>
+      </div>
+    </div>
+  )
 }

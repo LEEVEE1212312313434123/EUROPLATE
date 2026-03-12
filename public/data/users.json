@@ -2,7 +2,7 @@
   {
     "id": 1,
     "email": "admin@europlate.com",
-    "password": "admin123",
+    "password": "admin123", 
     "firstName": "Juan",
     "lastName": "Pérez",
     "profileIcon": "https://cdn-icons-png.flaticon.com/512/9131/9131529.png",
