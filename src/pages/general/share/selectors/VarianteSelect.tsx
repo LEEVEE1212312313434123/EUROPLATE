@@ -28,7 +28,7 @@ export function VarianteSelector({
             try {
 
                 const data =
-                    await productoVariantesService.obtenerVariantesPorTipo(tipo)
+                    await productoVariantesService.obtenerVariantesPorTipo()
 
                 setVariantes(data || [])
 

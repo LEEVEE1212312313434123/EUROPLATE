@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ventaService } from "@/services/general/venta.service";
 import { processDashboardMetrics, prepareChartData } from "@/services/dashboard/dashboard.adapter";
-import { StatCard } from "./StatCard";
+import { StatCard } from "../../../../components/common/Forms/Dashboard/StatCard";
 import { VisitorsBarChart } from "@/components/common/Forms/Dashboard/VisitorsBarChart";
 import { Loader2 } from "lucide-react";
 
