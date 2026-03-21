@@ -16,14 +16,28 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { Loader2, Save, PackagePlus } from "lucide-react"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
-// Notificaciones con Sonner
+import { Loader2, Save, PackagePlus, Layers } from "lucide-react"
 import { toast } from "sonner"
+
+// Mantenemos la constante para referencia o si quieres mapear en el futuro
+const TIPOS_PRODUCTO = [
+    { value: "mercaderia", label: "Mercadería" },
+    { value: "producto_terminado", label: "Producto terminado" },
+    { value: "insumo", label: "Insumo" },
+]
 
 export default function CrearProducto() {
     const [nombre, setNombre] = useState("")
     const [descripcion, setDescripcion] = useState("")
+    const [tipo, setTipo] = useState("") // Guardará: "mercaderia", "producto_terminado" o "insumo"
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -34,21 +48,29 @@ export default function CrearProducto() {
             return
         }
 
+        if (!tipo) {
+            toast.error("Debe seleccionar un tipo de producto")
+            return
+        }
+
         setLoading(true)
 
-        // Usamos toast.promise para una UX superior
-        const promise = productosService.crearProducto({ nombre, descripcion })
+        // Enviamos el objeto con el 'tipo' corregido (snake_case)
+        const promise = productosService.crearProducto({
+            nombre,
+            descripcion,
+            tipo
+        })
 
         toast.promise(promise, {
-            loading: 'Creando producto...',
+            loading: 'Configurando producto base...',
             success: () => {
                 setNombre("")
                 setDescripcion("")
-                return '¡Producto creado con éxito!'
+                setTipo("")
+                return '¡Producto base creado con éxito!'
             },
-            error: (err) => {
-                return err.message || 'Error al crear el producto'
-            },
+            error: (err) => err.message || 'Error al crear el producto',
             finally: () => setLoading(false)
         })
     }
@@ -66,12 +88,38 @@ export default function CrearProducto() {
                         Nuevo Producto Base
                     </CardTitle>
                     <CardDescription>
-                        Registra la información general para el catálogo.
+                        Define la identidad principal para que sea filtrable en variantes.
                     </CardDescription>
                 </CardHeader>
 
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
+
+                        {/* Tipo de Producto con los valores técnicos correctos */}
+                        <div className="space-y-2">
+                            <Label className="text-sm font-semibold flex items-center gap-2">
+                                <Layers className="h-4 w-4 text-slate-500" />
+                                Tipo de producto
+                            </Label>
+                            <Select
+                                value={tipo}
+                                onValueChange={setTipo}
+                                disabled={loading}
+                                required
+                            >
+                                <SelectTrigger className="focus:ring-blue-500 bg-slate-50/50">
+                                    <SelectValue placeholder="Selecciona el uso operativo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {TIPOS_PRODUCTO.map((t) => (
+                                        <SelectItem key={t.value} value={t.value}>
+                                            {t.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         {/* Input de Nombre */}
                         <div className="space-y-2">
                             <Label htmlFor="nombre" className="text-sm font-semibold">
@@ -82,7 +130,7 @@ export default function CrearProducto() {
                                 type="text"
                                 value={nombre}
                                 onChange={(e) => setNombre(e.target.value)}
-                                placeholder="Ej. Laptop Gaming Pro"
+                                placeholder="Ej. Camiseta Algodón Premium"
                                 className="focus-visible:ring-blue-500"
                                 disabled={loading}
                                 required
@@ -98,8 +146,8 @@ export default function CrearProducto() {
                                 id="descripcion"
                                 value={descripcion}
                                 onChange={(e) => setDescripcion(e.target.value)}
-                                placeholder="Indica las características generales..."
-                                className="min-h-[120px] resize-none focus-visible:ring-blue-500"
+                                placeholder="Indica características generales..."
+                                className="min-h-[100px] resize-none focus-visible:ring-blue-500"
                                 disabled={loading}
                             />
                         </div>
@@ -108,7 +156,7 @@ export default function CrearProducto() {
                     <CardFooter className="pt-2">
                         <Button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || !tipo || !nombre}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 shadow-lg shadow-blue-100 transition-all active:scale-[0.98] gap-2"
                         >
                             {loading ? (
@@ -116,7 +164,7 @@ export default function CrearProducto() {
                             ) : (
                                 <Save className="h-5 w-5" />
                             )}
-                            {loading ? "Procesando..." : "Guardar Producto"}
+                            {loading ? "Guardando..." : "Registrar Producto Maestro"}
                         </Button>
                     </CardFooter>
                 </form>
