@@ -240,5 +240,35 @@ export const productoVariantesService = {
                 valor: at.atributo_valores?.valor
             })) || []
         }));
+    },
+
+    async eliminarVariante(id: number) {
+
+        const { data: movimientos } =
+            await productoVariantesRepository.tieneMovimientos(id)
+
+        const tieneMovimientos = movimientos && movimientos.length > 0
+
+        if (tieneMovimientos) {
+
+            const { error } =
+                await productoVariantesRepository.desactivarVariante(id)
+
+            if (error) throw new Error(error.message)
+
+            return {
+                tipo: "desactivado"
+            }
+        }
+
+        const { error } =
+            await productoVariantesRepository.deleteVariante(id)
+
+        if (error) throw new Error(error.message)
+
+        return {
+            tipo: "eliminado"
+        }
+
     }
 }

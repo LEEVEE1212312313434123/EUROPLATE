@@ -192,6 +192,28 @@ export const productoVariantesRepository = {
         `)
             .eq("activo", true)
             .order("id");
+    },
+
+    async deleteVariante(id: number) {
+        return supabase
+            .from("producto_variantes")
+            .delete()
+            .eq("id", id)
+    },
+
+    async desactivarVariante(id: number) {
+        return supabase
+            .from("producto_variantes")
+            .update({ activo: false })
+            .eq("id", id)
+    },
+
+    async tieneMovimientos(varianteId: number) {
+        return supabase
+            .from("inventario_movimientos")
+            .select("id")
+            .eq("variante_id", varianteId)
+            .limit(1)
     }
 
 }

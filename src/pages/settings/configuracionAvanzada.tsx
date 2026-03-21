@@ -30,6 +30,7 @@ import AsignarAtributosProducto from "@/pages/general/AsignarAtributosProducto"
 import CrearCompra from "@/pages/general/CrearCompra"
 import VentaPOS from "@/pages/general/VentaPOS"
 import CrearNotaVenta from "@/pages/general/crearNotaVenta"
+import TablaEliminarVariantes from "@/pages/general/TablaEliminarVariantes"
 
 export default function ConfiguracionAvanzada() {
     const [activeTab, setActiveTab] = useState("general")
@@ -102,6 +103,7 @@ export default function ConfiguracionAvanzada() {
                                         <TabsTrigger value="compras" className="text-xs">Compras</TabsTrigger>
                                         <TabsTrigger value="ventas" className="text-xs">POS / Ventas</TabsTrigger>
                                         <TabsTrigger value="notas" className="text-xs">Notas</TabsTrigger>
+                                        <TabsTrigger value="Eliminar_Variantes" className="text-xs">Eliminar Variantes</TabsTrigger>
                                     </TabsList>
 
                                     {/* Panel de Productos */}
@@ -134,6 +136,11 @@ export default function ConfiguracionAvanzada() {
                                     {/* Panel de Notas */}
                                     <TabsContent value="notas" className="mt-4">
                                         <CrearNotaVenta />
+                                    </TabsContent>
+
+                                    {/* Panel de ELIMINAR VARIANTES */}
+                                    <TabsContent value="Eliminar_Variantes" className="mt-4">
+                                        <TablaEliminarVariantes />
                                     </TabsContent>
                                 </Tabs>
                             </div>
