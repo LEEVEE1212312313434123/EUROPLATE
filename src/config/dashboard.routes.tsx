@@ -184,7 +184,7 @@ export const dashboardRoutes = [
     showInSidebar: true,
   },
   {
-    title: "monedas",
+    title: "configuracion-avanzada",
     path: "/configuracion/configuracion-avanzada",
     icon: IconSettings,
     element: <ConfiguracionAvanzada />,
