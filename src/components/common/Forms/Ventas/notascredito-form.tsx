@@ -1,128 +1,48 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { ResourcePage } from "@/components/common/ResourcePage";
-import { Button } from "@/components/ui/button";
-import { Toolbar } from "@/components/common/Toolbar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { NotasCreditoTable } from "./NotasCreditoTable";
-import { NotasCreditoService } from "@/services/ventas/notas_credito.service";
-import { toast } from "sonner";
-import { NotaDetalleModal } from "@/components/common/Forms/Ventas/NotaDetalleModal";
+
+"use client"
+
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { FileText, PlusCircle } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+
+// Importación de tu tabla
+import TablaNotasCredito from "@/pages/general/share/tablas/TablaNotasCredito"
 
 export function NotasCreditoForm() {
   const navigate = useNavigate();
 
-  // Estados
-  const [loading, setLoading] = useState(true);
-  const [notas, setNotas] = useState<any[]>([]);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedNota, setSelectedNota] = useState<any | null>(null);
-  const [viewOpen, setViewOpen] = useState(false);
-  // Carga de datos
-  const fetchNotas = async () => {
-    try {
-      setLoading(true);
-      const data = await NotasCreditoService.getNotasCredito();
-      setNotas(data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al cargar las notas de crédito");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotas();
-  }, []);
-
-  // Handlers de la Tabla
-  const handleView = (nota: any) => {
-    setSelectedNota(nota);
-    setViewOpen(true);
-  };
-  const handleDeleteClick = (nota: any) => {
-    setSelectedNota(nota);
-    setDeleteOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!selectedNota) return;
-    try {
-      await NotasCreditoService.eliminarNota(selectedNota.id);
-      toast.success("Nota de crédito eliminada");
-      setDeleteOpen(false);
-      fetchNotas();
-    } catch (error) {
-      toast.error("No se pudo eliminar el documento");
-    }
-  };
-
   return (
-    <ResourcePage
-      title="Notas de Crédito"
-      subtitle="Administra todas las notas de crédito y devoluciones"
-      isLoading={loading} // CORREGIDO: Ahora usa el estado real
-      error={null}
-      headerActions={
-        <Button onClick={() => navigate("/ventas/Seleccionar-tipo-de-nota")} className="bg-rose-600 hover:bg-rose-700">
-          + Nueva Nota
+    <div className="space-y-6">
+      {/* ENCABEZADO */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <FileText className="h-6 w-6 text-orange-600" />
+            Notas de Crédito
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Gestiona las devoluciones y ajustes de comprobantes emitidos.
+          </p>
+        </div>
+
+        {/* BOTÓN A LA DERECHA */}
+        <Button
+          onClick={() => navigate("/ventas/crear-notaventa")}
+          variant="outline"
+          className="border-orange-200 hover:bg-orange-50 text-orange-700 shadow-sm gap-2 w-full md:w-auto"
+        >
+          <PlusCircle className="h-4 w-4" />
+          Nueva Nota de Venta Crédito
         </Button>
-      }
-      toolbar={
-        <Toolbar
-          filterType="all"
-          filterStatus="all"
-          searchTerm=""
-          onFilterTypeChange={() => { }}
-          onFilterStatusChange={() => { }}
-          onSearchChange={() => { }}
-          tabs={[
-            { value: "all", label: "Todas" },
-            { value: "NC01", label: "Serie NC01" },
-          ]}
-          onExport={() => { }}
-        />
-      }
-    >
-      <div className="mt-4">
-        <NotasCreditoTable
-          data={notas}
-          onDelete={handleDeleteClick}
-          onView={handleView}
-        />
       </div>
 
-      {/* AGREGAR AQUÍ */}
-      <NotaDetalleModal
-        isOpen={viewOpen}
-        onClose={() => setViewOpen(false)}
-        nota={selectedNota}
-      />
-      {/* Modal de Confirmación de Eliminación */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Eliminar Nota de Crédito</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              ¿Estás seguro de que deseas eliminar la nota <span className="font-bold text-slate-900">{selectedNota?.serie_correlativo}</span>?
-            </p>
-            <p className="text-xs text-rose-500 mt-2 italic">
-              * Esta acción no restaurará automáticamente el stock en el almacén.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
-              Confirmar Eliminación
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </ResourcePage>
+      <Separator />
+
+      {/* CONTENEDOR DE LA TABLA */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100">
+        <TablaNotasCredito />
+      </div>
+    </div>
   );
 }

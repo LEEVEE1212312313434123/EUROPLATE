@@ -7,11 +7,17 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import ProductosPage from "@/pages/productos/productos.page";
-import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
+// import AgregarProductosStep1 from "@/pages/productos/productos.add.page";
 import EditarProductosStep1 from "@/pages/productos/productos.edit.page";
 import LogisticaPage from "@/pages/logistica/logistica.page";
 import AgregarLogistica from "@/pages/logistica/logistica.addpage";
 import LogisticaAddNacional from "@/pages/logistica/LogisticaAddNational";
+
+import CrearCompra from "@/pages/general/CrearCompra"
+import VentaPOS from "@/pages/general/VentaPOS"
+import CrearNotaVenta from "@/pages/general/crearNotaVenta"
+import EnglobarCreacionProducto from "@/pages/general/englobarCreacionProducto"
+
 
 import ClientesPage from "@/pages/clientes/clientes.page";
 import EditarLogistica from "@/pages/logistica/logistica.edit";
@@ -24,6 +30,8 @@ import VentasView from "@/components/common/Ventas/VentasView";
 import { DashboardPage } from "@/pages/dashboard/dashboard.page";
 import SettingsPage from "@/pages/settings/settings.page";
 import MonedasPage from "@/pages/settings/monedas.page";
+import ConfiguracionAvanzada from "@/pages/settings/configuracionAvanzada";
+
 import TipoCambioPage from "@/pages/settings/tipo-cambio.page";
 
 export const dashboardRoutes = [
@@ -47,7 +55,7 @@ export const dashboardRoutes = [
     title: "Agregar Producto",
     path: "/products/addProducts",
     icon: IconPackage,
-    element: <AgregarProductosStep1 />,
+    element: <EnglobarCreacionProducto />,
     showInSidebar: false,
     parent: "/products",
   },
@@ -73,6 +81,14 @@ export const dashboardRoutes = [
     icon: IconTruck,
     element: <LogisticaPage />,
     showInSidebar: true,
+  },
+  {
+    title: "Compra Nacional/Importacion",
+    path: "/logistica/addbuy",
+    icon: IconPackage,
+    element: <CrearCompra />,
+    showInSidebar: false,
+    parent: "/logistica",
   },
   {
     title: "Agregar Importacion",
@@ -104,6 +120,22 @@ export const dashboardRoutes = [
     icon: IconShoppingCart,
     element: <VentasPage />,
     showInSidebar: true,
+  },
+  {
+    title: "Crear Venta",
+    path: "/ventas/crear-venta",
+    icon: IconShoppingCart,
+    element: <VentaPOS />,
+    showInSidebar: false,
+    parent: "/ventas",
+  },
+  {
+    title: "Crear Nota de Venta",
+    path: "/ventas/crear-notaventa",
+    icon: IconShoppingCart,
+    element: <CrearNotaVenta />,
+    showInSidebar: false,
+    parent: "/ventas",
   },
   {
     title: "Seleccionar tipo de nota",
@@ -150,6 +182,14 @@ export const dashboardRoutes = [
     icon: IconSettings,
     element: <SettingsPage />,
     showInSidebar: true,
+  },
+  {
+    title: "monedas",
+    path: "/configuracion/configuracion-avanzada",
+    icon: IconSettings,
+    element: <ConfiguracionAvanzada />,
+    showInSidebar: false,
+    parent: "/configuracion",
   },
   {
     title: "monedas",

@@ -1,160 +1,63 @@
 // @/components/common/Forms/Ventas/ventas-form.tsx
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { ResourcePage } from "@/components/common/ResourcePage";
-import { Button } from "@/components/ui/button";
-import { Toolbar } from "@/components/common/Toolbar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { VentasTable } from "@/components/common/Ventas/VentaTable";
-import { VentasService } from "@/services/ventas/venta.service";
-import { VentaDetalleModal } from "@/components/common/Ventas/VentaDetalleModal";
-import { DebugRepository } from "@/repository/debug/debug.repository";
+// import CrearProducto from "@/pages/general/CreateProducto"
+// import CrearVarianteProducto from "@/pages/general/CrearVarianteProducto"
+// import AtributosManager from "@/pages/general/AtributosManager"
+// import AsignarAtributosProducto from "@/pages/general/AsignarAtributosProducto"
+// import CrearCompra from "@/pages/general/CrearCompra"
+// import VentaPOS from "@/pages/general/VentaPOS"
+// import CrearNotaVenta from "@/pages/general/crearNotaVenta"
+"use client"
+
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { PlusCircle, ReceiptText } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+
+// Importación de tu tabla
+import TablaVentas from "@/pages/general/share/tablas/TablaVentas"
+
 export function VentasForm() {
   const navigate = useNavigate();
 
-  // Estados para modales
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [noteSelectorOpen, setNoteSelectorOpen] = useState(false);
-
-  // Estados para datos seleccionados
-  const [selectedVenta, setSelectedVenta] = useState<any>(null);
-
-  const handleDebug = () => {
-    DebugRepository.inspeccionarBaseDeDatos();
-  };
-  // Handlers
-  const handleView = (venta: any) => {
-    setSelectedVenta(venta);
-    setViewOpen(true);
-  };
-
-  const handleDeleteClick = (venta: any) => {
-    setSelectedVenta(venta);
-    setDeleteOpen(true);
-  };
-
-  const irANota = (tipo: 'credito' | 'debito') => {
-    setNoteSelectorOpen(false);
-    navigate(`/ventas/nota-${tipo}/${selectedVenta.id}`);
-  };
-
-  const confirmarEliminacion = async () => {
-    if (!selectedVenta) return;
-    try {
-      await VentasService.eliminarVenta(selectedVenta.id);
-      setDeleteOpen(false);
-      window.location.reload();
-    } catch (error) {
-      alert("Error al eliminar la venta");
-    }
-  };
-
   return (
-    <ResourcePage
-      title="Ventas"
-      subtitle="Administra todas las ventas y documentos de ajuste"
-      isLoading={false}
-      error={null}
-      headerActions={
-        <Button onClick={() => navigate("/ventas/add")}>
-          + Registrar venta
+    <div className="space-y-6">
+      {/* ENCABEZADO DE VENTAS */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <ReceiptText className="h-6 w-6 text-blue-600" />
+            Registro de Ventas
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Visualiza el historial de transacciones y gestiona nuevas ventas.
+          </p>
+        </div>
+
+        {/* BOTÓN A LA DERECHA */}
+        <Button
+          onClick={() => navigate("/ventas/crear-venta")}
+          className="bg-blue-600 hover:bg-blue-700 shadow-sm gap-2 w-full md:w-auto"
+        >
+          <PlusCircle className="h-4 w-4" />
+          Nueva Venta (POS)
         </Button>
-      }
-      toolbar={
-        <Toolbar
-          filterType="all"
-          filterStatus="all"
-          searchTerm=""
-          onFilterTypeChange={() => { }}
-          onFilterStatusChange={() => { }}
-          onSearchChange={() => { }}
-          tabs={[
-            { value: "all", label: "Todas" },
-            { value: "contado", label: "Contado" },
-            { value: "credito", label: "Crédito" },
-          ]}
-          selectOptions={[
-            { value: "all", label: "Todos los estados" },
-            { value: "Completado", label: "Completadas" },
-            { value: "Pendiente", label: "Pendientes" },
-            { value: "Cancelado", label: "Canceladas" },
-          ]}
-          onExport={() => { }}
-        />
-      }
-    >
-      {/* Tabla con sus acciones conectadas a los estados del padre */}
-      <VentasTable
-        showView={true}
-        showDelete={true}
-        onView={handleView}
-        onDelete={handleDeleteClick}
-      />
+      </div>
 
-      <Button onClick={handleDebug}>Inspeccionar DB</Button>
+      <Separator />
 
-      {/* 1. Modal Detalle */}
-      <VentaDetalleModal
-        ventaId={selectedVenta?.id}
-        open={viewOpen}
-        onOpenChange={setViewOpen}
-      />
+      {/* CONTENEDOR DE LA TABLA */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100">
+        <TablaVentas />
+      </div>
 
-
-      {/* 2. Modal Selector de Notas (Traspasado desde la tabla) */}
-      <Dialog open={noteSelectorOpen} onOpenChange={setNoteSelectorOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Emitir Documento de Ajuste</DialogTitle>
-            <DialogDescription>
-              Seleccione el tipo de nota para la venta <strong>#{selectedVenta?.id}</strong> de {selectedVenta?.cliente}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Button
-              variant="outline"
-              className="h-20 flex flex-col gap-1 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-all"
-              onClick={() => irANota('credito')}
-            >
-              <span className="font-bold text-blue-700">Nota de Crédito</span>
-              <span className="text-xs text-muted-foreground font-normal text-center">
-                Para devoluciones totales/parciales o descuentos.
-              </span>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="h-20 flex flex-col gap-1 border-orange-200 hover:bg-orange-50 hover:border-orange-300 transition-all"
-              onClick={() => irANota('debito')}
-            >
-              <span className="font-bold text-orange-700">Nota de Débito</span>
-              <span className="text-xs text-muted-foreground font-normal text-center">
-                Para cobros adicionales, intereses o errores de precio.
-              </span>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 3. Modal de Eliminación */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-destructive">¿Eliminar Venta?</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p>¿Estás seguro de eliminar la venta <strong>#{selectedVenta?.id}</strong>?</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Esta acción no se puede deshacer y afectará los reportes financieros.
-            </p>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={confirmarEliminacion}>Confirmar Eliminar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </ResourcePage>
+      {/* COMPONENTES COMENTADOS (Para referencia futura)
+        <CrearProducto />
+        <CrearVarianteProducto />
+        <AtributosManager />
+        <AsignarAtributosProducto />
+        <CrearCompra />
+        <CrearNotaVenta /> 
+      */}
+    </div>
   );
 }

@@ -1,5 +1,5 @@
-import { DashboardForm } from "@/components/common/Forms/Dashboard/dashboard-form";
-import { DashboardComprasForm } from "@/components/common/Forms/Dashboard/dashboard-buy-form";
+import DashboardForm from "@/components/common/Forms/Dashboard/dashboard-form";
+import DashboardComprasForm from "@/components/common/Forms/Dashboard/dashboard-buy-form";
 import { TABS_CONFIG } from "@/config/tabs.config";
 import { DashboardTabs } from "@/components/common/Dashboards/dashboard-tabs";
 import { useQueryTabs } from "@/hooks/useQueryTabs";

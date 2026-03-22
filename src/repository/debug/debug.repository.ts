@@ -1,59 +1,60 @@
+// @/repository/debug/debug.repository.ts
 import { supabase } from "@/lib/supabaseClient";
 
 export class DebugRepository {
     /**
-     * Obtiene todos los datos de las tablas principales y los imprime con formato
+     * Obtiene todos los datos de TODAS las tablas de la base de datos
      */
     static async inspeccionarBaseDeDatos() {
-        console.group("🔍 INSPECCIÓN TOTAL DE BASE DE DATOS");
-
         const tablas = [
             "almacenes",
             "clientes",
+            "compra_nacional_adjuntos",
+            "compra_nacional_productos",
+            "compras_nacionales",
             "comprobante_series",
             "documento_ajuste_detalles",
             "documentos_ajuste",
+            "estado_compras_nacionales",
             "estado_importaciones",
             "importacion_adjuntos",
             "importacion_productos",
             "importaciones",
             "materiales",
+            "monedas",
             "precios",
             "productos",
+            "proveedores",
+            "sucursales",
+            "tipo_cambio",
             "venta_productos",
-            "ventas",
+            "ventas"
         ];
 
-        const resultadoFinal = {};
+        const resultadoFinal: Record<string, { data: any[]; error: string | null; count: number }> = {};
+
         try {
-            // Ejecutamos todas las consultas al mismo tiempo
             const resultados = await Promise.all(
                 tablas.map(tabla => supabase.from(tabla).select("*"))
             );
 
             tablas.forEach((nombreTabla, index) => {
                 const { data, error } = resultados[index];
-
-                if (error) {
-                    resultadoFinal[nombreTabla] = {
-                        error: error.message,
-                        data: []
-                    };
-                } else {
-                    resultadoFinal[nombreTabla] = {
-                        error: null,
-                        data: data || []
-                    };
-                }
+                resultadoFinal[nombreTabla] = {
+                    error: error ? error.message : null,
+                    data: data || [],
+                    count: data ? data.length : 0
+                };
             });
 
-        } catch (err) {
+            console.group("🔍 INSPECCIÓN TOTAL DE BASE DE DATOS");
+            console.log(resultadoFinal);
+            console.groupEnd();
+
+            return resultadoFinal;
+        } catch (err: any) {
             console.error("Error crítico durante la inspección:", err);
-            return { error: "Error crítico durante la inspección", details: err };
+            throw err;
         }
-        console.log(resultadoFinal);
-        return resultadoFinal;
-
-
     }
 }
