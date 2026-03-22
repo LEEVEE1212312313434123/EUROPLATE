@@ -74,7 +74,13 @@ export default function DashboardComprasForm() {
                 </div>
 
                 <div className="h-[400px]">
-                    <VisitorsBarChart externalData={data.chart} />
+                    <VisitorsBarChart
+                        externalData={data.chart}
+                        title="Compras Registradas"
+                        description="Total invertido por día"
+                        tooltipLabel="Inversión del día"
+                        barLabel="Compras (S/)"
+                    />
                 </div>
             </div>
         </div>

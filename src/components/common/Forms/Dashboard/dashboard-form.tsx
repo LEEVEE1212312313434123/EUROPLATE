@@ -55,7 +55,13 @@ export default function DashboardForm() {
           <h2 className="text-lg font-bold text-slate-800">Flujo de Ingresos</h2>
           <p className="text-sm text-slate-500">Monto total vendido por día</p>
         </div>
-        <VisitorsBarChart externalData={data.chart} />
+        <VisitorsBarChart
+          externalData={data.chart}
+          title="Ventas Registradas"
+          description="Total vendido por día"
+          tooltipLabel="ganancia del día"
+          barLabel="Compras (S/)"
+        />
       </div>
     </div>
   );

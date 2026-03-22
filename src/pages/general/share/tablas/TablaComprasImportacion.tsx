@@ -41,36 +41,67 @@ export default function TablaComprasImportacion() {
                             <TableHead className="text-amber-900">Proveedor / Origen</TableHead>
                             <TableHead className="text-amber-900">Ruta (Puerto O/D)</TableHead>
                             <TableHead className="text-amber-900">Incoterm</TableHead>
+
+                            {/* NUEVA COLUMNA: CANTIDAD PRODUCTOS */}
+                            <TableHead className="text-center text-amber-900">Productos</TableHead>
+
+                            {/* MONTO ORIGINAL */}
                             <TableHead className="text-right text-amber-900">Monto Orig.</TableHead>
-                            {/* NUEVA COLUMNA: TOTAL EN SOLES */}
+
+                            {/* TOTAL */}
                             <TableHead className="text-right text-amber-900 font-bold">Total (S/)</TableHead>
+
+                            {/* NUEVA COLUMNA: TOTAL IMPORTACION */}
+                            <TableHead className="text-right text-amber-900 font-bold">Total Importación</TableHead>
+
                             <TableHead className="text-center text-amber-900">Llegada</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            <TableRow><TableCell colSpan={7} className="text-center py-10"><Loader2 className="animate-spin mx-auto text-amber-600" /></TableCell></TableRow>
+                            <TableRow><TableCell colSpan={9} className="text-center py-10"><Loader2 className="animate-spin mx-auto text-amber-600" /></TableCell></TableRow>
                         ) : compras.length === 0 ? (
-                            <TableRow><TableCell colSpan={7} className="text-center py-10 text-muted-foreground">No hay importaciones registradas.</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={9} className="text-center py-10 text-muted-foreground">No hay importaciones registradas.</TableCell></TableRow>
                         ) : compras.map((c) => {
-                            // Lógica de conversión:
-                            // Si moneda_id === 2 (Dólares), multiplicamos por tipo_cambio. 
-                            // Si no, usamos el total directamente.
-                            const totalSoles = c.moneda_id === 2
-                                ? (Number(c.total || 0) * Number(c.tipo_cambio || 1))
-                                : Number(c.total || 0);
+
+                            const tipoCambio = Number(c.tipo_cambio || 1)
+
+                            // Monto original en dólares
+                            const montoOriginal = tipoCambio ? Number(c.total || 0) / tipoCambio : Number(c.total || 0)
+
+                            // Total en soles
+                            const totalSoles = Number(c.total || 0)
+
+                            // Cantidad total de productos
+                            const cantidadProductos = c.compra_detalles?.reduce(
+                                (acc: number, d: any) => acc + Number(d.cantidad || 0),
+                                0
+                            ) || 0
+
+                            // Costos de importación en dólares
+                            const costoFlete = Number(c.importaciones?.costo_flete || 0)
+                            const costoSeguro = Number(c.importaciones?.costo_seguro || 0)
+                            const costoAduana = Number(c.importaciones?.costo_aduana || 0)
+
+                            // Convertidos a soles
+                            const costosImportacionSoles =
+                                (costoFlete + costoSeguro + costoAduana) * tipoCambio
+
+                            const totalImportacion = totalSoles + costosImportacionSoles
 
                             return (
                                 <TableRow key={c.id} className="hover:bg-amber-50/20 border-amber-50">
                                     <TableCell className="font-medium text-slate-700">
                                         {c.fecha ? new Date(c.fecha).toLocaleDateString() : '---'}
                                     </TableCell>
+
                                     <TableCell>
                                         <div className="flex flex-col">
                                             <span className="font-bold text-slate-900">{c.proveedores?.nombre}</span>
                                             <span className="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">{c.proveedores?.pais}</span>
                                         </div>
                                     </TableCell>
+
                                     <TableCell>
                                         <div className="flex items-center gap-2 text-xs text-slate-600">
                                             <span className="bg-white border px-1.5 py-0.5 rounded shadow-sm">{c.importaciones?.puerto_origen || 'N/A'}</span>
@@ -78,27 +109,46 @@ export default function TablaComprasImportacion() {
                                             <span className="bg-white border px-1.5 py-0.5 rounded shadow-sm">{c.importaciones?.puerto_destino || 'N/A'}</span>
                                         </div>
                                     </TableCell>
+
                                     <TableCell>
                                         <Badge className="bg-amber-600 hover:bg-amber-700 text-white border-none">
                                             {c.importaciones?.incoterm || 'FOB'}
                                         </Badge>
                                     </TableCell>
+
+                                    {/* CANTIDAD PRODUCTOS */}
+                                    <TableCell className="text-center font-semibold">
+                                        {cantidadProductos}
+                                    </TableCell>
+
+                                    {/* MONTO ORIGINAL */}
                                     <TableCell className="text-right">
                                         <div className="flex flex-col">
                                             <span className="font-medium text-slate-600">
-                                                {c.moneda_id === 2 ? '$' : 'S/'} {Number(c.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                $ {montoOriginal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                             </span>
-                                            {c.moneda_id === 2 && c.tipo_cambio && (
+                                            {c.tipo_cambio && (
                                                 <span className="text-[10px] text-slate-400 text-right italic">T.C. {c.tipo_cambio}</span>
                                             )}
                                         </div>
                                     </TableCell>
-                                    {/* CELDA: TOTAL EN SOLES CALCULADO */}
+
+                                    {/* TOTAL */}
                                     <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1 text-amber-900 font-bold">
                                             <span>S/ {totalSoles.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
                                     </TableCell>
+
+                                    {/* TOTAL IMPORTACION */}
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-1 font-bold text-slate-900">
+                                            <span>
+                                                S/ {totalImportacion.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+
                                     <TableCell className="text-center">
                                         {c.importaciones?.fecha_llegada ? (
                                             <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs font-medium border border-green-100">

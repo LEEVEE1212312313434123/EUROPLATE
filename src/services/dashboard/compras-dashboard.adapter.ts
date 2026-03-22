@@ -1,48 +1,37 @@
 import { format, isToday, parseISO } from "date-fns";
 
 export function processComprasMetrics(compras: any[]) {
-    // Función auxiliar para convertir a soles
-    const calcularEnSoles = (monto: number, tipoCambio: number | null, monedaId: number | null) => {
-        // Asumiendo que moneda_id 1 es Soles y 2 es Dólares (ajusta según tu tabla monedas)
-        if (monedaId === 2 && tipoCambio) {
-            return monto * tipoCambio;
-        }
-        return monto;
-    };
 
-    // 1. Inversión Mercadería (Total acumulado en Soles)
+    // 1. Inversión Mercadería (ya está en SOLES)
     const inversionTotalSoles = compras.reduce((acc, c) => {
-        const totalSoles = calcularEnSoles(Number(c.total || 0), c.tipo_cambio, c.moneda_id);
-        return acc + totalSoles;
+        return acc + Number(c.total || 0);
     }, 0);
 
     // 2. Inversión Hoy
     const comprasHoy = compras.filter(c => isToday(parseISO(c.fecha)));
     const inversionHoySoles = comprasHoy.reduce((acc, c) => {
-        const totalSoles = calcularEnSoles(Number(c.total || 0), c.tipo_cambio, c.moneda_id);
-        return acc + totalSoles;
+        return acc + Number(c.total || 0);
     }, 0);
 
-    // 3. Gastos Logísticos (Fletes, Seguros, Aduanas)
-    // Nota: Estos costos en la tabla 'importaciones' suelen estar ya en la moneda local o deben convertirse
+    // 3. Gastos Logísticos (estos sí están en dólares)
     const gastosLogiticosSoles = compras.reduce((acc, c) => {
-        // Obtenemos los datos de importación (manejando si viene como objeto o array)
-        const imp = Array.isArray(c.importaciones) ? c.importaciones[0] : c.importaciones;
+        const imp = Array.isArray(c.importaciones)
+            ? c.importaciones[0]
+            : c.importaciones;
 
         if (imp) {
-            // Sumamos los 3 conceptos en su moneda original (USD)
-            const sumaCostosUSD = Number(imp.costo_flete || 0) +
+            const sumaCostosUSD =
+                Number(imp.costo_flete || 0) +
                 Number(imp.costo_seguro || 0) +
                 Number(imp.costo_aduana || 0);
 
-            // Usamos el tipo_cambio de la tabla 'compras' para pasar a Soles
-            // Si la moneda es 2 (Dólares) y existe tipo_cambio, multiplicamos.
-            const conversionASoles = (c.moneda_id === 2 && c.tipo_cambio)
-                ? (sumaCostosUSD * Number(c.tipo_cambio))
+            const conversionASoles = c.tipo_cambio
+                ? sumaCostosUSD * Number(c.tipo_cambio)
                 : sumaCostosUSD;
 
             return acc + conversionASoles;
         }
+
         return acc;
     }, 0);
 
@@ -91,12 +80,11 @@ export function prepareComprasChartData(compras: any[]) {
 
     compras.forEach((c) => {
         const dateKey = format(parseISO(c.fecha), "yyyy-MM-dd");
+
         if (!groups[dateKey]) groups[dateKey] = 0;
 
-        // El gráfico también debe mostrarse en SOLES para ser comparativo
-        const monto = (c.moneda_id === 2 && c.tipo_cambio)
-            ? Number(c.total || 0) * c.tipo_cambio
-            : Number(c.total || 0);
+        // total ya está en soles
+        const monto = Number(c.total || 0);
 
         groups[dateKey] += monto;
     });
